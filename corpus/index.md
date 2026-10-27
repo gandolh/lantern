@@ -1,6 +1,6 @@
 # Index
 
-The front door to Matinee's work tracker. Rules: [CLAUDE.md](CLAUDE.md). Where every brief
+The front door to Lantern's work tracker. Rules: [CLAUDE.md](CLAUDE.md). Where every brief
 stands: [wiki/status.md](wiki/status.md). History: [log.md](log.md).
 
 - [briefs/todo/](briefs/todo/): open work specs

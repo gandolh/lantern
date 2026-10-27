@@ -1,4 +1,4 @@
-# corpus: briefs and work log for Matinee
+# corpus: briefs and work log for Lantern
 
 This folder tracks work as numbered briefs, the way the owner's other repos do (the corpus-flow
 skill). It was started on 2026-10-27, before any code, and is deliberately small. A routing
