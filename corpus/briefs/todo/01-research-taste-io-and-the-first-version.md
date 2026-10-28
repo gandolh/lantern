@@ -3,6 +3,12 @@
 **Research only, not grilled yet.** Filed 2026-10-27. Nothing is built; this brief ends in a
 proposed first version for the owner to grill.
 
+**Stopped 2026-10-28, partly done.** The session ran out during step 1. Done: taste.io's layout
+(Wayback index) and features (news coverage), and the owner's stack, in
+[wiki/research.md](../../wiki/research.md). Left: the rest of step 1, then steps 2-5; the page's
+"Where it stopped" lists them. The run's rules forbade registering keys, so the TMDB and OMDb
+calls in step 2 wait for the owner.
+
 ## Context
 
 The owner, 2026-10-27: "I want something like https://www.taste.io/. Something where you can pick

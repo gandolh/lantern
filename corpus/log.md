@@ -12,3 +12,13 @@ is research and ends in a proposed first version; the grill comes when work star
 The folder started as "matinee", a working name. The owner picked Lantern the same day, in line
 with the other apps' names (satchel, postern, atrium, almanac): the magic lantern was the
 projector before cinema.
+
+## [2026-10-28] research | Brief 01 started, stopped partway
+
+A full-auto run started brief 01 and stopped when the session ran out. taste.io answers every
+direct read with a Cloudflare check, so its layout came from the Wayback Machine's index and its
+features (four-step scale awful/meh/good/amazing, about 20 ratings before suggestions, a match %,
+streaming filter) from news coverage. The owner's stack was read from Shelfmark. Findings and a
+starting grill list are in [wiki/research.md](wiki/research.md); the data sources, suggestion
+methods, rating scales and the proposal are left. No key was registered or used. The brief stays
+in todo/ with a note.
