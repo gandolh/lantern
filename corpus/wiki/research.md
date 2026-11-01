@@ -62,7 +62,7 @@ season), and whether there is a paid tier.
 ## The owner's usual stack (read from Shelfmark, 2026-10-28)
 
 Read only, to describe the stack; nothing is shared with Shelfmark. Shelfmark
-(`../shelfmark`, `package.json` files and `corpus/wiki/architecture.md`):
+(`shelfmark`, `package.json` files and `corpus/wiki/architecture.md`):
 
 - npm workspaces `shared`, `server`, `web`; Node 24 or later; TypeScript strict; exact versions;
   Vitest; ESLint.
@@ -71,7 +71,7 @@ Read only, to describe the stack; nothing is shared with Shelfmark. Shelfmark
 - `web`: Vite and React 19, a PWA (vite-plugin-pwa, Workbox), Base UI components.
 - Sign-in: a vendored `ward-auth` Fastify plugin, local login plus "Sign in with Ward".
 - Deploy: a container behind Caddy on the shared VPS, the app at `/<app>/*` and the API at
-  `/<app>-api/*`, deployed by `../vps-deploy`. Deploys are the owner's.
+  `/<app>-api/*`, deployed by `vps-deploy`. Deploys are the owner's.
 - Shelfmark's lookup-then-confirm flow: a lookup returns a draft from the cache or the outside
   sources, the user edits and saves it. Lantern could copy the pattern (search a title, confirm
   it, then rate) without sharing code or data.
