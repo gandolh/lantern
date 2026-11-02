@@ -22,3 +22,10 @@ streaming filter) from news coverage. The owner's stack was read from Shelfmark.
 starting grill list are in [wiki/research.md](wiki/research.md); the data sources, suggestion
 methods, rating scales and the proposal are left. No key was registered or used. The brief stays
 in todo/ with a note.
+
+## [2026-11-02] maintenance | Briefs reset
+
+Part of an estate-wide reset in which every repo folded its done briefs into its wiki and restarted
+numbering at 01. Lantern had none done, so brief 01 keeps its number. [wiki/status.md](wiki/status.md)
+gives a dated line per area instead of one per brief, and [CLAUDE.md](CLAUDE.md) gains the rule that
+code comments don't cite brief numbers.
