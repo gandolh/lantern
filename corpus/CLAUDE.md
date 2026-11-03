@@ -32,3 +32,8 @@ corpus/
   from them, but no shared data or cross-app features unless the owner asks.
 - Never write the production domain, an API key or a password into the repo. Keys are named by
   their `.env` variable.
+
+## brief-board
+
+Brief progress goes on brief-board. Run `brief-board guide` before you
+start or resume a brief, and follow it.
