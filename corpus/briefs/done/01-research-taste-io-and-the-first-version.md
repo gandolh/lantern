@@ -66,3 +66,25 @@ be worth copying. This app stays independent of it (see [CLAUDE.md](../../CLAUDE
   read) and the real calls' results summed up in words.
 - The proposal fits on one page and ends in the grill's question list.
 - No key, password or production domain is written anywhere in the repo.
+
+## Outcome (2026-11-04)
+
+Closed after the owner's grill on 2026-11-04, which answered the question list directly instead
+of waiting for a written proposal. Where things landed:
+
+- **taste.io** ([research.md](../../wiki/research.md)): the site map and the feature list from
+  2026-10-28 stand; the archived pages were never read, since the grill made the open points
+  (friends, the paid tier, series handling) moot.
+- **Data sources** ([sources.md](../../wiki/sources.md)): TMDB for everything, OMDb for the
+  scores. The endpoints the build needs, image sizes, the two key forms, the rate limit and the
+  attribution, read in their docs on 2026-11-04 with links. No real call was made: the keys
+  weren't in `.env` yet, so the shapes the docs leave open are marked "check" and are checked
+  in brief 07. Wikidata, the IMDb datasets, TVmaze, Trakt and JustWatch were dropped.
+- **Suggestions**: TMDB's recommendations for titles rated good or amazing, ranked by a plain
+  taste profile, with reasons. Collaborative filtering, MovieLens and the match % were dropped.
+- **Rating**: taste.io's four steps, plus not interested and want to watch as states; the scale
+  comparison was dropped.
+- **The proposal** became [overview.md](../../wiki/overview.md) (the first version on one page)
+  and [decisions.md](../../wiki/decisions.md) (the grill's answers with what was rejected), plus
+  [glossary.md](../../wiki/glossary.md). The build is briefs 02 to 11.
+- The corpus gained Wicket's `lint.sh` and a generated index.

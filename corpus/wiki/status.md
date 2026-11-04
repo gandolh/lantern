@@ -1,27 +1,27 @@
 ---
-summary: Where Lantern stands on 2026-11-04. No code yet; pushed to GitHub through 2026-10-28; the one open brief, 01, research on taste.io, film data and suggestions, is partly done with findings in research.md and waits for the owner's TMDB and OMDb keys.
+summary: Where Lantern stands, per area, as of 2026-11-04. Brief 01 (research) closed after the owner's grill; the first version is written as briefs 02-11 (skeleton, sign-in, states, the TMDB and OMDb clients, the container and owner setup, then the key-needing search and title page, lists, rating cards, suggestions, README). No code yet. The owner's next steps.
 updated: 2026-11-04
 ---
 
-# Status: 2026-11-04
+# Status
 
-No code yet. `main` is on GitHub (`<owner>/lantern`) through `5627a0e` (2026-10-28). Brief
-numbering is unchanged by the estate's 2026-11-02 reset: 01 was the only brief.
+_2026-11-04_. Brief 01 is done: the owner settled the first version in a grill
+([decisions.md](decisions.md)), and it is written as briefs 02 to 11
+([overview.md](overview.md), "The build"). No code yet. The owner pushes; nothing here is
+deployed.
 
 ## By area
 
-- **Research** (started 2026-10-28, partial). taste.io's layout and features, and the owner's
-  stack read from Shelfmark, are in [research.md](research.md). Left: the film data sources, the
-  suggestion methods, the rating scales and the proposed first version.
+- **Research** (2026-10-28 to 2026-11-04, done). taste.io and the stack in
+  [research.md](research.md); TMDB and OMDb, their endpoints and terms, in
+  [sources.md](sources.md). No real call made yet.
 
-## Open
+## Open briefs
 
-- [01](../briefs/todo/01-research-taste-io-and-the-first-version.md) (filed 2026-10-27, not
-  grilled; started 2026-10-28, stopped after part of step 1): Research taste.io, the film data and
-  the suggestions, and propose the first version.
+02 to 11, in `briefs/todo/`, run in number order. 02 to 06 need no key; 07 opens with the first
+real TMDB and OMDb calls.
 
 ## Next (owner)
 
-- Register a TMDB account and an OMDb key, and put them in the local `.env` as `TMDB_API_KEY`
-  and `OMDB_API_KEY` (decided 2026-11-04). Brief 01's research resumes after that; the terms
-  read that day are in [research.md](research.md), "Keys and terms".
+- Create `.env` from `.env.example` and fill `TMDB_API_KEY` and `OMDB_API_KEY` (registered on
+  2026-11-04). Either TMDB value works: the API key or the API Read Access Token.
