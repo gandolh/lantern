@@ -77,3 +77,14 @@ no Ward lines yet. See [wiki/sign-in.md](wiki/sign-in.md) and
 owner's ratings. Routes to set, clear, list (newest first, cursor-paged) and count, and to skip
 and unskip. See [wiki/data-model.md](wiki/data-model.md) and
 [briefs/done/04-states-store.md](briefs/done/04-states-store.md).
+
+## [2026-11-04] done | Brief 05: the TMDB and OMDb clients, the cache, the poster proxy
+
+The server's door to the sources: one queue per source, single flight, a 429 retry, errors that
+never carry a key, and TMDB's key read as either kind. Lenient readers keep only what Lantern
+shows or scores. The cache serves fresh rows, refreshes stale ones on use, and never serves
+TMDB data past 180 days; OMDb answers are kept once found. Posters come through
+`/v1/images/:size/:file`. Built and tested on hand-written fixtures only: the live check,
+`npm run sources:check -w @lantern/server`, waits for the keys. See
+[wiki/source-calls.md](wiki/source-calls.md) and
+[briefs/done/05-tmdb-and-omdb-clients.md](briefs/done/05-tmdb-and-omdb-clients.md).

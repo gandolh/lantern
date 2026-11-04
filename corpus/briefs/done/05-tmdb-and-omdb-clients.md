@@ -68,3 +68,29 @@ Depends on 02 (and 03 for the image route's guard).
   freshness, the stale-then-refresh path and the 180-day cut; OMDb's not-found and refusal
   rules; the poster proxy's allowlist and limits; `503 no_key` without keys.
 - No real TMDB or OMDb call is made.
+
+## Outcome (2026-11-04)
+
+Built as specified, on hand-written fixtures; no real TMDB or OMDb call was made. How it works:
+[source-calls.md](../../wiki/source-calls.md); the tables: [data-model.md](../../wiki/data-model.md).
+
+- **Stale rows are refreshed on use, not in the background.** The brief said "served while a
+  fresh one is fetched on the next use"; the build awaits the refresh instead, and serves the
+  stale row only when the refresh fails. One wait now and then, and no work after a response
+  ends, which keeps to "no background work".
+- **The poster proxy refuses redirects** and anything but JPEG, PNG or WebP, on top of the size
+  and time caps.
+- **`GET /v1/sources`** (which keys are set, as booleans) was added for the page to explain a
+  missing key. **`sourceFailure`** maps no key, a title TMDB doesn't have, and a source's
+  failure to 503, 404 and 502 for the routes of brief 07 onward.
+- **A series' runtime** falls back to its last episode's runtime when `episode_run_time` is
+  empty.
+- **The live check** (`npm run sources:check -w @lantern/server`) makes four calls and can save
+  the raw answers outside the repo (`--save`); it refuses a folder inside it.
+
+Checks: `npm run typecheck`, `npm run lint`, `npm test` (13 files, 85 tests; 46 new: the
+readers on each fixture, the OMDb reader and client, the TMDB client's key forms, requests, 429
+retry and key-free errors, the queue's spacing and single flight, the cache's freshness, stale
+fallback, 180-day cut and hourly purge, summaries' budget, OMDb's caching rules, the poster
+proxy's allowlist and limits, `/v1/sources`, the error mapping, and the key settings). No page
+changes, so no browser walk.

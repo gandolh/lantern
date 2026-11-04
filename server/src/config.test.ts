@@ -12,6 +12,8 @@ describe("loadConfig", () => {
       webBase: "/lantern/",
       ward: undefined,
       trustedProxies: [],
+      tmdbApiKey: undefined,
+      omdbApiKey: undefined,
     });
   });
 
@@ -42,7 +44,24 @@ describe("loadConfig", () => {
       webBase: "/films/",
       ward: undefined,
       trustedProxies: ["10.0.0.0/8", "172.16.0.1"],
+      tmdbApiKey: undefined,
+      omdbApiKey: undefined,
     });
+  });
+
+  it("reads the keys trimmed, and never repeats one in an error", () => {
+    const config = loadConfig({ TMDB_API_KEY: " tmdb-test-key ", OMDB_API_KEY: "omdb-test-key" });
+    expect(config.tmdbApiKey).toBe("tmdb-test-key");
+    expect(config.omdbApiKey).toBe("omdb-test-key");
+    expect(loadConfig({ TMDB_API_KEY: "", OMDB_API_KEY: "  " }).tmdbApiKey).toBeUndefined();
+    let message = "";
+    try {
+      loadConfig({ TMDB_API_KEY: "two words-secret-ish" });
+    } catch (error) {
+      message = (error as Error).message;
+    }
+    expect(message).toMatch(/^TMDB_API_KEY must be one value/);
+    expect(message).not.toContain("secret-ish");
   });
 
   it("names every variable at fault, one line each", () => {

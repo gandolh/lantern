@@ -1,0 +1,15 @@
+{
+  "Title": "Inception",
+  "Year": "2010",
+  "Ratings": [
+    { "Source": "Internet Movie Database", "Value": "8.8/10" },
+    { "Source": "Rotten Tomatoes", "Value": "87%" },
+    { "Source": "Metacritic", "Value": "74/100" }
+  ],
+  "Metascore": "74",
+  "imdbRating": "8.8",
+  "imdbVotes": "2,600,000",
+  "imdbID": "tt1375666",
+  "Type": "movie",
+  "Response": "True"
+}

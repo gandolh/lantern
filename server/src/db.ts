@@ -33,6 +33,23 @@ export const MIGRATIONS: string[] = [
     PRIMARY KEY (user_id, media_type, tmdb_id)
   ) WITHOUT ROWID;
   `,
+  // The cache of what TMDB and OMDb answered, already trimmed by the readers.
+  // TMDB's rows are deleted once 180 days old (its terms allow six months);
+  // OMDb's found answers are kept, since a title's scores are asked once.
+  `
+  CREATE TABLE tmdb_cache (
+    key TEXT PRIMARY KEY,
+    body TEXT NOT NULL,
+    fetched_at INTEGER NOT NULL
+  );
+  CREATE INDEX tmdb_cache_by_age ON tmdb_cache (fetched_at);
+  CREATE TABLE omdb_cache (
+    imdb_id TEXT PRIMARY KEY,
+    outcome TEXT NOT NULL CHECK (outcome IN ('found', 'not_found')),
+    body TEXT NOT NULL,
+    fetched_at INTEGER NOT NULL
+  );
+  `,
 ];
 
 function migrate(db: Db, migrations: readonly string[]): void {

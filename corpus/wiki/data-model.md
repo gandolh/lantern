@@ -1,5 +1,5 @@
 ---
-summary: What Lantern keeps in its one SQLite file, as built from 2026-11-04. The owner's own data (title_states: one state per user and title; card_skips) holds no TMDB facts, so TMDB's six-month cache rule never touches it; ward-auth's own tables; the migrations under PRAGMA user_version; the states routes and the rules they follow (one state at a time, a state drops a skip, every query scoped to the user, paging by a cursor).
+summary: What Lantern keeps in its one SQLite file, as built from 2026-11-04. The owner's own data (title_states: one state per user and title; card_skips) holds no TMDB facts, so TMDB's six-month cache rule never touches it; the source cache (tmdb_cache, deleted at 180 days; omdb_cache); ward-auth's own tables; the migrations under PRAGMA user_version; the states routes and the rules they follow (one state at a time, a state drops a skip, every query scoped to the user, paging by a cursor).
 updated: 2026-11-04
 ---
 
@@ -26,9 +26,23 @@ never reaches the ratings, and a rating made today is still there in ten years.
 Times are epoch milliseconds. `user_id` is ward-auth's user id; there is no foreign key to
 `auth_users`, because the library creates that table after Lantern's migrations run.
 
+## The cache
+
+What TMDB and OMDb answered, already trimmed by the readers; how it is used is in
+[source-calls.md](source-calls.md).
+
+| Table | Key | Columns |
+|---|---|---|
+| `tmdb_cache` | `key` (`v1:details:movie:603`, `v1:search:1:inception`, `v1:list:popular:tv:2`, `v1:genres:movie`) | `body` (JSON), `fetched_at` |
+| `omdb_cache` | `imdb_id` | `outcome` (`found` or `not_found`), `body` (the scores, JSON), `fetched_at` |
+
+`tmdb_cache` rows are deleted once 180 days old, under TMDB's six months. The key's `v1` is the
+readers' version: a reader that changes shape bumps it, and old rows simply stop matching.
+
 ## The rules
 
-All in [states.ts](../../server/src/states.ts), the only module that runs SQL on these tables:
+All in [states.ts](../../server/src/states.ts), the only module that runs SQL on `title_states`
+and `card_skips`:
 
 - A title has at most one state per user: `awful`, `meh`, `good`, `amazing`, `not_interested`
   or `want_to_watch`. Setting one replaces the one before, so rating a title on the watchlist

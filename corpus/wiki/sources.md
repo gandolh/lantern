@@ -6,7 +6,8 @@ updated: 2026-11-04
 # Sources: TMDB and OMDb
 
 Lantern's only outside sources. Every call is made by the server, through a queue and a cache;
-the browser never calls either one ([decisions.md](decisions.md)). Read on 2026-11-04 from the
+the browser never calls either one ([decisions.md](decisions.md)). How the server calls them,
+as built: [source-calls.md](source-calls.md). Read on 2026-11-04 from the
 docs linked below; no real call has been made yet, so the shapes marked "check" are from the
 docs or from the list shape, and get checked against the first real answers.
 
