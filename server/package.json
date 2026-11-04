@@ -1,0 +1,24 @@
+{
+  "name": "@lantern/server",
+  "version": "0.1.0",
+  "description": "The Lantern API (Fastify + SQLite); it also serves the built page.",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -b",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@fastify/static": "10.1.5",
+    "@lantern/shared": "0.1.0",
+    "better-sqlite3": "13.0.3",
+    "fastify": "5.12.7",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "9.6.0",
+    "tsx": "4.23.13"
+  }
+}

@@ -58,3 +58,23 @@ See [decisions.md](../../wiki/decisions.md), "The estate's stack" and "On the VP
 - `npm run dev` serves the page at <http://localhost:5180/lantern/> and the health answer through
   the proxy. A short browser walk at phone and desktop widths moves between the sections.
 - No key, password, machine path or domain in the repo.
+
+## Outcome (2026-11-04)
+
+Built as specified; how it fits together is in [architecture.md](../../wiki/architecture.md).
+
+- **Versions** are Wicket's exact pins. `npm audit` reports the same moderate advisories Wicket
+  has, through `@fastify/static` 10.1.5 (its `glob` and `minimatch`); the fix, 10.1.9, wasn't
+  two weeks old on 2026-11-04, so it waits (a line in status.md). In production Caddy serves the
+  page and `@fastify/static` isn't reached.
+- **The database** opens with an empty migration list; the first table comes with the states.
+- **The router** reads `/lantern/search?q=` from the address, and an unknown path or a bad id
+  (`/lantern/movie/0`) is "not found". The page's title follows the section.
+- **No `LICENSE`**: the repo is public, but choosing a licence is the owner's call (Wicket is
+  MIT). The vendored ward-auth will carry its own.
+
+Checks: `npm run typecheck`, `npm run lint`, `npm test` (5 files, 16 tests: settings, the
+database's migrations, health with and without the prefix, the built page and its fallback, the
+router round trip, the shell). `npm run dev` with a scratch database: health through the proxy;
+a browser walk at 1280 px and at 412 x 915 moved between the sections with the top bar and the
+tab bar, Back, and a reload on `/lantern/tv/1399`.

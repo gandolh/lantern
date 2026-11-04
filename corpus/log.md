@@ -50,3 +50,12 @@ cache rule. Recorded in [wiki/decisions.md](wiki/decisions.md), with
 docs were read for the endpoints the build needs ([wiki/sources.md](wiki/sources.md)); no real
 call yet. Briefs 02 to 11 written, ordered so 02-06 need no key. The corpus gained a lint script.
 See [briefs/done/01-research-taste-io-and-the-first-version.md](briefs/done/01-research-taste-io-and-the-first-version.md).
+
+## [2026-11-04] done | Brief 02: the skeleton
+
+npm workspaces `shared`, `server` and `web` on Wicket's pins. The server reads its settings
+(port 8810, `/lantern-api`, `/lantern/`), opens the SQLite file with versioned migrations, and
+answers `GET /v1/health`; the page has its frame (top bar on wide screens, tab bar on the phone)
+and five placeholder sections on Vite's port 5180. Walked in a browser at desktop and phone
+widths. See [briefs/done/02-skeleton.md](briefs/done/02-skeleton.md) and
+[wiki/architecture.md](wiki/architecture.md).
