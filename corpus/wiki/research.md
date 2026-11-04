@@ -1,6 +1,6 @@
 ---
 summary: Brief 01's research, partial. Stopped on 2026-10-28 after step 1 (taste.io) was only half done and the owner's stack was read from Shelfmark. taste.io is behind a Cloudflare check that blocked every direct read; what is known comes from news coverage and the Wayback Machine's index. Steps 2-5 (data sources, suggestions, rating, the proposal) are not started.
-updated: 2026-10-28
+updated: 2026-11-04
 ---
 
 # Research: taste.io, film data and suggestions (partial)
@@ -107,4 +107,24 @@ A starting list, from the brief and the coverage above; the proposal will sharpe
 - Local only, or deployed with Ward sign-in?
 - Keep taste.io's four steps (awful, meh, good, amazing) plus "not interested", or another scale?
 - Show where to stream in Romania in the first version, or later?
-- May the owner register a TMDB key, and does TMDB's attribution fit the design?
+- ~~May the owner register a TMDB key?~~ Answered 2026-11-04: the owner registers both a TMDB
+  and an OMDb key (see "Keys and terms" below); the research resumes once they are in `.env`.
+- Does TMDB's attribution (its logo and the "not endorsed" notice) fit the design?
+
+## Keys and terms (read 2026-11-04)
+
+The owner registers both keys, in the local `.env` as `TMDB_API_KEY` and `OMDB_API_KEY`
+(never committed). What the terms say, read on 2026-11-04:
+
+- **TMDB** ([API terms of use](https://www.themoviedb.org/api-terms-of-use)): free for
+  non-commercial use; commercial use needs a separate paid agreement. The app must show TMDB's
+  logo and a notice that it is not endorsed or certified by TMDB. Data may be cached for at most
+  six months. The terms set no rate limit (TMDB's developer docs give roughly 50 requests a
+  second). The licence forbids using TMDB or its content "in connection with, including for
+  training," an AI or machine-learning application, so Lantern's suggestions built on TMDB data
+  stay plain scoring (TMDB's own similar and recommended lists, genre, keyword and people
+  weights), not a trained model. Where-to-stream data comes from JustWatch and is credited to it.
+- **OMDb** ([API keys](https://www.omdbapi.com/apikey.aspx)): a free key allows 1,000 requests a
+  day and is sent by email; Patreon tiers add more (their limits and prices aren't on the page).
+  IMDb-style data in English with IMDb, Rotten Tomatoes and Metacritic scores; no similar lists and
+  no Romanian titles, so it is an extra for scores, not the main source.

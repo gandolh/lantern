@@ -29,3 +29,11 @@ Part of an estate-wide reset in which every repo folded its done briefs into its
 numbering at 01. Lantern had none done, so brief 01 keeps its number. [wiki/status.md](wiki/status.md)
 gives a dated line per area instead of one per brief, and [CLAUDE.md](CLAUDE.md) gains the rule that
 code comments don't cite brief numbers.
+
+## [2026-11-04] decision | The owner registers TMDB and OMDb keys
+
+In a grill, after reading what each costs: both are free for a personal app. The owner registers a
+TMDB account and an OMDb key and puts them in `.env` as `TMDB_API_KEY` and `OMDB_API_KEY`; brief 01
+resumes with real calls then. TMDB's licence forbids AI or machine-learning use of its data, so the
+suggestions stay plain scoring. The terms, with links and the date read, are in
+[wiki/research.md](wiki/research.md).
