@@ -6,7 +6,7 @@ steps, written down here. Commands run on your machine unless a step says otherw
 
 Lantern runs as one container from
 [`infrastructure/docker-compose.yml`](../infrastructure/docker-compose.yml): `lantern-api` (sign-in,
-the ratings, the TMDB and OMDb cache, the poster proxy) on `127.0.0.1:8810`. Caddy serves the
+the ratings, the title pool, OMDb's records, the poster proxy) on `127.0.0.1:8810`. Caddy serves the
 built page at `/lantern/` and forwards `/lantern-api/` to the API.
 
 `<production origin>` below means `https://` plus the main domain's host, with no path.
@@ -34,17 +34,16 @@ brief-board were registered the same way.
 
 ## 2. The secrets
 
-Three secrets, all for `lantern-api`:
+Two secrets, both for `lantern-api`:
 
 | Variable | What | Where it comes from |
 |---|---|---|
 | `WARD_OIDC_CLIENT_KEY` | Ward client private key | step 1 |
-| `TMDB_API_KEY` | TMDB's API key or API Read Access Token (either works) | your TMDB account, Settings > API |
 | `OMDB_API_KEY` | OMDb's key (1,000 requests a day) | the email OMDb sent |
 
 With vps-deploy, these go in its secrets file for the stack (`secrets/lantern.env`,
-`chmod 600`). The same TMDB and OMDb values as in your local `.env` are fine: one person, few
-calls.
+`chmod 600`). The same OMDb key as in your local `.env` is fine: one person, few calls. IMDb's
+data files need no key.
 
 ## 3. What the vps-deploy stack needs
 
@@ -57,12 +56,12 @@ calls.
 | Page | `web/dist`, built with `LANTERN_BASE=/lantern/` (`npm run build`), served at `/lantern/` with an SPA fallback to `index.html` |
 | API route | `/lantern-api/*` to `127.0.0.1:8810`, prefix stripped |
 | Health check | `GET http://127.0.0.1:8810/v1/health`, expecting `"ok":true` (through Caddy: `/lantern-api/v1/health`) |
-| Data | `/srv/lantern-api/data` bind-mounted at `/data` (`LANTERN_DATA_DIR`): the ratings, the accounts' password hashes, and the source cache. Back up this one directory |
-| Secrets | `WARD_OIDC_CLIENT_KEY`, `TMDB_API_KEY`, `OMDB_API_KEY` (step 2) |
+| Data | `/srv/lantern-api/data` bind-mounted at `/data` (`LANTERN_DATA_DIR`): the ratings, the accounts' password hashes, the title pool and OMDb's records. Back up this one directory |
+| Secrets | `WARD_OIDC_CLIENT_KEY`, `OMDB_API_KEY` (step 2) |
 | Plain env | `PUBLIC_ORIGIN=<production origin>`; `WARD_OIDC_ISSUER` (Ward's origin), `WARD_OIDC_CLIENT_ID=lantern`, `WARD_OIDC_REDIRECT_URI=<production origin>/lantern-api/auth/ward/callback`, `WARD_OIDC_POST_LOGOUT_REDIRECT_URI=<production origin>/lantern/`; `AUTH_TRUSTED_PROXIES` = the range Caddy reaches containers from, as for the other apps |
 | Set by compose | `HOST`, `PORT`, `LANTERN_DB` |
 | Optional env | `LANTERN_PORT` (the published port, default 8810) |
-| Outbound | HTTPS to `api.themoviedb.org`, `image.tmdb.org` and `www.omdbapi.com`. The browser never calls them |
+| Outbound | HTTPS to `www.omdbapi.com` and `m.media-amazon.com` (posters) from the server, and to `datasets.imdbws.com` during an import. The browser never calls them |
 | Idle | No timers, no WebSockets: the container does work only while answering a request, so it may sleep when idle |
 | Ward client | slug `lantern`, like brief-board's and Wicket's |
 
@@ -125,14 +124,14 @@ No output is right. A line saying every caller shares one failure counter means
 
 ## Local development
 
-1. `cp .env.example .env`, then fill `TMDB_API_KEY` and `OMDB_API_KEY`. Leave the rest empty;
-   the defaults suit local development.
+1. `cp .env.example .env`, then fill `OMDB_API_KEY`. Leave the rest empty; the defaults suit
+   local development.
 2. `npm install`, then make your local account: `npm run seed -w @lantern/server`.
 3. `npm run dev`: the API on `127.0.0.1:8810` and the page at <http://localhost:5180/lantern/>.
    For `npm start` (the built page on the server's own port, after `npm run build`), set
    `PUBLIC_ORIGIN=http://127.0.0.1:8810`.
-4. Check the sources once: `npm run sources:check -w @lantern/server` makes four real calls
-   (three TMDB, one OMDb) and prints what came back, never a key.
+4. Check OMDb once: `npm run sources:check -w @lantern/server` makes one real call and prints
+   what came back, never the key.
 5. For "Sign in with Ward" against the local Ward: Ward's local seed (`wzd_auth`,
    `infrastructure/local/seed.mjs`) lists Lantern as
 

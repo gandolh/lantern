@@ -1,107 +1,79 @@
-import { RATINGS, TITLE_STATES, type MediaType, type StateCountsResponse, type StateFilter, type StateRow, type TitleState } from "@lantern/shared";
+import { RATINGS, TITLE_STATES, type StateCountsResponse, type StateFilter, type StateRow, type TitleState } from "@lantern/shared";
 import type { Db } from "./db.js";
 
 /**
  * The states store: the only module that runs SQL on `title_states` and
- * `card_skips`. Every call is scoped to one user. A title has at most one
- * state; setting one replaces the one before (rating a title on the watchlist
- * takes it off) and drops a skip of that title.
+ * `card_skips`. Every call is scoped to one user; a title is its IMDb id. A
+ * title has at most one state; setting one replaces the one before (rating
+ * a title on the watchlist takes it off) and drops a skip of that title.
  */
-
-export interface TitleRef {
-  mediaType: MediaType;
-  tmdbId: number;
-}
-
-/** `movie:603`: a title as a map key. */
-export const titleKey = (title: TitleRef): string => `${title.mediaType}:${title.tmdbId}`;
 
 export interface ListOptions {
   state?: StateFilter;
-  mediaType?: MediaType;
   limit: number;
   /** The `next` of the page before. */
   cursor?: string;
 }
 
 export interface StatesStore {
-  get(userId: string, title: TitleRef): StateRow | undefined;
-  set(userId: string, title: TitleRef, state: TitleState): StateRow;
+  get(userId: string, imdbId: string): StateRow | undefined;
+  set(userId: string, imdbId: string, state: TitleState): StateRow;
   /** False when the title had no state. */
-  clear(userId: string, title: TitleRef): boolean;
+  clear(userId: string, imdbId: string): boolean;
   /** Newest first, a page at a time; `next` is null at the end. */
   list(userId: string, options: ListOptions): { rows: StateRow[]; next: string | null };
   counts(userId: string): StateCountsResponse["counts"];
-  /** The states of many titles at once, keyed by `titleKey`; untouched titles are absent. */
-  statesOf(userId: string, titles: readonly TitleRef[]): Map<string, TitleState>;
-  /** Every title with a state, keyed by `titleKey`. */
+  /** The states of many titles at once; untouched titles are absent. */
+  statesOf(userId: string, imdbIds: readonly string[]): Map<string, TitleState>;
+  /** Every title with a state. */
   allStated(userId: string): Map<string, TitleState>;
   /** True when the title wasn't skipped already. */
-  skip(userId: string, title: TitleRef): boolean;
+  skip(userId: string, imdbId: string): boolean;
   /** False when the title wasn't skipped. */
-  unskip(userId: string, title: TitleRef): boolean;
-  /** Every skipped title, by `titleKey`. */
+  unskip(userId: string, imdbId: string): boolean;
+  /** Every skipped title. */
   skipped(userId: string): Set<string>;
 }
 
-interface Row {
-  mediaType: MediaType;
-  tmdbId: number;
-  state: TitleState;
-  updatedAt: number;
-}
+const COLUMNS = "imdb_id AS imdbId, state, updated_at AS updatedAt";
 
-const COLUMNS = "media_type AS mediaType, tmdb_id AS tmdbId, state, updated_at AS updatedAt";
+/** Keeps each query small. */
+const BATCH = 300;
 
-/** SQLite's limit on bound parameters is far above this; batches keep each query small. */
-const BATCH = 200;
+const cursorOf = (row: StateRow): string => `${row.updatedAt}.${row.imdbId}`;
 
-function cursorOf(row: Row): string {
-  return `${row.updatedAt}.${row.mediaType}.${row.tmdbId}`;
-}
-
-function parseCursor(cursor: string): [number, string, number] {
-  const [time, type, id] = cursor.split(".");
-  return [Number(time), type!, Number(id)];
+function parseCursor(cursor: string): [number, string] {
+  const dot = cursor.indexOf(".");
+  return [Number(cursor.slice(0, dot)), cursor.slice(dot + 1)];
 }
 
 export function createStatesStore(db: Db, now: () => number = Date.now): StatesStore {
-  const selectOne = db.prepare<[string, string, number], Row>(
-    `SELECT ${COLUMNS} FROM title_states WHERE user_id = ? AND media_type = ? AND tmdb_id = ?`,
-  );
-  const upsert = db.prepare<[string, string, number, string, number]>(`
-    INSERT INTO title_states (user_id, media_type, tmdb_id, state, updated_at) VALUES (?, ?, ?, ?, ?)
-    ON CONFLICT (user_id, media_type, tmdb_id) DO UPDATE SET state = excluded.state, updated_at = excluded.updated_at`);
-  const deleteOne = db.prepare<[string, string, number]>(
-    "DELETE FROM title_states WHERE user_id = ? AND media_type = ? AND tmdb_id = ?",
-  );
-  const insertSkip = db.prepare<[string, string, number, number]>(
-    "INSERT OR IGNORE INTO card_skips (user_id, media_type, tmdb_id, skipped_at) VALUES (?, ?, ?, ?)",
-  );
-  const deleteSkip = db.prepare<[string, string, number]>(
-    "DELETE FROM card_skips WHERE user_id = ? AND media_type = ? AND tmdb_id = ?",
-  );
-  const selectSkipped = db.prepare<[string], { mediaType: MediaType; tmdbId: number }>(
-    "SELECT media_type AS mediaType, tmdb_id AS tmdbId FROM card_skips WHERE user_id = ?",
-  );
-  const selectAll = db.prepare<[string], Row>(`SELECT ${COLUMNS} FROM title_states WHERE user_id = ?`);
-  const selectCounts = db.prepare<[string], { state: TitleState; mediaType: MediaType; n: number }>(
-    "SELECT state, media_type AS mediaType, count(*) AS n FROM title_states WHERE user_id = ? GROUP BY state, media_type",
+  const selectOne = db.prepare<[string, string], StateRow>(`SELECT ${COLUMNS} FROM title_states WHERE user_id = ? AND imdb_id = ?`);
+  const upsert = db.prepare<[string, string, string, number]>(`
+    INSERT INTO title_states (user_id, imdb_id, state, updated_at) VALUES (?, ?, ?, ?)
+    ON CONFLICT (user_id, imdb_id) DO UPDATE SET state = excluded.state, updated_at = excluded.updated_at`);
+  const deleteOne = db.prepare<[string, string]>("DELETE FROM title_states WHERE user_id = ? AND imdb_id = ?");
+  const insertSkip = db.prepare<[string, string, number]>("INSERT OR IGNORE INTO card_skips (user_id, imdb_id, skipped_at) VALUES (?, ?, ?)");
+  const deleteSkip = db.prepare<[string, string]>("DELETE FROM card_skips WHERE user_id = ? AND imdb_id = ?");
+  const selectSkipped = db.prepare<[string], { imdbId: string }>("SELECT imdb_id AS imdbId FROM card_skips WHERE user_id = ?");
+  const selectAll = db.prepare<[string], StateRow>(`SELECT ${COLUMNS} FROM title_states WHERE user_id = ?`);
+  const selectCounts = db.prepare<[string], { state: TitleState; n: number }>(
+    "SELECT state, count(*) AS n FROM title_states WHERE user_id = ? GROUP BY state",
   );
 
-  const set = db.transaction((userId: string, title: TitleRef, state: TitleState): StateRow => {
+  const set = db.transaction((userId: string, imdbId: string, state: TitleState): StateRow => {
     const updatedAt = now();
-    upsert.run(userId, title.mediaType, title.tmdbId, state, updatedAt);
-    deleteSkip.run(userId, title.mediaType, title.tmdbId);
-    return { mediaType: title.mediaType, tmdbId: title.tmdbId, state, updatedAt };
+    upsert.run(userId, imdbId, state, updatedAt);
+    deleteSkip.run(userId, imdbId);
+    return { imdbId, state, updatedAt };
   });
 
   return {
-    get: (userId, title) => selectOne.get(userId, title.mediaType, title.tmdbId),
-    set: (userId, title, state) => set(userId, title, state),
-    clear: (userId, title) => deleteOne.run(userId, title.mediaType, title.tmdbId).changes > 0,
+    get: (userId, imdbId) => selectOne.get(userId, imdbId),
+    set: (userId, imdbId, state) => set(userId, imdbId, state),
+    clear: (userId, imdbId) => deleteOne.run(userId, imdbId).changes > 0,
 
-    list(userId, { state, mediaType, limit, cursor }) {
+    list(userId, { state, limit, cursor }) {
       const where = ["user_id = ?"];
       const params: (string | number)[] = [userId];
       if (state === "rated") {
@@ -111,19 +83,14 @@ export function createStatesStore(db: Db, now: () => number = Date.now): StatesS
         where.push("state = ?");
         params.push(state);
       }
-      if (mediaType !== undefined) {
-        where.push("media_type = ?");
-        params.push(mediaType);
-      }
       if (cursor !== undefined) {
-        where.push("(updated_at, media_type, tmdb_id) < (?, ?, ?)");
+        where.push("(updated_at, imdb_id) < (?, ?)");
         params.push(...parseCursor(cursor));
       }
       // One more than asked, to know whether a next page exists.
       const rows = db
-        .prepare<(string | number)[], Row>(
-          `SELECT ${COLUMNS} FROM title_states WHERE ${where.join(" AND ")}
-           ORDER BY updated_at DESC, media_type DESC, tmdb_id DESC LIMIT ?`,
+        .prepare<(string | number)[], StateRow>(
+          `SELECT ${COLUMNS} FROM title_states WHERE ${where.join(" AND ")} ORDER BY updated_at DESC, imdb_id DESC LIMIT ?`,
         )
         .all(...params, limit + 1);
       const page = rows.slice(0, limit);
@@ -131,28 +98,26 @@ export function createStatesStore(db: Db, now: () => number = Date.now): StatesS
     },
 
     counts(userId) {
-      const counts = Object.fromEntries(TITLE_STATES.map((state) => [state, { movie: 0, tv: 0 }])) as StateCountsResponse["counts"];
-      for (const { state, mediaType, n } of selectCounts.all(userId)) counts[state][mediaType] = n;
+      const counts = Object.fromEntries(TITLE_STATES.map((state) => [state, 0])) as StateCountsResponse["counts"];
+      for (const { state, n } of selectCounts.all(userId)) counts[state] = n;
       return counts;
     },
 
-    statesOf(userId, titles) {
+    statesOf(userId, imdbIds) {
       const found = new Map<string, TitleState>();
-      for (let start = 0; start < titles.length; start += BATCH) {
-        const batch = titles.slice(start, start + BATCH);
+      for (let start = 0; start < imdbIds.length; start += BATCH) {
+        const batch = imdbIds.slice(start, start + BATCH);
         const rows = db
-          .prepare<(string | number)[], Row>(
-            `SELECT ${COLUMNS} FROM title_states WHERE user_id = ? AND (media_type, tmdb_id) IN (VALUES ${batch.map(() => "(?, ?)").join(", ")})`,
-          )
-          .all(userId, ...batch.flatMap((title) => [title.mediaType, title.tmdbId]));
-        for (const row of rows) found.set(titleKey(row), row.state);
+          .prepare<string[], StateRow>(`SELECT ${COLUMNS} FROM title_states WHERE user_id = ? AND imdb_id IN (${batch.map(() => "?").join(", ")})`)
+          .all(userId, ...batch);
+        for (const row of rows) found.set(row.imdbId, row.state);
       }
       return found;
     },
 
-    allStated: (userId) => new Map(selectAll.all(userId).map((row) => [titleKey(row), row.state])),
-    skip: (userId, title) => insertSkip.run(userId, title.mediaType, title.tmdbId, now()).changes > 0,
-    unskip: (userId, title) => deleteSkip.run(userId, title.mediaType, title.tmdbId).changes > 0,
-    skipped: (userId) => new Set(selectSkipped.all(userId).map(titleKey)),
+    allStated: (userId) => new Map(selectAll.all(userId).map((row) => [row.imdbId, row.state])),
+    skip: (userId, imdbId) => insertSkip.run(userId, imdbId, now()).changes > 0,
+    unskip: (userId, imdbId) => deleteSkip.run(userId, imdbId).changes > 0,
+    skipped: (userId) => new Set(selectSkipped.all(userId).map((row) => row.imdbId)),
   };
 }

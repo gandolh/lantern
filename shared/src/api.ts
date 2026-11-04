@@ -17,7 +17,11 @@ export const errorBodySchema = z.object({
 });
 export type ErrorBody = z.infer<typeof errorBodySchema>;
 
-/** A title is a film or a series, as TMDB files it. */
-export const MEDIA_TYPES = ["movie", "tv"] as const;
-export const mediaTypeSchema = z.enum(MEDIA_TYPES);
-export type MediaType = z.infer<typeof mediaTypeSchema>;
+/** A title is a film or a series. Films include IMDb's TV movies; series include mini-series. */
+export const TITLE_KINDS = ["movie", "series"] as const;
+export const titleKindSchema = z.enum(TITLE_KINDS);
+export type TitleKind = z.infer<typeof titleKindSchema>;
+
+/** A title's IMDb id: `tt` and 7 to 10 digits. Every title in Lantern is known by it. */
+export const imdbIdSchema = z.string().regex(/^tt\d{7,10}$/, { message: "must be an IMDb id such as tt0111161" });
+export type ImdbId = z.infer<typeof imdbIdSchema>;

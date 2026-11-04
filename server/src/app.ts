@@ -9,11 +9,10 @@ import { openDatabase, type Db } from "./db.js";
 import { fail } from "./reply.js";
 import { registerSourceRoutes } from "./routes/sources.js";
 import { registerStateRoutes } from "./routes/states.js";
-import { createSourceCache } from "./sources/cache.js";
+import { createRecordCache } from "./sources/cache.js";
 import type { FetchLike } from "./sources/http.js";
 import { createOmdbClient, type OmdbClient } from "./sources/omdb.js";
-import { createTmdbClient, type TmdbClient } from "./sources/tmdb.js";
-import { createSources, type Sources } from "./sources/titles.js";
+import { createRecords, type Records } from "./sources/records.js";
 import { createStatesStore, type StatesStore } from "./states.js";
 
 /**
@@ -100,15 +99,12 @@ export interface AppOptions {
   ward?: WardClientOptions;
   /** Peers besides loopback whose `X-Forwarded-For` the login lockout believes. Default none. */
   trustedProxies?: readonly string[];
-  /** `TMDB_API_KEY`. Unset, the routes that need TMDB answer 503 `no_key`. */
-  tmdbApiKey?: string;
-  /** `OMDB_API_KEY`. Unset, a title's scores answer 503 `no_key`. */
+  /** `OMDB_API_KEY`. Unset, what needs OMDb answers 503 `no_key`. */
   omdbApiKey?: string;
-  /** Tests: clients with a fake `fetch` and no spacing, in place of the real ones. */
-  tmdb?: TmdbClient;
+  /** Tests: a client with a fake `fetch` and no spacing, in place of the real one. */
   omdb?: OmdbClient;
   /** Tests: the `fetch` the poster proxy uses. */
-  imageFetch?: FetchLike;
+  posterFetch?: FetchLike;
   /** The clock, in epoch milliseconds, for tests. */
   now?: () => number;
   logger?: FastifyServerOptions["logger"];
@@ -122,8 +118,8 @@ declare module "fastify" {
     accounts: Accounts;
     /** The states store, for the tests. */
     states: StatesStore;
-    /** The outside sources, for the tests. */
-    sources: Sources;
+    /** OMDb's records, for the tests. */
+    records: Records;
   }
 }
 
@@ -225,13 +221,12 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   app.decorate("states", states);
   registerStateRoutes(app, states);
 
-  const sources = createSources({
-    tmdb: options.tmdb ?? createTmdbClient({ apiKey: options.tmdbApiKey }),
+  const records = createRecords({
     omdb: options.omdb ?? createOmdbClient({ apiKey: options.omdbApiKey }),
-    cache: createSourceCache(db, options.now),
+    cache: createRecordCache(db, options.now),
   });
-  app.decorate("sources", sources);
-  registerSourceRoutes(app, sources, options.imageFetch ?? globalThis.fetch);
+  app.decorate("records", records);
+  registerSourceRoutes(app, records, options.posterFetch ?? globalThis.fetch);
 
   // The built page at `webBase`; any other path under it is the page too (index.html).
   const webDist = options.webDist;

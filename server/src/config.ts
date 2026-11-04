@@ -26,8 +26,6 @@ export interface Config {
   ward: WardClientOptions | undefined;
   /** `AUTH_TRUSTED_PROXIES`: peers besides loopback whose `X-Forwarded-For` the login lockout believes. */
   trustedProxies: string[];
-  /** `TMDB_API_KEY`, the API key or the read access token. A secret: never log it. */
-  tmdbApiKey: string | undefined;
   /** `OMDB_API_KEY`. A secret: never log it. */
   omdbApiKey: string | undefined;
 }
@@ -51,7 +49,6 @@ const envSchema = z.object({
   ),
   LANTERN_DB: optional(z.string().trim()),
   // The messages never repeat a key's value.
-  TMDB_API_KEY: optional(z.string().trim().regex(/^\S+$/, { message: "TMDB_API_KEY must be one value with no spaces." })),
   OMDB_API_KEY: optional(z.string().trim().regex(/^\S+$/, { message: "OMDB_API_KEY must be one value with no spaces." })),
   PUBLIC_ORIGIN: optional(
     z.string().refine((value) => URL.canParse(value) && new URL(value).origin === value, {
@@ -124,7 +121,6 @@ export function loadConfig(env: NodeJS.ProcessEnv): Config {
     webBase: values.LANTERN_BASE,
     ward,
     trustedProxies: trustedProxies(env.AUTH_TRUSTED_PROXIES),
-    tmdbApiKey: values.TMDB_API_KEY,
     omdbApiKey: values.OMDB_API_KEY,
   };
 }

@@ -50,6 +50,38 @@ export const MIGRATIONS: string[] = [
     fetched_at INTEGER NOT NULL
   );
   `,
+  // The owner dropped TMDB for OMDb plus IMDb's files: titles are IMDb ids now.
+  // No real data existed under TMDB's ids, so the states tables are rebuilt
+  // rather than converted. OMDb's whole record is kept per title, found for
+  // good; `poster` says whether it has one, for lists that show it only then.
+  `
+  DROP TABLE title_states;
+  DROP TABLE card_skips;
+  DROP TABLE tmdb_cache;
+  DROP TABLE omdb_cache;
+  CREATE TABLE title_states (
+    user_id TEXT NOT NULL,
+    imdb_id TEXT NOT NULL CHECK (imdb_id GLOB 'tt[0-9]*'),
+    state TEXT NOT NULL CHECK (state IN ('awful', 'meh', 'good', 'amazing', 'not_interested', 'want_to_watch')),
+    updated_at INTEGER NOT NULL,
+    PRIMARY KEY (user_id, imdb_id)
+  ) WITHOUT ROWID;
+  CREATE INDEX title_states_by_time ON title_states (user_id, updated_at DESC, imdb_id DESC);
+  CREATE INDEX title_states_by_state ON title_states (user_id, state, updated_at DESC);
+  CREATE TABLE card_skips (
+    user_id TEXT NOT NULL,
+    imdb_id TEXT NOT NULL CHECK (imdb_id GLOB 'tt[0-9]*'),
+    skipped_at INTEGER NOT NULL,
+    PRIMARY KEY (user_id, imdb_id)
+  ) WITHOUT ROWID;
+  CREATE TABLE omdb_records (
+    imdb_id TEXT PRIMARY KEY,
+    outcome TEXT NOT NULL CHECK (outcome IN ('found', 'not_found')),
+    body TEXT NOT NULL,
+    poster INTEGER NOT NULL DEFAULT 0,
+    fetched_at INTEGER NOT NULL
+  );
+  `,
 ];
 
 function migrate(db: Db, migrations: readonly string[]): void {

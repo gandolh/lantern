@@ -14,6 +14,7 @@ The rest lives in the project wiki, under [`corpus/`](../corpus/index.md):
 | How is it put together? | [architecture.md](../corpus/wiki/architecture.md) |
 | Who gets into what? | [sign-in.md](../corpus/wiki/sign-in.md) |
 | What is stored? | [data-model.md](../corpus/wiki/data-model.md) |
-| What do TMDB and OMDb offer, and on what terms? | [sources.md](../corpus/wiki/sources.md) |
-| How does the server call them, and cache what they say? | [source-calls.md](../corpus/wiki/source-calls.md) |
+| What do IMDb's files and OMDb offer, and on what terms? | [sources.md](../corpus/wiki/sources.md) |
+| What is the title pool, and how is it imported? | [titles.md](../corpus/wiki/titles.md) |
+| How does the server call OMDb, and keep what it says? | [source-calls.md](../corpus/wiki/source-calls.md) |
 | Where do things stand? | [status.md](../corpus/wiki/status.md) |

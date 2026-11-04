@@ -1,5 +1,5 @@
 ---
-summary: What Lantern keeps in its one SQLite file, as built from 2026-11-04. The owner's own data (title_states: one state per user and title; card_skips) holds no TMDB facts, so TMDB's six-month cache rule never touches it; the source cache (tmdb_cache, deleted at 180 days; omdb_cache); ward-auth's own tables; the migrations under PRAGMA user_version; the states routes and the rules they follow (one state at a time, a state drops a skip, every query scoped to the user, paging by a cursor).
+summary: What Lantern keeps in its one SQLite file, as built from 2026-11-04. The owner's own data (title_states: one state per user and IMDb id; card_skips) holds no outside facts; OMDb's records (omdb_records, found kept for good); ward-auth's own tables; the migrations under PRAGMA user_version (the third rebuilt the states on IMDb ids when TMDB was dropped); the states routes and the rules they follow (one state at a time, a state drops a skip, every query scoped to the user, paging by a cursor).
 updated: 2026-11-04
 ---
 
@@ -13,31 +13,32 @@ migrates its own tables (`auth_users`, `auth_sessions`, `auth_ward_links`, track
 
 ## The owner's own data
 
-A title is its media type (`movie` or `tv`) and TMDB's id. Neither table holds a title, a
-poster or any other TMDB fact: those live in the cache and are joined in when a page lists
-titles. So TMDB's rule that its data is cached six months at most ([sources.md](sources.md))
-never reaches the ratings, and a rating made today is still there in ten years.
+A title is its IMDb id (`tt0111161`). Neither table holds a title, a poster or any other outside
+fact: those come from the pool and OMDb's records, joined in when a page lists titles, so the
+ratings never depend on a source keeping its data.
 
 | Table | Key | Columns |
 |---|---|---|
-| `title_states` | `user_id`, `media_type`, `tmdb_id` | `state` (one of six, checked), `updated_at` |
-| `card_skips` | `user_id`, `media_type`, `tmdb_id` | `skipped_at` |
+| `title_states` | `user_id`, `imdb_id` | `state` (one of six, checked), `updated_at` |
+| `card_skips` | `user_id`, `imdb_id` | `skipped_at` |
 
 Times are epoch milliseconds. `user_id` is ward-auth's user id; there is no foreign key to
 `auth_users`, because the library creates that table after Lantern's migrations run.
 
-## The cache
+## OMDb's records
 
-What TMDB and OMDb answered, already trimmed by the readers; how it is used is in
+What OMDb answered per title, already read; how it is used is in
 [source-calls.md](source-calls.md).
 
 | Table | Key | Columns |
 |---|---|---|
-| `tmdb_cache` | `key` (`v1:details:movie:603`, `v1:search:1:inception`, `v1:list:popular:tv:2`, `v1:genres:movie`) | `body` (JSON), `fetched_at` |
-| `omdb_cache` | `imdb_id` | `outcome` (`found` or `not_found`), `body` (the scores, JSON), `fetched_at` |
+| `omdb_records` | `imdb_id` | `outcome` (`found` or `not_found`), `body` (the record, JSON), `poster` (1 when it has one), `fetched_at` |
 
-`tmdb_cache` rows are deleted once 180 days old, under TMDB's six months. The key's `v1` is the
-readers' version: a reader that changes shape bumps it, and old rows simply stop matching.
+## History
+
+Migrations 1 and 2 keyed the states by TMDB's media type and id and cached TMDB's answers. When
+the owner dropped TMDB (2026-11-04), migration 3 dropped those tables and rebuilt the states on
+IMDb ids; no real data existed yet, so nothing was converted.
 
 ## The rules
 
@@ -49,8 +50,8 @@ and `card_skips`:
   takes it off. Clearing deletes the row.
 - Setting a state drops a skip of that title. A skip never touches a state.
 - Every query is scoped to the signed-in user. Two accounts never see each other's rows.
-- Lists are newest first and paged by a cursor (`updated_at`, media type, id), so titles set in
-  the same millisecond are never lost between pages.
+- Lists are newest first and paged by a cursor (`updated_at`, IMDb id), so titles set in the
+  same millisecond are never lost between pages.
 
 ## The routes
 
@@ -60,16 +61,16 @@ Behind sign-in; the writes behind the Origin check ([sign-in.md](sign-in.md)). C
 
 | Route | Answer |
 |---|---|
-| `GET /v1/titles/:type/:id/state` | `{ row }`, null when untouched |
-| `PUT /v1/titles/:type/:id/state` `{ state }` | the row |
-| `DELETE /v1/titles/:type/:id/state` | `{ cleared }` |
-| `POST /v1/titles/:type/:id/skip` | `{ skipped: true }` |
-| `DELETE /v1/titles/:type/:id/skip` | `{ skipped: false }` (the cards' undo) |
-| `GET /v1/states?state=&type=&limit=&cursor=` | `{ rows, next }`; `state` is one of the six or `rated` (any of the four); `limit` up to 200, default 50 |
-| `GET /v1/states/counts` | `{ counts }`: per state, `{ movie, tv }` |
+| `GET /v1/titles/:id/state` | `{ row }`, null when untouched |
+| `PUT /v1/titles/:id/state` `{ state }` | the row |
+| `DELETE /v1/titles/:id/state` | `{ cleared }` |
+| `POST /v1/titles/:id/skip` | `{ skipped: true }` |
+| `DELETE /v1/titles/:id/skip` | `{ skipped: false }` (the cards' undo) |
+| `GET /v1/states?state=&limit=&cursor=` | `{ rows, next }`; `state` is one of the six or `rated` (any of the four); `limit` up to 200, default 50 |
+| `GET /v1/states/counts` | `{ counts }`: per state |
 
-`:type` is `movie` or `tv` and `:id` a positive 32-bit integer; anything else, an unknown state
-or an extra body field is a 400 whose message starts with the field's name.
+`:id` is an IMDb id (`tt` and 7 to 10 digits); anything else, an unknown state or an extra body
+field is a 400 whose message starts with the field's name.
 
 For later pages the store also answers the states of many titles in one query (marking search
 results), every title with a state (keeping suggestions out), and every skipped title (the

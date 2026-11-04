@@ -12,14 +12,14 @@ describe("routeOf", () => {
     expect(routeOf("/lantern/ratings", "", BASE)).toEqual({ page: "ratings" });
     expect(routeOf("/lantern/search", "?q=the%20thing", BASE)).toEqual({ page: "search", query: "the thing" });
     expect(routeOf("/lantern/search", "", BASE)).toEqual({ page: "search", query: "" });
-    expect(routeOf("/lantern/movie/603", "", BASE)).toEqual({ page: "title", mediaType: "movie", id: 603 });
-    expect(routeOf("/lantern/tv/1399", "", BASE)).toEqual({ page: "title", mediaType: "tv", id: 1399 });
+    expect(routeOf("/lantern/title/tt1375666", "", BASE)).toEqual({ page: "title", id: "tt1375666" });
+    expect(routeOf("/lantern/title/tt10872600/", "", BASE)).toEqual({ page: "title", id: "tt10872600" });
     expect(routeOf("/lantern/account", "", BASE)).toEqual({ page: "account" });
     expect(routeOf("/lantern/login", "", BASE)).toEqual({ page: "login" });
   });
 
   it("calls anything else not found", () => {
-    for (const path of ["/lantern/nope", "/lantern/movie/0", "/lantern/movie/abc", "/lantern/book/1", "/lantern/tv/1/2", "/elsewhere"]) {
+    for (const path of ["/lantern/nope", "/lantern/title/603", "/lantern/title/tt12", "/lantern/movie/603", "/lantern/title/tt1375666/x", "/elsewhere"]) {
       expect(routeOf(path, "", BASE)).toEqual({ page: "not-found" });
     }
   });
@@ -34,8 +34,7 @@ describe("hrefOf", () => {
       { page: "ratings" },
       { page: "search", query: "" },
       { page: "search", query: "amélie & co" },
-      { page: "title", mediaType: "movie", id: 603 },
-      { page: "title", mediaType: "tv", id: 1399 },
+      { page: "title", id: "tt1375666" },
       { page: "account" },
       { page: "login" },
     ];

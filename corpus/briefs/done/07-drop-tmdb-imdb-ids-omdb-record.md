@@ -53,3 +53,26 @@ Depends on 04 and 05.
   IMDb id (a bad id is a 400), the poster route (cached record only, allowlist, sizes,
   signed-out 401).
 - No real OMDb call is made.
+
+## Outcome (2026-11-04)
+
+Built as specified; how OMDb is called: [source-calls.md](../../wiki/source-calls.md); the
+tables: [data-model.md](../../wiki/data-model.md).
+
+- **Brief 05's TMDB work is undone**: the client, its readers, fixtures and tests, the cache
+  and the TMDB poster route are gone, and `TMDB_API_KEY` with them. Brief 05 stays in `done/` as
+  history; its queue, HTTP helper and OMDb client were kept and reworked.
+- **Migration 3** drops `title_states`, `card_skips`, `tmdb_cache` and `omdb_cache` and
+  rebuilds the states on IMDb ids, plus `omdb_records` with a `poster` flag for lists that show
+  a poster only when one is kept. No real data existed, so nothing was converted.
+- **The page's addresses**: a title is `/lantern/title/tt…` now.
+- **The large poster** relies on Amazon's `_SX300` size modifier in OMDb's URLs, swapped for
+  `_SX600`; a URL in another form, or a 404, falls back to OMDb's own.
+- **The kind** (film or series) is the pool's; until the pool lands, the states list has no kind
+  filter.
+
+Checks: `npm run typecheck`, `npm run lint`, `npm test` (11 files, 61 tests: the record reader
+on four fixtures, names and years, the client and the key kept out of errors, the cache rules,
+states by IMDb id, the poster route, `/v1/sources`, the error mapping). No TMDB key is named in
+any setting, code or doc outside the history. No real OMDb call was made; no page changed but
+the title route, so no browser walk.

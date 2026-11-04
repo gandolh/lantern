@@ -1,5 +1,5 @@
 ---
-summary: Where Lantern stands, per area, as of 2026-11-04. Briefs 01-06 built (skeleton, sign-in, states, source clients, container); the owner dropped TMDB the same day for OMDb plus IMDb's files, so 07-14 were rewritten (drop TMDB, the title pool import, search, the OMDb title page, cards, suggestions, lists, README). What is open, the todos (bump @fastify/static), and the owner's next steps.
+summary: Where Lantern stands, per area, as of 2026-11-04. Briefs 01-07 built (skeleton, sign-in, states, container, then TMDB taken out for OMDb and IMDb ids); the owner dropped TMDB the same day for OMDb plus IMDb's files, so 07-14 were rewritten (the title pool import, search, the OMDb title page, cards, suggestions, lists, README to come). What is open, the todos (bump @fastify/static), and the owner's next steps.
 updated: 2026-11-04
 ---
 
@@ -22,9 +22,9 @@ to 14 ([overview.md](overview.md), "The build"). The owner pushes; nothing here 
 - **States** (2026-11-04). Ratings, not interested, want to watch and skipped cards, per user,
   with no TMDB facts in them; set, clear, list and count over `/v1`
   ([data-model.md](data-model.md)). No page uses them yet.
-- **Sources** (2026-11-04). The TMDB and OMDb clients, their queues, the server-side cache and
-  the poster proxy, tested on hand-written fixtures ([source-calls.md](source-calls.md)). No
-  real call was made. TMDB has since been dropped; brief 07 takes its client out.
+- **OMDb** (2026-11-04). TMDB taken out; titles are IMDb ids. The OMDb client reads a title's
+  whole record and keeps it once found; posters come through `/v1/posters/:id` from kept
+  records only ([source-calls.md](source-calls.md)). Tested on fixtures; no real call yet.
 - **Container and owner setup** (2026-11-04). `infrastructure/` holds the API's Dockerfile and
   a compose file (`lantern-api` on loopback 8810); `docs/owner-setup.md` is the vps-deploy
   stack's brief. The compose file parses; the image was not built on the shared machine.
@@ -34,7 +34,7 @@ to 14 ([overview.md](overview.md), "The build"). The owner pushes; nothing here 
 
 ## Open briefs
 
-07 to 14, in `briefs/todo/`, run in number order, rewritten on 2026-11-04 after TMDB was
+08 to 14, in `briefs/todo/`, run in number order, rewritten on 2026-11-04 after TMDB was
 dropped. 10 makes the first real OMDb calls; the key is in the owner's `.env`.
 
 ## Todos

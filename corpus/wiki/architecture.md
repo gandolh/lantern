@@ -51,6 +51,7 @@ its value.
 | `LANTERN_API_PREFIX` | `/lantern-api` | the API's prefix as the browser sees it |
 | `LANTERN_BASE` | `/lantern/` | the page's base path (the build reads it too) |
 | `AUTH_TRUSTED_PROXIES`, `WARD_OIDC_*`, `SEED_*` | empty | sign-in ([sign-in.md](sign-in.md)) |
+| `OMDB_API_KEY` | empty | OMDb's key, a secret ([source-calls.md](source-calls.md)) |
 
 ## Data
 

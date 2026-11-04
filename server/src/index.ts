@@ -2,7 +2,6 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildApp } from "./app.js";
 import { ConfigError, loadConfig, type Config } from "./config.js";
-import { isReadAccessToken } from "./sources/tmdb.js";
 
 /**
  * Start Lantern: the API under `/v1`, on 127.0.0.1:8810 by default. Locally
@@ -46,18 +45,12 @@ const app = await buildApp({
   webBase: config.webBase,
   ward: config.ward,
   trustedProxies: config.trustedProxies,
-  tmdbApiKey: config.tmdbApiKey,
   omdbApiKey: config.omdbApiKey,
   logger: true,
 });
 app.log.info(`database: ${dbPath}`);
-// Whether each key is set, and which kind TMDB's is; never a value.
-app.log.info(
-  config.tmdbApiKey === undefined
-    ? "TMDB_API_KEY is not set: search, titles and cards answer no_key"
-    : `TMDB key: set (${isReadAccessToken(config.tmdbApiKey) ? "read access token, sent as a bearer header" : "API key, sent as a query parameter"})`,
-);
-app.log.info(config.omdbApiKey === undefined ? "OMDB_API_KEY is not set: no IMDb, Rotten Tomatoes or Metacritic scores" : "OMDb key: set");
+// Whether the key is set; never its value.
+app.log.info(config.omdbApiKey === undefined ? "OMDB_API_KEY is not set: no posters, plots or scores" : "OMDb key: set");
 app.log.info(config.ward ? "Sign in with Ward is on" : "WARD_OIDC_ISSUER is not set: local accounts only, no Sign in with Ward");
 
 for (const signal of ["SIGINT", "SIGTERM"] as const) {

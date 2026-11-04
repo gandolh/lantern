@@ -1,5 +1,4 @@
 import { useMemo, useSyncExternalStore, type MouseEvent } from "react";
-import type { MediaType } from "@lantern/shared";
 import { appBase } from "./base";
 
 /**
@@ -12,8 +11,7 @@ import { appBase } from "./base";
  *   /lantern/watchlist     want to watch
  *   /lantern/ratings       what was rated, and not interested
  *   /lantern/search?q=     search
- *   /lantern/movie/:id     a film
- *   /lantern/tv/:id        a series
+ *   /lantern/title/:id     a film or a series, by IMDb id (tt0111161)
  *   /lantern/account       the account
  *   /lantern/login         signing in
  */
@@ -23,7 +21,7 @@ export type Route =
   | { page: "watchlist" }
   | { page: "ratings" }
   | { page: "search"; query: string }
-  | { page: "title"; mediaType: MediaType; id: number }
+  | { page: "title"; id: string }
   | { page: "account" }
   | { page: "login" }
   | { page: "not-found" };
@@ -49,8 +47,8 @@ export function routeOf(pathname: string, search: string, base: string = appBase
         return { page: "search", query: new URLSearchParams(search).get("q") ?? "" };
     }
   }
-  if (parts.length === 2 && (first === "movie" || first === "tv") && /^[1-9]\d{0,9}$/.test(second!)) {
-    return { page: "title", mediaType: first, id: Number(second) };
+  if (parts.length === 2 && first === "title" && /^tt\d{7,10}$/.test(second!)) {
+    return { page: "title", id: second! };
   }
   return { page: "not-found" };
 }
@@ -64,7 +62,7 @@ export function hrefOf(route: Route, base: string = appBase()): string {
     case "search":
       return route.query === "" ? `${base}search` : `${base}search?${new URLSearchParams({ q: route.query })}`;
     case "title":
-      return `${base}${route.mediaType}/${route.id}`;
+      return `${base}title/${route.id}`;
     default:
       return `${base}${route.page}`;
   }

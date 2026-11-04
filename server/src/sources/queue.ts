@@ -1,7 +1,7 @@
 /**
  * One in-process queue per source: one request at a time, each starting at
- * least the spacing after the previous one started, so a page that needs
- * twenty titles never bursts. Cache hits never enter a queue.
+ * least the spacing after the previous one started, so a burst of pages
+ * never bursts at the source. Cache hits never enter a queue.
  */
 
 /** What a queue waits on. Tests pass a fake one that moves time by itself. */
@@ -16,8 +16,6 @@ export const realClock: Clock = {
   sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
 };
 
-/** TMDB allows about 40 a second; ten keeps far under it. */
-export const TMDB_SPACING_MS = 100;
 /** OMDb's free key allows 1,000 a day; one a second is plenty for one person. */
 export const OMDB_SPACING_MS = 1000;
 

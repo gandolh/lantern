@@ -138,3 +138,12 @@ rewritten in place and 12-14 added: 07 drop TMDB, 08 the pool import, 09 search,
 title page (the first real calls), 11 cards, 12 suggestions, 13 lists, 14 README.
 `TMDB_API_KEY` is gone from `.env.example`. The owner resumed the paused run; `.env` holds
 `OMDB_API_KEY`.
+
+## [2026-11-04] done | Brief 07: TMDB out; IMDb ids, the OMDb record, posters from OMDb
+
+Brief 05's TMDB client, cache and poster route removed, with `TMDB_API_KEY`. Migration 3
+rebuilds the states on IMDb ids and keeps OMDb's whole record per title (found for good, not
+found 30 days, a refusal never). Posters come through `/v1/posters/:id`, for titles whose
+record is kept, never asking OMDb. Fixtures only. See
+[wiki/source-calls.md](wiki/source-calls.md) and
+[briefs/done/07-drop-tmdb-imdb-ids-omdb-record.md](briefs/done/07-drop-tmdb-imdb-ids-omdb-record.md).

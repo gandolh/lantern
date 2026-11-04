@@ -1,19 +1,18 @@
-import type { SourcesResponse } from "@lantern/shared";
+import { imdbIdSchema, POSTER_SIZES, type PosterSize, type SourcesResponse } from "@lantern/shared";
 import type { FastifyInstance, FastifyReply } from "fastify";
 import { fail } from "../reply.js";
 import { NoKeyError, SourceError, type FetchLike } from "../sources/http.js";
-import { fetchImage, IMAGE_CACHE_CONTROL, isImageFile, isImageSize } from "../sources/images.js";
-import { TitleNotFoundError, type Sources } from "../sources/titles.js";
+import { fetchPoster, POSTER_CACHE_CONTROL, posterUrlFor } from "../sources/posters.js";
+import type { Records } from "../sources/records.js";
 
 /**
- * A source's failure in the contract's shape: no key is a 503 `no_key`, a
- * title TMDB doesn't have a 404, anything else from a source a 502
- * `source_failed`. The message names the source and the path, never a key.
- * Anything else is rethrown for the 500 handler.
+ * A source's failure in the contract's shape: no key is a 503 `no_key`,
+ * anything else from a source a 502 `source_failed` (the daily limit
+ * included, which the message says). The message names the source, never a
+ * key. Anything else is rethrown for the 500 handler.
  */
 export function sourceFailure(reply: FastifyReply, error: unknown): FastifyReply {
   if (error instanceof NoKeyError) return fail(reply, 503, { code: "no_key", message: error.message });
-  if (error instanceof TitleNotFoundError) return fail(reply, 404, { code: "not_found", message: error.message });
   if (error instanceof SourceError) {
     reply.log.warn({ failure: error.failure, status: error.status }, error.message);
     return fail(reply, 502, { code: "source_failed", message: error.message });
@@ -22,19 +21,24 @@ export function sourceFailure(reply: FastifyReply, error: unknown): FastifyReply
 }
 
 /**
- *   GET /v1/sources                whether each key is set
- *   GET /v1/images/:size/:file     a TMDB poster, through the server
+ *   GET /v1/sources                  whether OMDb's key is set
+ *   GET /v1/posters/:id?size=        a title's poster, from its kept OMDb record only
  */
-export function registerSourceRoutes(app: FastifyInstance, sources: Sources, imageFetch: FetchLike): void {
-  app.get("/v1/sources", async (): Promise<SourcesResponse> => sources.status);
+export function registerSourceRoutes(app: FastifyInstance, records: Records, posterFetch: FetchLike): void {
+  app.get("/v1/sources", async (): Promise<SourcesResponse> => records.status);
 
-  app.get<{ Params: { size: string; file: string } }>("/v1/images/:size/:file", async (request, reply) => {
-    const { size, file } = request.params;
-    if (!isImageSize(size) || !isImageFile(file)) {
-      return fail(reply, 404, { code: "not_found", message: "no such image size or file" });
+  app.get<{ Params: { id: string }; Querystring: { size?: string } }>("/v1/posters/:id", async (request, reply) => {
+    const id = imdbIdSchema.safeParse(request.params.id);
+    const size = request.query.size ?? "normal";
+    if (!id.success || !(POSTER_SIZES as readonly string[]).includes(size)) {
+      return fail(reply, 404, { code: "not_found", message: "no such poster" });
     }
-    const image = await fetchImage(imageFetch, size, file);
-    if (!image.ok) return fail(reply, image.status, { code: image.status === 404 ? "not_found" : "source_failed", message: image.reason });
-    return reply.header("cache-control", IMAGE_CACHE_CONTROL).type(image.type).send(image.bytes);
+    // Never asks OMDb: a poster is served only for a title whose record is kept.
+    const posterUrl = records.cached(id.data)?.posterUrl;
+    if (!posterUrl) return fail(reply, 404, { code: "not_found", message: "no poster kept for this title" });
+    let poster = await fetchPoster(posterFetch, posterUrlFor(posterUrl, size as PosterSize));
+    if (!poster.ok && size === "large") poster = await fetchPoster(posterFetch, posterUrl);
+    if (!poster.ok) return fail(reply, poster.status, { code: poster.status === 404 ? "not_found" : "source_failed", message: poster.reason });
+    return reply.header("cache-control", POSTER_CACHE_CONTROL).type(poster.type).send(poster.bytes);
   });
 }

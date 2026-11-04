@@ -1,7 +1,7 @@
 /**
  * Getting JSON from a source, with a timeout, one retry after a 429, and
  * errors that name the source and the path but never the query string,
- * where a key can sit (`api_key=`, `apikey=`).
+ * where the key sits (`apikey=`).
  */
 
 export type FetchLike = typeof globalThis.fetch;
@@ -9,8 +9,8 @@ export type FetchLike = typeof globalThis.fetch;
 /** The source can't be asked: its key isn't set. Routes answer 503 `no_key`. */
 export class NoKeyError extends Error {
   override readonly name = "NoKeyError";
-  constructor(readonly source: "TMDB" | "OMDb") {
-    super(`${source} has no key: set ${source === "TMDB" ? "TMDB_API_KEY" : "OMDB_API_KEY"} in .env`);
+  constructor(readonly source: "OMDb") {
+    super(`${source} has no key: set OMDB_API_KEY in .env`);
   }
 }
 
@@ -40,7 +40,7 @@ export interface GetJsonOptions {
   sleep?: (ms: number) => Promise<void>;
 }
 
-/** "TMDB /movie/603": what a message may say about a request. */
+/** "OMDb /": what a message may say about a request; never its query string. */
 export function describe(source: string, url: URL): string {
   return `${source} ${url.pathname}`;
 }

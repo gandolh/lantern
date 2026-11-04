@@ -27,9 +27,7 @@ function PageFor({ route }: { route: Route }) {
       return <Placeholder title="Search">Find a film or a series by its name.</Placeholder>;
     case "title":
       return (
-        <Placeholder title={route.mediaType === "movie" ? "Film" : "Series"}>
-          A title's page: its facts, its scores, and your rating.
-        </Placeholder>
+        <Placeholder title="Title">A title's page: its facts, its scores, and your rating.</Placeholder>
       );
     case "account":
       return <AccountPage />;
