@@ -30,3 +30,24 @@ Depends on 02-13.
 
 - Every link in the README and `docs/` resolves; no domain, path, username or secret.
 - `npm run typecheck`, `npm run lint` and `npm test` still pass.
+
+## Outcome (2026-11-04)
+
+Built as specified.
+
+- **`README.md`** in Wicket's shape: what Lantern is, what it does, how it works (the pool from
+  IMDb's files, OMDb for what is shown in full, nothing in the background), running it locally
+  with the import, the layout, and the credits (IMDb's line word for word, OMDb's licence). No
+  screenshots: captures would show the owner's ratings.
+- **`docs/owner-setup.md`** checked against the code: service `lantern-api`, port 8810 on
+  loopback, `/srv/lantern-api/data` at `/data`, the two secrets (`OMDB_API_KEY`,
+  `WARD_OIDC_CLIENT_KEY`), the seed (`node server/dist/seed.js`) and the import
+  (`node server/dist/pool/cli.js`) as built JavaScript inside the container. Both commands were
+  run from `server/dist` against a scratch database. Added: wake a sleeping container before
+  `exec`.
+- **`docs/README.md`** gained the pool and suggestions pages.
+
+Checks: every link in the README and `docs/` resolves; no domain, machine path, username or
+secret in them; `npm run typecheck`, `npm run lint`, `npm test` (18 files, 104 tests) pass.
+`docker compose config` could not run this time (Docker's WSL integration was off after a
+restart); the compose file is unchanged since brief 06, where it parsed.

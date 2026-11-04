@@ -109,9 +109,12 @@ cd /srv/lantern-api
 docker compose -f infrastructure/docker-compose.yml exec lantern-api node server/dist/pool/cli.js
 ```
 
+If the stack lets the container sleep when idle, wake it first (open the page, or
+`curl -s <production origin>/lantern-api/v1/health`): `exec` needs it running.
+
 It streams IMDb's three files (about 310 MB), keeps films and series with at least 1,000 votes
-(about 66,000 on 2026-11-04), and replaces the pool in one go; ratings and the watchlist are
-never touched. Add `--min-votes 2000` for a smaller pool. A failed run leaves the old pool. IMDb's
+(65,732 on 2026-11-04), and replaces the pool in one go; ratings and the watchlist are never
+touched. Add `--min-votes 2000` for a smaller pool. A failed run leaves the old pool. IMDb's
 data is for personal, non-commercial use only.
 
 ## 7. Your account, and Ward
@@ -125,7 +128,7 @@ cd /srv/lantern-api
 docker compose -f infrastructure/docker-compose.yml exec -it lantern-api node server/dist/seed.js
 ```
 
-An existing user is left as it is. Then link Ward in this order, or you end up with two users
+(Wake a sleeping container first, as in step 6.) An existing user is left as it is. Then link Ward in this order, or you end up with two users
 (and two separate sets of ratings):
 
 1. Sign in at `<production origin>/lantern/` with that local account.

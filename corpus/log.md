@@ -192,3 +192,12 @@ swamping everything, so each title's weight is now spread over its features of a
 `GET /v1/lists/:list` joins the states with the pool (or OMDb's kept record for a title the
 import dropped). The watchlist and the ratings pages, with tabs and counts, changes in place and
 Undo. See [briefs/done/13-watchlist-and-ratings-pages.md](briefs/done/13-watchlist-and-ratings-pages.md).
+
+## [2026-11-04] done | Brief 14: the README and the docs; the first version is built
+
+The README describes Lantern as built, with IMDb's credit and OMDb's, and local development
+including the title import. `docs/owner-setup.md` was checked against the code for the
+vps-deploy stack: `lantern-api` on loopback 8810, data at `/data`, two secrets, the seed and the
+import as `node server/dist/…` inside the container. Briefs 01 to 14 are done; nothing is
+deployed. See [briefs/done/14-readme-and-docs.md](briefs/done/14-readme-and-docs.md) and
+[wiki/status.md](wiki/status.md).

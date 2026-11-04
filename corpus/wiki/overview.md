@@ -1,5 +1,5 @@
 ---
-summary: What Lantern is and what its first version does, on one page, as replanned on 2026-11-04 after the owner dropped TMDB. Rate films and series on four steps, mark them not interested or want to watch, deal rating cards from a title pool built from IMDb's files, search the pool, open a title's page with OMDb's details and scores, and get suggestions with a reason; the screens, the data kept, the sources, how suggestions are ranked, the briefs that build it, and what is left for later.
+summary: What Lantern is and what its first version does, on one page, as replanned and built on 2026-11-04 after the owner dropped TMDB. Rate films and series on four steps, mark them not interested or want to watch, deal rating cards from a title pool built from IMDb's files, search the pool, open a title's page with OMDb's details and scores, and get suggestions with a reason; the screens, the data kept, the sources, how suggestions are ranked, the briefs that build it, and what is left for later.
 updated: 2026-11-04
 ---
 
@@ -62,14 +62,14 @@ were rewritten on 2026-11-04 when TMDB was dropped, and 12 to 14 added; the OMDb
 | 02-04 | Skeleton, sign-in, states | no (done) |
 | 05 | Source clients on fixtures (its TMDB part undone by 07) | no (done) |
 | 06 | The container and `docs/owner-setup.md` | no (done) |
-| 07 | Drop TMDB: IMDb ids, the OMDb record, posters from OMDb | no (fixtures) |
-| 08 | The title pool, imported from IMDb's files by hand | no |
-| 09 | Search over the pool, the state picker, a title page from the pool | no |
-| 10 | The title page with OMDb: poster, plot, people, scores | yes, the first |
-| 11 | The rating cards | yes, for the card on screen |
-| 12 | Suggestions | no |
-| 13 | The watchlist and ratings pages | no |
-| 14 | The README and the docs index | no |
+| 07 | Drop TMDB: IMDb ids, the OMDb record, posters from OMDb | no (fixtures; done) |
+| 08 | The title pool, imported from IMDb's files by hand | no (done) |
+| 09 | Search over the pool, the state picker, a title page from the pool | no (done) |
+| 10 | The title page with OMDb: poster, plot, people, scores | yes, the first (done) |
+| 11 | The rating cards | yes, for the card on screen (done) |
+| 12 | Suggestions | no (done) |
+| 13 | The watchlist and ratings pages | no (done) |
+| 14 | The README and the docs index | no (done) |
 
 ## Later
 

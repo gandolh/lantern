@@ -1,14 +1,15 @@
 ---
-summary: Where Lantern stands, per area, as of 2026-11-04. Briefs 01-13 built (skeleton, sign-in, states, container, TMDB taken out for OMDb and IMDb ids, the title pool import, search, the OMDb title page, the rating cards, suggestions, the lists); the owner dropped TMDB the same day for OMDb plus IMDb's files, so 07-14 were rewritten (the README to come). What is open, the todos (bump @fastify/static), and the owner's next steps.
+summary: Where Lantern stands, per area, as of 2026-11-04. The first version is built (briefs 01-14), on OMDb plus IMDb's files after the owner dropped TMDB the same day; not deployed. Each area as built, the checks, the todo (bump @fastify/static), and the owner's next steps in order (push, Ward registration, two secrets, the vps-deploy stack, the title import, the account).
 updated: 2026-11-04
 ---
 
 # Status
 
-_2026-11-04_. Brief 01 is done: the owner settled the first version in a grill
-([decisions.md](decisions.md)). Later that day the owner dropped TMDB for OMDb plus IMDb's
-non-commercial files ([decisions.md](decisions.md), "Revisited"), and the plan became briefs 07
-to 14 ([overview.md](overview.md), "The build"). The owner pushes; nothing here is deployed.
+_2026-11-04_. **The first version is built**: briefs 01 to 14, all on 2026-11-04. The owner
+settled it in a grill ([decisions.md](decisions.md)), then dropped TMDB the same day for OMDb
+plus IMDb's non-commercial files ("Revisited"), and briefs 07 to 14 were rewritten and built on
+that ([overview.md](overview.md)). **Not deployed**, and the container image was never built
+on the shared machine. 104 tests; typecheck and lint clean. The owner pushes.
 
 ## By area
 
@@ -53,8 +54,7 @@ to 14 ([overview.md](overview.md), "The build"). The owner pushes; nothing here 
 
 ## Open briefs
 
-14, in `briefs/todo/`, run in number order, rewritten on 2026-11-04 after TMDB was
-dropped.
+None.
 
 ## Todos
 
@@ -65,10 +65,13 @@ dropped.
 
 In this order; the details are in `docs/owner-setup.md`.
 
-- Run Ward's local seed once Lantern is in it (the Ward repo's own brief), so `.env` gains the
-  five `WARD_OIDC_*` lines, then try "Sign in with Ward" at <http://localhost:5180/lantern/>.
-- When the first version is done: register Lantern in production Ward (slug `lantern`), put the
-  two secrets (`OMDB_API_KEY`, `WARD_OIDC_CLIENT_KEY`) in vps-deploy, have the stack written from the table in `docs/owner-setup.md`,
-  deploy, then run the title import and seed your account in the container, and link Ward
-  (`docs/owner-setup.md`, steps 6 and 7).
-- Optionally, check the container locally (`docs/owner-setup.md`, step 4).
+1. Push this repo (local `main` is ahead of GitHub).
+2. Locally, "Sign in with Ward" once Ward's local seed has run (it needs your Ward login and
+   writes the five `WARD_OIDC_*` lines into `.env`); only local sign-in was walked.
+3. Register Lantern in production Ward (slug `lantern`) and grant your account (step 1).
+4. Put the two secrets in vps-deploy: `OMDB_API_KEY` and `WARD_OIDC_CLIENT_KEY` (step 2).
+5. Have the `lantern` stack written from the table in step 3, and deploy (step 5). Optionally
+   check the container locally first (step 4).
+6. In the container: import the titles (`node server/dist/pool/cli.js`, step 6), then seed your
+   account and link Ward (step 7). Repeat the import about monthly.
+7. Choose a licence for the public repo, if any (none is set).
