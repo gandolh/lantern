@@ -1,19 +1,23 @@
-import type { SearchResponse, TitleItem } from "@lantern/shared";
+import type { RecordResponse, SearchResponse, TitleItem } from "@lantern/shared";
 import type { FastifyInstance } from "fastify";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { buildApp } from "../app.js";
 import { createOmdbClient } from "../sources/omdb.js";
-import { fakeFetch, fixture, immediateQueue, json } from "../sources/testing.js";
+import { fakeFetch, fixture, immediateQueue, json, type FakeFetch } from "../sources/testing.js";
 import { seedPool, signIn, TEST_ORIGIN } from "../testing.js";
 
 let app: FastifyInstance;
 let cookie: string;
+let omdbFetch: FakeFetch;
+let omdbAnswer: () => Response;
 
 beforeEach(async () => {
+  omdbAnswer = () => json(fixture("omdb-found"));
+  omdbFetch = fakeFetch(() => omdbAnswer());
   app = await buildApp({
     dbPath: ":memory:",
     publicOrigin: TEST_ORIGIN,
-    omdb: createOmdbClient({ apiKey: "omdb-test-key", fetch: fakeFetch(() => json(fixture("omdb-found"))), queue: immediateQueue() }),
+    omdb: createOmdbClient({ apiKey: "omdb-test-key", fetch: omdbFetch, queue: immediateQueue() }),
   });
   cookie = await signIn(app);
   seedPool(app.db, [
@@ -70,5 +74,42 @@ describe("a title from the pool", () => {
     expect(res.json<TitleItem>()).toMatchObject({ title: { imdbId: "tt0000005", kind: "series", title: "Resident Alien", genres: ["Drama"] }, state: null, poster: false });
     expect((await app.inject({ url: "/lantern-api/v1/titles/tt9999999", headers: { cookie } })).statusCode).toBe(404);
     expect((await app.inject({ url: "/lantern-api/v1/titles/603", headers: { cookie } })).statusCode).toBe(400);
+  });
+});
+
+describe("a title's OMDb record", () => {
+  const record = async (id: string) => app.inject({ url: `/lantern-api/v1/titles/${id}/record`, headers: { cookie } });
+
+  it("asks OMDb once, then answers from what it kept, without the poster's URL", async () => {
+    const first = await record("tt1375666");
+    expect(first.statusCode).toBe(200);
+    expect(first.json<RecordResponse>().record).toMatchObject({ title: "Inception", hasPoster: true, scores: { rottenTomatoes: 87 } });
+    expect(first.body).not.toContain("media-amazon");
+    await record("tt1375666");
+    expect(omdbFetch.calls).toHaveLength(1);
+  });
+
+  it("answers null when OMDb doesn't know the title", async () => {
+    omdbAnswer = () => json(fixture("omdb-not-found"));
+    expect((await record("tt0000009")).json()).toEqual({ record: null });
+  });
+
+  it("answers 502 on a refusal, which is never kept, and 400 on a bad id", async () => {
+    omdbAnswer = () => json(fixture("omdb-limit"));
+    const refused = await record("tt0000009");
+    expect(refused.statusCode).toBe(502);
+    expect(refused.json().message).toMatch(/Request limit reached/);
+    expect((await record("603")).statusCode).toBe(400);
+  });
+});
+
+describe("without an OMDb key", () => {
+  it("answers 503 no_key", async () => {
+    const keyless = await buildApp({ dbPath: ":memory:", publicOrigin: TEST_ORIGIN });
+    const keylessCookie = await signIn(keyless);
+    const res = await keyless.inject({ url: "/lantern-api/v1/titles/tt1375666/record", headers: { cookie: keylessCookie } });
+    expect(res.statusCode).toBe(503);
+    expect(res.json().code).toBe("no_key");
+    await keyless.close();
   });
 });

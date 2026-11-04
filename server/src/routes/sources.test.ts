@@ -61,8 +61,11 @@ describe("the poster proxy", () => {
     await app.records.get("tt1375666");
     const res = await app.inject({ url: "/lantern-api/v1/posters/tt1375666?size=large", headers: { cookie } });
     expect(res.statusCode).toBe(200);
-    expect(fetch.calls.map((call) => call.url.pathname)).toEqual([POSTER.replace("_SX300", "_SX600"), POSTER]);
+    expect(fetch.calls.map((call) => call.url.pathname)).toEqual([POSTER.replace("_SX300", "_SX760"), POSTER]);
     expect(posterUrlFor("https://m.media-amazon.com/a.jpg", "large")).toBe("https://m.media-amazon.com/a.jpg");
+    expect(posterUrlFor("https://m.media-amazon.com/images/M/MV5Bx@._V1_QL75_UX380_CR0,0,380,562_.jpg", "large")).toBe(
+      "https://m.media-amazon.com/images/M/MV5Bx@._V1_SX760.jpg",
+    );
   });
 
   it("refuses a bad id or size, what isn't an image, and what is too large", async () => {

@@ -15,12 +15,13 @@ export const POSTER_CACHE_CONTROL = "private, max-age=2592000, immutable";
 const TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 /**
- * OMDb's poster URLs end in Amazon's size modifier (`._V1_SX300.jpg`, 300
- * pixels wide). The large size asks for the same image 600 wide; a URL in
- * another form is used as it is.
+ * OMDb's poster URLs end in Amazon's image modifiers after `._V1_` (on
+ * 2026-11-04, `._V1_QL75_UX380_CR0,0,380,562_.jpg`: 380 pixels wide; older
+ * ones `._V1_SX300.jpg`). The large size swaps them for `SX760`, the same
+ * image 760 wide, sharp on a phone; a URL in another form is used as it is.
  */
 export function posterUrlFor(url: string, size: PosterSize): string {
-  return size === "large" ? url.replace(/_SX300(\.(?:jpg|png))$/, "_SX600$1") : url;
+  return size === "large" ? url.replace(/\._V1_[^/]*\.(jpg|png)$/, "._V1_SX760.$1") : url;
 }
 
 export type PosterResult = { ok: true; type: string; bytes: Buffer } | { ok: false; status: 404 | 502; reason: string };

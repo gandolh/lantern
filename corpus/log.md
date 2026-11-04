@@ -164,3 +164,10 @@ credit line is in the footer and on the account page. See [wiki/titles.md](wiki/
 address, a kind filter), the state picker (tap again to clear) and a title page from the pool's
 facts. Walked on the real pool. See
 [briefs/done/09-search-over-the-pool.md](briefs/done/09-search-over-the-pool.md).
+
+## [2026-11-04] done | Brief 10: the title page with OMDb, the first real calls
+
+`GET /v1/titles/:id/record`, the only route that asks OMDb, and the title page with OMDb's
+poster, plot, people and three scores. The live check matched the reader; OMDb's poster URLs
+had changed form, so the large size now swaps any Amazon modifier for 760 pixels. Three real
+OMDb calls in all. See [briefs/done/10-title-page-with-omdb.md](briefs/done/10-title-page-with-omdb.md).

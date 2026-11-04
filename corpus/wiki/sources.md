@@ -50,8 +50,9 @@ read 2026-11-04):
 `tt1285016`; `plot` is `short` (the default) or `full`. A free key allows 1,000 requests a day,
 sent by email ([API keys](https://www.omdbapi.com/apikey.aspx)). HTTPS works since 2015-08-15.
 
-Lantern asks once per title it shows in full, and keeps a found answer. The fields it reads
-(from common use; checked against the first real call):
+Lantern asks once per title it shows in full, and keeps a found answer. The fields it reads,
+checked against the first real call on 2026-11-04 (Inception: every field below present and
+read as expected; `Poster` was a 380-pixel image on `m.media-amazon.com`):
 
 - `Title`, `Year` (`2010`, or `2011–2019` and `2019–` for series), `Rated`, `Released`,
   `Runtime` (`148 min`), `Genre`, `Director`, `Writer`, `Actors` (comma-separated names),

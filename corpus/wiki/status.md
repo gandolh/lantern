@@ -1,5 +1,5 @@
 ---
-summary: Where Lantern stands, per area, as of 2026-11-04. Briefs 01-09 built (skeleton, sign-in, states, container, TMDB taken out for OMDb and IMDb ids, the title pool import, search); the owner dropped TMDB the same day for OMDb plus IMDb's files, so 07-14 were rewritten (the OMDb title page, cards, suggestions, lists, README to come). What is open, the todos (bump @fastify/static), and the owner's next steps.
+summary: Where Lantern stands, per area, as of 2026-11-04. Briefs 01-10 built (skeleton, sign-in, states, container, TMDB taken out for OMDb and IMDb ids, the title pool import, search, the OMDb title page); the owner dropped TMDB the same day for OMDb plus IMDb's files, so 07-14 were rewritten (cards, suggestions, lists, README to come). What is open, the todos (bump @fastify/static), and the owner's next steps.
 updated: 2026-11-04
 ---
 
@@ -24,7 +24,8 @@ to 14 ([overview.md](overview.md), "The build"). The owner pushes; nothing here 
   ([data-model.md](data-model.md)). No page uses them yet.
 - **OMDb** (2026-11-04). TMDB taken out; titles are IMDb ids. The OMDb client reads a title's
   whole record and keeps it once found; posters come through `/v1/posters/:id` from kept
-  records only ([source-calls.md](source-calls.md)). Tested on fixtures; no real call yet.
+  records only ([source-calls.md](source-calls.md)). Checked against real answers: 3 calls on
+  2026-11-04. The title page shows the poster, plot, people and the three scores.
 - **Container and owner setup** (2026-11-04). `infrastructure/` holds the API's Dockerfile and
   a compose file (`lantern-api` on loopback 8810); `docs/owner-setup.md` is the vps-deploy
   stack's brief. The compose file parses; the image was not built on the shared machine.
@@ -42,8 +43,8 @@ to 14 ([overview.md](overview.md), "The build"). The owner pushes; nothing here 
 
 ## Open briefs
 
-10 to 14, in `briefs/todo/`, run in number order, rewritten on 2026-11-04 after TMDB was
-dropped. 10 makes the first real OMDb calls; the key is in the owner's `.env`.
+11 to 14, in `briefs/todo/`, run in number order, rewritten on 2026-11-04 after TMDB was
+dropped.
 
 ## Todos
 

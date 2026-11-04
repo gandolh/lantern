@@ -55,3 +55,7 @@ export type SourcesResponse = z.infer<typeof sourcesResponseSchema>;
 /** The poster sizes the proxy serves: OMDb's own (300 pixels wide) and a larger one. */
 export const POSTER_SIZES = ["normal", "large"] as const;
 export type PosterSize = (typeof POSTER_SIZES)[number];
+
+/** `GET /v1/titles/:id/record`: OMDb's record, or null when OMDb doesn't know the title. */
+export const recordResponseSchema = z.object({ record: omdbRecordSchema.nullable() });
+export type RecordResponse = z.infer<typeof recordResponseSchema>;

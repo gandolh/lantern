@@ -1,5 +1,5 @@
 ---
-summary: How Lantern's server calls OMDb, as built 2026-11-04 (TMDB taken out the same day). The key setting; one queue (a call a second), single flight, the 429 retry and errors that never carry the key; the record reader and what it keeps; the record cache (found for good, not found 30 days, a refusal never); the poster proxy (kept records only, never asks OMDb, Amazon's 600-pixel size); GET /v1/sources; the 503/502 mapping; and the one-call live check.
+summary: How Lantern's server calls OMDb, as built 2026-11-04 (TMDB taken out the same day). The key setting; one queue (a call a second), single flight, the 429 retry and errors that never carry the key; the record reader and what it keeps; the record cache (found for good, not found 30 days, a refusal never); GET /v1/titles/:id/record, the only route that asks OMDb; the poster proxy (kept records only, never asks OMDb, Amazon's 760-pixel size); GET /v1/sources; the 503/502 mapping; and the one-call live check.
 updated: 2026-11-04
 ---
 
@@ -49,14 +49,21 @@ the daily limit) is a refusal, which throws.
 `cached` reads a kept record without ever asking, for the poster route and for lists that show
 a poster only when one is kept.
 
+## The record route
+
+`GET /v1/titles/:id/record` answers `{ record }` (null when OMDb doesn't know the title), from
+the cache or asked once. It is the only route that ever asks OMDb; the title page calls it, and
+the rating cards for the card on screen and the next one.
+
 ## The poster proxy
 
 `GET /v1/posters/:id?size=normal|large`, behind sign-in
 ([routes/sources.ts](../../server/src/routes/sources.ts),
 [posters.ts](../../server/src/sources/posters.ts)). It serves the poster of a title whose OMDb
 record is kept, and answers 404 otherwise: **it never asks OMDb**. OMDb's poster URLs end in
-Amazon's size modifier `_SX300` (300 pixels wide); `large` asks for `_SX600` and falls back to
-OMDb's own URL. Fetched from `m.media-amazon.com` only, redirects refused, JPEG, PNG or WebP, at
+Amazon's image modifiers after `._V1_` (on 2026-11-04 `._V1_QL75_UX380_CR0,0,380,562_.jpg`, 380
+pixels wide); `large` swaps them for `SX760`, the same image 760 wide (checked on a real poster),
+and falls back to OMDb's own URL. Fetched from `m.media-amazon.com` only, redirects refused, JPEG, PNG or WebP, at
 most 5 MB and 10 s; passed on with `Cache-Control: private, max-age=2592000, immutable`.
 Nothing is stored on the server.
 
