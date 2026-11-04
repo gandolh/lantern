@@ -12,12 +12,14 @@ import { registerCardRoutes } from "./routes/cards.js";
 import { registerPoolRoutes } from "./routes/pool.js";
 import { registerSourceRoutes } from "./routes/sources.js";
 import { registerStateRoutes } from "./routes/states.js";
+import { registerSuggestionRoutes } from "./routes/suggestions.js";
 import { registerTitleRoutes } from "./routes/titles.js";
 import { createRecordCache } from "./sources/cache.js";
 import type { FetchLike } from "./sources/http.js";
 import { createOmdbClient, type OmdbClient } from "./sources/omdb.js";
 import { createRecords, type Records } from "./sources/records.js";
 import { createStatesStore, type StatesStore } from "./states.js";
+import { createSuggester } from "./suggest/suggest.js";
 
 /**
  * The Lantern API. Every route is under `/v1` and needs a signed-in session,
@@ -239,6 +241,7 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   registerPoolRoutes(app, pool);
   registerTitleRoutes(app, { pool, states, records });
   registerCardRoutes(app, { db, records });
+  registerSuggestionRoutes(app, { suggester: createSuggester(db, states), pool, records });
 
   // The built page at `webBase`; any other path under it is the page too (index.html).
   const webDist = options.webDist;

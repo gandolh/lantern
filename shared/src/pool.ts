@@ -57,3 +57,27 @@ export const searchQuerySchema = z.strictObject({
 
 export const searchResponseSchema = z.object({ results: z.array(titleItemSchema) });
 export type SearchResponse = z.infer<typeof searchResponseSchema>;
+
+export const MAX_SUGGESTIONS = 50;
+
+/** `GET /v1/suggestions?kind=&limit=`. */
+export const suggestionsQuerySchema = z.strictObject({
+  kind: titleKindSchema.optional(),
+  limit: z.coerce.number<string>().int().min(1).max(MAX_SUGGESTIONS).optional(),
+});
+
+export const suggestionSchema = z.object({
+  title: poolTitleSchema,
+  poster: z.boolean(),
+  /** The liked title that adds the most to this one's score: "because you liked X". */
+  because: z.object({ imdbId: z.string(), title: z.string() }),
+});
+export type Suggestion = z.infer<typeof suggestionSchema>;
+
+export const suggestionsResponseSchema = z.object({
+  suggestions: z.array(suggestionSchema),
+  /** How many rated titles the profile was built from, and how many of them were liked. */
+  rated: z.number().int(),
+  liked: z.number().int(),
+});
+export type SuggestionsResponse = z.infer<typeof suggestionsResponseSchema>;

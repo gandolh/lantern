@@ -1,12 +1,9 @@
-import type { TitleItem, TitleKind } from "@lantern/shared";
+import type { TitleKind } from "@lantern/shared";
 import { useEffect, useRef, useState } from "react";
-import { Link } from "./Link";
-import { Poster } from "./Poster";
 import { hrefOf, navigate } from "./route";
-import { StatePicker } from "./StatePicker";
 import { searchTitles } from "./titlesApi";
+import { TitleRow } from "./TitleRow";
 import { useQuery } from "./useQuery";
-import { kindLabel, votes, years } from "./format";
 
 const KINDS: { value: TitleKind | undefined; label: string }[] = [
   { value: undefined, label: "All" },
@@ -90,28 +87,5 @@ export function SearchPage({ query }: { query: string }) {
         </ul>
       )}
     </section>
-  );
-}
-
-/** One title in a list: poster, name, facts, and the state picker. */
-export function TitleRow({ item, onChange }: { item: TitleItem; onChange?: Parameters<typeof StatePicker>[0]["onChange"] }) {
-  const { title } = item;
-  const facts = [years(title), kindLabel(title.kind), title.genres.join(", ")].filter((fact) => fact);
-  return (
-    <li className="title-row">
-      <Link to={{ page: "title", id: title.imdbId }} className="title-row-poster" tabIndex={-1} aria-hidden="true">
-        <Poster imdbId={title.imdbId} title={title.title} has={item.poster} />
-      </Link>
-      <div className="title-row-body">
-        <Link to={{ page: "title", id: title.imdbId }} className="title-row-name">
-          {title.title}
-        </Link>
-        <p className="title-row-facts">{facts.join(" · ")}</p>
-        <p className="title-row-score">
-          IMDb {title.rating.toFixed(1)} <span className="muted">({votes(title.votes)} votes)</span>
-        </p>
-        <StatePicker key={title.imdbId} imdbId={title.imdbId} state={item.state} title={title.title} compact onChange={onChange} />
-      </div>
-    </li>
   );
 }

@@ -42,3 +42,25 @@ Depends on 04, 08 and 09.
   is the biggest share, damping keeps one genre from deciding.
 - A browser walk: with the ratings made so far, suggestions show with reasons; rating one
   removes it.
+
+## Outcome (2026-11-04)
+
+Built as specified; the method, the weights and what it can't do are in
+[suggestions.md](../../wiki/suggestions.md).
+
+- **The spread** (each title's weight shared 1/√k over its features of one kind) was added after
+  the first real run: IMDb lists every episode's director and writer for a series, and Game of
+  Thrones' crowd put eight HBO series above every Nolan film. With it, two ratings gave 11 Nolan
+  films and 19 series in the top 30.
+- **Weights**: director 2, writer 1.5, genre 0.5; the IMDb nudge 0.4 per rating point above 7 and
+  0.2 per tenfold of votes; a suggestion needs a liked title with a share of 0.5.
+- **The pool's features** are read once per import (the newest `pool_imports` row) and kept in
+  memory; the route answered in about 40 ms.
+- **Skipped cards** can still be suggested (a skip is not a state).
+
+Checks: `npm run typecheck`, `npm run lint`, `npm test` (17 files, 99 tests; 15 new: the
+features, the profile's sums, spread and damping, a director over shared genres, dislikes
+pushing down, one genre not deciding, a series' crowd not outweighing an auteur, the reason as
+the largest share, the 0.5 floor, the nudge and ties, the limit; the route empty until a like,
+stated titles left out, by kind, a re-import read again). A browser walk at 412 x 915 on the
+real pool: suggestions with reasons on the home page; rating the top one took it off the list.

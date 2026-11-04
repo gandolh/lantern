@@ -178,3 +178,11 @@ OMDb calls in all. See [briefs/done/10-title-page-with-omdb.md](briefs/done/10-t
 card on screen and the next only. Swipes are for titles not seen (right want to watch, left not
 interested, up skip), ratings are taps; Undo and keys. Walked with pointer drags on an emulated
 phone; six OMDb calls. See [briefs/done/11-rating-cards.md](briefs/done/11-rating-cards.md).
+
+## [2026-11-04] done | Brief 12: suggestions from the pool
+
+The home page ranks the pool by a taste profile of genres, directors and writers, likes and
+dislikes both, with "Because you liked X". The first real run showed a series' episode crowd
+swamping everything, so each title's weight is now spread over its features of a kind. About
+40 ms per request. See [wiki/suggestions.md](wiki/suggestions.md) and
+[briefs/done/12-suggestions.md](briefs/done/12-suggestions.md).

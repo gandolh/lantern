@@ -884,3 +884,8 @@ code {
     transition: opacity 120ms linear;
   }
 }
+
+.title-row-note {
+  margin: 4px 0 0;
+  font-size: 0.88rem;
+}

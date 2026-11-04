@@ -2,6 +2,7 @@ import { AccountPage } from "./AccountPage";
 import { Placeholder } from "./Placeholder";
 import { RatePage } from "./RatePage";
 import { SearchPage } from "./SearchPage";
+import { SuggestionsPage } from "./SuggestionsPage";
 import { TitlePage } from "./TitlePage";
 import { useRoute, type Route } from "./route";
 import { Shell } from "./Shell";
@@ -19,7 +20,7 @@ export function App() {
 function PageFor({ route }: { route: Route }) {
   switch (route.page) {
     case "suggestions":
-      return <Placeholder title="Suggestions">What to watch next, from what you liked, each saying why.</Placeholder>;
+      return <SuggestionsPage />;
     case "rate":
       return <RatePage />;
     case "watchlist":
