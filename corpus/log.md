@@ -157,3 +157,10 @@ transaction. Films (with `tvMovie`) and series with 1,000 votes or more: 65,732 
 read chunks (V8 sliced strings); copying them cut a synthetic run from 565 to 246 MiB. IMDb's
 credit line is in the footer and on the account page. See [wiki/titles.md](wiki/titles.md) and
 [briefs/done/08-title-pool-import.md](briefs/done/08-title-pool-import.md).
+
+## [2026-11-04] done | Brief 09: search over the pool, the state picker, the title page
+
+`GET /v1/search` and `GET /v1/titles/:id` read the pool only. The search page (query in the
+address, a kind filter), the state picker (tap again to clear) and a title page from the pool's
+facts. Walked on the real pool. See
+[briefs/done/09-search-over-the-pool.md](briefs/done/09-search-over-the-pool.md).

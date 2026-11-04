@@ -11,6 +11,7 @@ import { createPool, type Pool } from "./pool/pool.js";
 import { registerPoolRoutes } from "./routes/pool.js";
 import { registerSourceRoutes } from "./routes/sources.js";
 import { registerStateRoutes } from "./routes/states.js";
+import { registerTitleRoutes } from "./routes/titles.js";
 import { createRecordCache } from "./sources/cache.js";
 import type { FetchLike } from "./sources/http.js";
 import { createOmdbClient, type OmdbClient } from "./sources/omdb.js";
@@ -235,6 +236,7 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   const pool = createPool(db);
   app.decorate("pool", pool);
   registerPoolRoutes(app, pool);
+  registerTitleRoutes(app, { pool, states, records });
 
   // The built page at `webBase`; any other path under it is the page too (index.html).
   const webDist = options.webDist;

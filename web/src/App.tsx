@@ -1,5 +1,7 @@
 import { AccountPage } from "./AccountPage";
 import { Placeholder } from "./Placeholder";
+import { SearchPage } from "./SearchPage";
+import { TitlePage } from "./TitlePage";
 import { useRoute, type Route } from "./route";
 import { Shell } from "./Shell";
 
@@ -24,11 +26,9 @@ function PageFor({ route }: { route: Route }) {
     case "ratings":
       return <Placeholder title="Ratings">What you rated, by step, and what you are not interested in.</Placeholder>;
     case "search":
-      return <Placeholder title="Search">Find a film or a series by its name.</Placeholder>;
+      return <SearchPage query={route.query} />;
     case "title":
-      return (
-        <Placeholder title="Title">A title's page: its facts, its scores, and your rating.</Placeholder>
-      );
+      return <TitlePage key={route.id} id={route.id} />;
     case "account":
       return <AccountPage />;
     case "login":

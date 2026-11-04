@@ -44,3 +44,26 @@ Depends on 04, 07 and 08.
   route are tested on a small pool.
 - A browser walk on the real pool in a phone-sized window: search a film, rate it from the
   results, open it, change its state; search a series. No outside call is made.
+
+## Outcome (2026-11-04)
+
+Built as specified.
+
+- **Search** matches every word of the query in the normalised title (accents, case and
+  punctuation ignored; `&` reads as "and"), then orders the exact title first, titles starting
+  with the query next, and the rest after, each group most-voted first; at most 30. A plain
+  `LIKE` scan over the 65,732-title pool, no full-text index: it answered instantly in the walk.
+- **The kind filter** (All, Films, Series) is kept on the page, not in the address; the query is
+  in the address and replaced as you type, so Back leaves the page.
+- **The state picker**: the four ratings in a row, then want to watch and not interested; tapping
+  the state already set clears it (no separate Clear button). Optimistic, with a rollback and a
+  line when the server refuses.
+- **No OMDb search fallback**: a title under 1,000 votes isn't found; the empty result says so.
+- **The title page** shows the pool's facts, an "Open on IMDb" link (a plain link the owner
+  follows, not a call) and the picker; the poster frame shows initials until brief 10.
+
+Checks: `npm run typecheck`, `npm run lint`, `npm test` (14 files, 75 tests; 6 new for search
+and the title route on a seeded pool, 2 for the formatters). A browser walk at 412 x 915 on the
+real pool: "the dark knight" found it first, rated Amazing from the results, opened it, changed
+to Good, reloaded (kept), Back to the results (kept, query in the box); "breaking bad" with
+Series found the show and put it on the watchlist. Only Lantern's origin was asked.

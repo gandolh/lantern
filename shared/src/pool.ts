@@ -37,3 +37,23 @@ export const poolInfoSchema = z.object({
   minVotes: z.number().int().nullable(),
 });
 export type PoolInfo = z.infer<typeof poolInfoSchema>;
+
+/** A pool title with this user's state, and whether a poster is kept for it. */
+export const titleItemSchema = z.object({
+  title: poolTitleSchema,
+  state: z.enum(["awful", "meh", "good", "amazing", "not_interested", "want_to_watch"]).nullable(),
+  /** A poster can be asked of `/v1/posters/:id` without costing an OMDb call. */
+  poster: z.boolean(),
+});
+export type TitleItem = z.infer<typeof titleItemSchema>;
+
+export const MAX_SEARCH_RESULTS = 30;
+
+/** `GET /v1/search?q=&kind=`. */
+export const searchQuerySchema = z.strictObject({
+  q: z.string().max(200),
+  kind: titleKindSchema.optional(),
+});
+
+export const searchResponseSchema = z.object({ results: z.array(titleItemSchema) });
+export type SearchResponse = z.infer<typeof searchResponseSchema>;

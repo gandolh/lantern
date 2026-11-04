@@ -1,5 +1,5 @@
 ---
-summary: Where Lantern stands, per area, as of 2026-11-04. Briefs 01-08 built (skeleton, sign-in, states, container, TMDB taken out for OMDb and IMDb ids, the title pool import); the owner dropped TMDB the same day for OMDb plus IMDb's files, so 07-14 were rewritten (search, the OMDb title page, cards, suggestions, lists, README to come). What is open, the todos (bump @fastify/static), and the owner's next steps.
+summary: Where Lantern stands, per area, as of 2026-11-04. Briefs 01-09 built (skeleton, sign-in, states, container, TMDB taken out for OMDb and IMDb ids, the title pool import, search); the owner dropped TMDB the same day for OMDb plus IMDb's files, so 07-14 were rewritten (the OMDb title page, cards, suggestions, lists, README to come). What is open, the todos (bump @fastify/static), and the owner's next steps.
 updated: 2026-11-04
 ---
 
@@ -28,6 +28,10 @@ to 14 ([overview.md](overview.md), "The build"). The owner pushes; nothing here 
 - **Container and owner setup** (2026-11-04). `infrastructure/` holds the API's Dockerfile and
   a compose file (`lantern-api` on loopback 8810); `docs/owner-setup.md` is the vps-deploy
   stack's brief. The compose file parses; the image was not built on the shared machine.
+- **Search and the title page** (2026-11-04). `GET /v1/search` over the pool (exact title first,
+  then prefix, then the rest, most-voted first; accents and case ignored), `GET /v1/titles/:id`;
+  the search page, the state picker (four ratings, want to watch, not interested; tap again to
+  clear) and a title page from the pool's facts. No outside call.
 - **Title pool** (2026-11-04). `npm run titles:import -w @lantern/server` (in the container:
   `node server/dist/pool/cli.js`) streams IMDb's files into `titles`; 65,732 titles at 1,000
   votes on 2026-11-04 ([titles.md](titles.md)). IMDb's credit line in the footer and on the
@@ -38,7 +42,7 @@ to 14 ([overview.md](overview.md), "The build"). The owner pushes; nothing here 
 
 ## Open briefs
 
-09 to 14, in `briefs/todo/`, run in number order, rewritten on 2026-11-04 after TMDB was
+10 to 14, in `briefs/todo/`, run in number order, rewritten on 2026-11-04 after TMDB was
 dropped. 10 makes the first real OMDb calls; the key is in the owner's `.env`.
 
 ## Todos

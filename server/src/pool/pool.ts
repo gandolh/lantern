@@ -1,5 +1,6 @@
 import type { PoolInfo, PoolTitle, TitleKind } from "@lantern/shared";
 import type { Db } from "../db.js";
+import { normaliseTitle } from "./normalise.js";
 
 /**
  * Reads of the title pool. The import (`import.ts`) is the only writer; the
@@ -46,6 +47,12 @@ export interface Pool {
   get(imdbId: string): PoolRow | undefined;
   /** Many titles at once, by id; missing ones are absent. */
   getMany(imdbIds: readonly string[]): Map<string, PoolRow>;
+  /**
+   * Titles whose normalised title holds every word of the query: the exact
+   * title first, then titles starting with the query, then the rest, each
+   * group most-voted first.
+   */
+  search(query: string, options: { kind?: TitleKind; limit: number }): PoolRow[];
 }
 
 const BATCH = 300;
@@ -65,6 +72,24 @@ export function createPool(db: Db): Pool {
       return { titles: movies + series, movies, series, importedAt: run?.importedAt ?? null, minVotes: run?.minVotes ?? null };
     },
     get: (imdbId) => one.get(imdbId),
+    search(query, { kind, limit }) {
+      const normalised = normaliseTitle(query);
+      const words = normalised.split(" ").filter((word) => word !== "");
+      if (words.length === 0) return [];
+      // The normaliser leaves letters, digits and spaces only, so no LIKE wildcard gets through.
+      const where = words.map(() => "search_title LIKE ?");
+      const params: (string | number)[] = words.map((word) => `%${word}%`);
+      if (kind !== undefined) {
+        where.push("kind = ?");
+        params.push(kind);
+      }
+      return db
+        .prepare<(string | number)[], PoolRow>(
+          `SELECT ${POOL_COLUMNS} FROM titles WHERE ${where.join(" AND ")}
+           ORDER BY search_title = ? DESC, search_title LIKE ? DESC, votes DESC LIMIT ?`,
+        )
+        .all(...params, normalised, `${normalised}%`, limit);
+    },
     getMany(imdbIds) {
       const found = new Map<string, PoolRow>();
       for (let start = 0; start < imdbIds.length; start += BATCH) {
