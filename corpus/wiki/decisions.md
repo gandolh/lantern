@@ -1,5 +1,5 @@
 ---
-summary: Locked calls for Lantern, settled by the owner in a grill on 2026-11-04, each with what was rejected and why. One user and no social features; on the VPS with Ward and local accounts, no sign-up, /lantern/ and /lantern-api/ on ports 5180 and 8810, no background work; films and series, a series rated once per show; four steps plus not interested and want to watch as states; English only; no where-to-stream; TMDB with OMDb scores, every outside call made by the server, TMDB data cached six months at most; suggestions from TMDB's recommendations ranked by a plain taste profile, with reasons and no match %; rating cards that stay after the start. Read before proposing to change any of these.
+summary: Locked calls for Lantern, settled by the owner on 2026-11-04, each with what was rejected and why. One user and no social features; on the VPS with Ward and local accounts, no sign-up, /lantern/ and /lantern-api/ on ports 5180 and 8810, no background work; films and series, a series rated once per show; four steps plus not interested and want to watch as states; English only; no where-to-stream; rating cards that stay after the start. Revisited the same day - TMDB dropped (its entries kept, marked superseded): OMDb for details, posters and scores plus IMDb's non-commercial files as the title pool, imported by hand; titles keyed by IMDb id; suggestions rank the pool by a plain taste profile of genres, directors and writers, with a reason and no match %. Read before proposing to change any of these.
 updated: 2026-11-04
 ---
 
@@ -8,7 +8,9 @@ updated: 2026-11-04
 Each entry passed three tests: hard to reverse, surprising without context, and a real
 trade-off. Changing one needs an explicit revisit and a [log.md](../log.md) entry. All were
 settled by the owner in a grill on 2026-11-04; the facts behind them are in
-[research.md](research.md) and [sources.md](sources.md).
+[research.md](research.md) and [sources.md](sources.md). Later the same day the owner dropped
+TMDB; the entries that depended on it are kept below, marked superseded, and the revisit is
+[at the end](#revisited-2026-11-04-tmdb-dropped).
 
 ## One user, no social features
 _2026-11-04_. Lantern is the owner's alone: no friends, no shared lists, no match with other
@@ -42,14 +44,16 @@ interested as a low rating, which would punish titles never seen.
 ## English only
 _2026-11-04_. The interface, the titles and the posters are TMDB's `en-US`; a title's
 original-language or Romanian name is never shown. Rejected: Romanian first, which TMDB
-covers unevenly.
+covers unevenly. _Still holds after TMDB was dropped: titles are IMDb's primary title (the one
+IMDb's own site shows), never the original-language one; OMDb answers in English._
 
 ## No where-to-stream in this version
 _2026-11-04_. Rejected for now: TMDB's watch providers (JustWatch data for Romania). Left for
-later.
+later. _With TMDB dropped, a later where-to-stream would need another source._
 
-## TMDB for the data, OMDb for the scores, all through the server
-_2026-11-04_. TMDB gives titles, posters, genres, keywords, people and recommendations; OMDb
+## ~~TMDB for the data, OMDb for the scores, all through the server~~
+_Superseded 2026-11-04 by "OMDb and IMDb's files, no TMDB" below; "all through the server"
+still holds._ _2026-11-04_. TMDB gives titles, posters, genres, keywords, people and recommendations; OMDb
 adds IMDb, Rotten Tomatoes and Metacritic scores on the title page, fetched once per title and
 kept. Every outside call, posters included, is made by the server, through a queue and a cache;
 the browser only ever talks to Lantern. TMDB's logo and its "not endorsed or certified" notice
@@ -57,8 +61,9 @@ are shown, and its data is cached six months at most. Rejected: calling TMDB fro
 which exposes the key and every page view; and OMDb as the main source, which has no
 recommendations or keywords.
 
-## Suggestions by plain scoring, with a reason and no match %
-_2026-11-04_. The candidates are TMDB's recommended titles for everything rated good or amazing.
+## ~~Suggestions by plain scoring, with a reason and no match %~~
+_Superseded 2026-11-04 by "Suggestions rank the pool" below; the reason line, the plain scoring
+and no match % still hold._ _2026-11-04_. The candidates are TMDB's recommended titles for everything rated good or amazing.
 They are ranked by a taste profile built from the genres, keywords and people of what was rated,
 likes and dislikes both, and each says why ("because you liked X"). Titles already rated, not
 interested or on the watchlist never come back. Rejected: a trained model or collaborative
@@ -66,7 +71,8 @@ filtering, which TMDB's licence forbids on its data and which one user can't fee
 percentage, which the owner declined.
 
 ## Rating cards for the first ratings, and after
-_2026-11-04_. Cards deal popular titles one at a time; each can be rated, marked not interested,
+_2026-11-04_. Cards deal popular titles one at a time (_since TMDB was dropped: the pool's
+most-voted titles not yet marked_); each can be rated, marked not interested,
 put on the watchlist, or skipped. They are swiped on the phone (Android first, iPhone kept
 working) and stay available after the start. Rejected: an onboarding that picks genres first
 and then disappears.
@@ -77,3 +83,48 @@ exact versions; Vitest; ESLint; Fastify 5, better-sqlite3 and zod; Vite with Rea
 UI; ward-auth vendored from Ward's shared library. Wicket is the model for the shell and the
 sign-in, Shelfmark for the server-side lookup queue and cache. Rejected: anything else, which
 nobody in the estate maintains.
+
+## Revisited 2026-11-04: TMDB dropped
+
+Later on 2026-11-04 the owner said: "Drop tmdb, keep only omdb." OMDb alone has no list of
+popular titles for the cards and no recommended or similar titles for suggestions. Asked what
+fills that gap, the owner chose OMDb plus IMDb's free non-commercial data files. The entries
+below replace the two marked superseded above; the rest stand.
+
+## OMDb and IMDb's files, no TMDB
+_2026-11-04_. OMDb gives each title's details (poster, plot, actors, director, writer, runtime)
+and its three scores, asked by IMDb id, once per title, and kept. IMDb's non-commercial data
+files (datasets.imdbws.com) give the pool of titles to search, deal and suggest from. Every
+outside call is still the server's, posters included. Credit line on the page, word for word:
+"Information courtesy of IMDb (https://www.imdb.com). Used with permission." Rejected: TMDB (the
+owner's call); OMDb plus Wikidata, a weaker pool, slower queries and more code; and OMDb alone,
+which leaves fixed starter cards and suggestions that never find new titles.
+
+## A title pool imported by hand
+_2026-11-04_. `npm run titles:import -w @lantern/server`, run by the owner (about monthly),
+streams `title.basics`, `title.ratings` and `title.crew` over HTTP, parses them line by line
+without keeping the downloads, and keeps films and series above a vote threshold
+([titles.md](titles.md)): IMDb id, title, years, genres, rating, votes, director and writer ids.
+A re-run replaces the pool in one transaction and never touches the states. Rejected: a timer
+or a background refresh (no background work); `title.principals` and `name.basics` (about
+1.1 GB together), since the reason line names a title, not a person, and names on the title
+page come from OMDb.
+
+## Titles are IMDb ids
+_2026-11-04_. A title is its IMDb id (`tt…`) everywhere: the states, the pool, OMDb's cache,
+the page's addresses. Rejected: keeping TMDB's ids, which nothing else uses now.
+
+## OMDb only for what is shown
+_2026-11-04_. A free OMDb key allows 1,000 calls a day, so OMDb is asked only for a title about
+to be shown in full: the title page, and the card on screen. Lists (search, watchlist, ratings,
+suggestions) draw from the pool and show a poster only when its OMDb record is already cached.
+A found record is kept for good. Rejected: enriching whole lists from OMDb, which would spend
+the day's calls in a few pages.
+
+## Suggestions rank the pool
+_2026-11-04_. Every title in the pool without a state is a candidate. A taste profile is built
+from the genres, directors and writers of everything rated, likes and dislikes both, and ranks
+them; each suggestion says "because you liked X", X being the rated title that adds the most to
+its score. Plain arithmetic: TMDB's AI rule no longer applies, but the owner's choice of plain
+scoring stands. No match %. Rejected: a trained model; and similarity from IMDb's people file,
+which the pool leaves out.

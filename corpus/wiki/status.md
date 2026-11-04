@@ -1,13 +1,14 @@
 ---
-summary: Where Lantern stands, per area, as of 2026-11-04. Research closed after the owner's grill; the first version is briefs 02-11, of which 02-06 (everything that needs no key) are built. What is open, the todos (bump @fastify/static), and the owner's next steps.
+summary: Where Lantern stands, per area, as of 2026-11-04. Briefs 01-06 built (skeleton, sign-in, states, source clients, container); the owner dropped TMDB the same day for OMDb plus IMDb's files, so 07-14 were rewritten (drop TMDB, the title pool import, search, the OMDb title page, cards, suggestions, lists, README). What is open, the todos (bump @fastify/static), and the owner's next steps.
 updated: 2026-11-04
 ---
 
 # Status
 
 _2026-11-04_. Brief 01 is done: the owner settled the first version in a grill
-([decisions.md](decisions.md)), and it is written as briefs 02 to 11
-([overview.md](overview.md), "The build"). The owner pushes; nothing here is deployed.
+([decisions.md](decisions.md)). Later that day the owner dropped TMDB for OMDb plus IMDb's
+non-commercial files ([decisions.md](decisions.md), "Revisited"), and the plan became briefs 07
+to 14 ([overview.md](overview.md), "The build"). The owner pushes; nothing here is deployed.
 
 ## By area
 
@@ -21,9 +22,9 @@ _2026-11-04_. Brief 01 is done: the owner settled the first version in a grill
 - **States** (2026-11-04). Ratings, not interested, want to watch and skipped cards, per user,
   with no TMDB facts in them; set, clear, list and count over `/v1`
   ([data-model.md](data-model.md)). No page uses them yet.
-- **Sources** (2026-11-04). The TMDB and OMDb clients, their queues, the server-side cache
-  (TMDB data never served past 180 days) and the poster proxy, tested on hand-written fixtures
-  ([source-calls.md](source-calls.md)). **No real call yet**: the live check waits for the keys.
+- **Sources** (2026-11-04). The TMDB and OMDb clients, their queues, the server-side cache and
+  the poster proxy, tested on hand-written fixtures ([source-calls.md](source-calls.md)). No
+  real call was made. TMDB has since been dropped; brief 07 takes its client out.
 - **Container and owner setup** (2026-11-04). `infrastructure/` holds the API's Dockerfile and
   a compose file (`lantern-api` on loopback 8810); `docs/owner-setup.md` is the vps-deploy
   stack's brief. The compose file parses; the image was not built on the shared machine.
@@ -33,8 +34,8 @@ _2026-11-04_. Brief 01 is done: the owner settled the first version in a grill
 
 ## Open briefs
 
-07 to 11, in `briefs/todo/`, run in number order. All need the TMDB key; 07 opens with the
-first real TMDB and OMDb calls (`npm run sources:check -w @lantern/server`).
+07 to 14, in `briefs/todo/`, run in number order, rewritten on 2026-11-04 after TMDB was
+dropped. 10 makes the first real OMDb calls; the key is in the owner's `.env`.
 
 ## Todos
 
@@ -47,10 +48,7 @@ In this order; the details are in `docs/owner-setup.md`.
 
 - Run Ward's local seed once Lantern is in it (the Ward repo's own brief), so `.env` gains the
   five `WARD_OIDC_*` lines, then try "Sign in with Ward" at <http://localhost:5180/lantern/>.
-- Create `.env` from `.env.example` and fill `TMDB_API_KEY` and `OMDB_API_KEY` (registered on
-  2026-11-04). Either TMDB value works: the API key or the API Read Access Token. Briefs 07-11
-  wait for this.
 - When the first version is done: register Lantern in production Ward (slug `lantern`), put the
-  three secrets in vps-deploy, have the stack written from the table in `docs/owner-setup.md`,
-  deploy, then seed your account in the container and link Ward.
+  two secrets (`OMDB_API_KEY`, `WARD_OIDC_CLIENT_KEY`) in vps-deploy, have the stack written from the table in `docs/owner-setup.md`,
+  deploy, then run the title import and seed your account in the container, and link Ward.
 - Optionally, check the container locally (`docs/owner-setup.md`, step 4).

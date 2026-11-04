@@ -125,3 +125,16 @@ suggestions). The owner then paused the run. Where it stands, for the resume:
   size is unknown until the one real import runs (not run yet). States move to IMDb ids through a
   new migration that drops and recreates `title_states` and `card_skips` and drops `tmdb_cache`
   (no real data exists yet).
+
+## [2026-11-04] decision | TMDB dropped: OMDb plus IMDb's files; briefs 07-14 rewritten
+
+The owner: "Drop tmdb, keep only omdb", then chose IMDb's free non-commercial files to fill the
+gap OMDb leaves (rejected: OMDb plus Wikidata, and OMDb alone). [wiki/decisions.md](wiki/decisions.md)
+marks the TMDB entries superseded and adds a "Revisited" section: OMDb and IMDb's files, a title
+pool imported by hand, titles keyed by IMDb id, OMDb asked only for what is shown, suggestions
+ranking the pool. IMDb's terms read the same day: personal and non-commercial use, and a credit
+line ([wiki/sources.md](wiki/sources.md), [wiki/titles.md](wiki/titles.md)). Briefs 07-11 were
+rewritten in place and 12-14 added: 07 drop TMDB, 08 the pool import, 09 search, 10 the OMDb
+title page (the first real calls), 11 cards, 12 suggestions, 13 lists, 14 README.
+`TMDB_API_KEY` is gone from `.env.example`. The owner resumed the paused run; `.env` holds
+`OMDB_API_KEY`.

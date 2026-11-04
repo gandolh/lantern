@@ -1,5 +1,5 @@
 ---
-summary: Brief 01's research on taste.io and the owner's stack, closed on 2026-11-04. taste.io sits behind a Cloudflare check, so its layout came from the Wayback Machine's index and its features from news coverage (four-step scale, about 20 ratings before suggestions, a match %, a streaming filter). The stack is the estate's (npm workspaces, Fastify + SQLite, React + Vite + Base UI, vendored ward-auth). Which questions the grill settled, and which research it made moot (where to stream, MovieLens, match %, the scale comparison). The film data sources are in sources.md.
+summary: Brief 01's research on taste.io and the owner's stack, closed on 2026-11-04 (its TMDB answers revisited the same day). taste.io sits behind a Cloudflare check, so its layout came from the Wayback Machine's index and its features from news coverage (four-step scale, about 20 ratings before suggestions, a match %, a streaming filter). The stack is the estate's (npm workspaces, Fastify + SQLite, React + Vite + Base UI, vendored ward-auth). Which questions the grill settled, and which research it made moot (where to stream, MovieLens, match %, the scale comparison). The film data sources are in sources.md.
 updated: 2026-11-04
 ---
 
@@ -7,7 +7,8 @@ updated: 2026-11-04
 
 Written for [brief 01](../briefs/done/01-research-taste-io-and-the-first-version.md),
 started 2026-10-28 and closed 2026-11-04 after the owner's grill. The data
-sources Lantern builds on (TMDB, OMDb) have their own page,
+sources Lantern builds on (IMDb's files and OMDb, since the owner dropped TMDB later on
+2026-11-04) have their own page,
 [sources.md](sources.md); what was decided is in [decisions.md](decisions.md),
 and the first version in one page is [overview.md](overview.md).
 
@@ -78,7 +79,9 @@ Read only; Lantern shares no code or data with either.
 ## What the grill settled (2026-11-04)
 
 The brief's question list, answered by the owner; the reasons are in
-[decisions.md](decisions.md).
+[decisions.md](decisions.md). The answers naming TMDB were revisited the same day, when the owner
+dropped it for OMDb plus IMDb's files ([decisions.md](decisions.md), "Revisited"); they are
+kept here as they were given.
 
 - One user, the owner. No friends, no match with others.
 - Deployed on the VPS with Ward and local accounts, no sign-up; `/lantern/` and `/lantern-api/`,
