@@ -10,6 +10,8 @@ describe("loadConfig", () => {
       publicOrigin: DEV_ORIGIN,
       apiPrefix: "/lantern-api",
       webBase: "/lantern/",
+      ward: undefined,
+      trustedProxies: [],
     });
   });
 
@@ -29,6 +31,7 @@ describe("loadConfig", () => {
       PUBLIC_ORIGIN: "https://example.com",
       LANTERN_API_PREFIX: "/films-api",
       LANTERN_BASE: "/films/",
+      AUTH_TRUSTED_PROXIES: " 10.0.0.0/8, ,172.16.0.1 ",
     });
     expect(config).toEqual({
       host: "0.0.0.0",
@@ -37,6 +40,8 @@ describe("loadConfig", () => {
       publicOrigin: "https://example.com",
       apiPrefix: "/films-api",
       webBase: "/films/",
+      ward: undefined,
+      trustedProxies: ["10.0.0.0/8", "172.16.0.1"],
     });
   });
 
@@ -57,5 +62,36 @@ describe("loadConfig", () => {
 
   it("refuses a port out of range", () => {
     expect(() => loadConfig({ PORT: "70000" })).toThrow(/PORT must be a port number/);
+  });
+});
+
+describe("the Ward settings", () => {
+  const ward = {
+    WARD_OIDC_ISSUER: "https://ward.example.com",
+    WARD_OIDC_CLIENT_ID: "lantern",
+    // Not a usable key; config only checks it is set, the client imports it at start.
+    WARD_OIDC_CLIENT_KEY: "not-checked-here",
+    WARD_OIDC_POST_LOGOUT_REDIRECT_URI: "https://example.com/lantern/",
+  };
+
+  it("are off when the issuer is empty", () => {
+    expect(loadConfig({ WARD_OIDC_ISSUER: "" }).ward).toBeUndefined();
+  });
+
+  it("refuse a half-set Ward", () => {
+    expect(() => loadConfig({ WARD_OIDC_ISSUER: "https://ward.example.com" })).toThrow(/WARD_OIDC_ISSUER empty/);
+  });
+
+  it("want Ward's callback under the API prefix, and never repeat the key", () => {
+    let message = "";
+    try {
+      loadConfig({ ...ward, WARD_OIDC_REDIRECT_URI: "https://example.com/auth/ward/callback" });
+    } catch (error) {
+      message = (error as Error).message;
+    }
+    expect(message).toMatch(/\/lantern-api\/auth\/ward\/callback/);
+    expect(message).not.toContain("not-checked-here");
+    const config = loadConfig({ ...ward, WARD_OIDC_REDIRECT_URI: "https://example.com/lantern-api/auth/ward/callback" });
+    expect(config.ward?.clientId).toBe("lantern");
   });
 });

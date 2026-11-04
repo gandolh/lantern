@@ -1,8 +1,9 @@
+import { AccountPage } from "./AccountPage";
 import { Placeholder } from "./Placeholder";
 import { useRoute, type Route } from "./route";
 import { Shell } from "./Shell";
 
-/** Lantern in the browser: the shell and the page the address names. */
+/** Lantern in the browser, behind the sign-in gate (`AuthGate.tsx`): the shell and the page the address names. */
 export function App() {
   const route = useRoute();
   return (
@@ -31,9 +32,10 @@ function PageFor({ route }: { route: Route }) {
         </Placeholder>
       );
     case "account":
-      return <Placeholder title="Account">Who is signed in, and signing out.</Placeholder>;
+      return <AccountPage />;
     case "login":
-      return <Placeholder title="Sign in">Signing in comes with the accounts.</Placeholder>;
+      // The gate shows the login page itself and never renders the app there.
+      return null;
     case "not-found":
       return <Placeholder title="Not found">There is no page at this address.</Placeholder>;
   }

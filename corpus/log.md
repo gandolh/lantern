@@ -59,3 +59,13 @@ answers `GET /v1/health`; the page has its frame (top bar on wide screens, tab b
 and five placeholder sections on Vite's port 5180. Walked in a browser at desktop and phone
 widths. See [briefs/done/02-skeleton.md](briefs/done/02-skeleton.md) and
 [wiki/architecture.md](wiki/architecture.md).
+
+## [2026-11-04] done | Brief 03: sign-in
+
+ward-auth 0.7.0 vendored from Ward's built library (byte-identical to Wicket's copy, no change in
+the Ward repo). Local accounts from `npm run seed -w @lantern/server`, Sign in with Ward when the
+five `WARD_OIDC_*` are set, no sign-up or rename; every `/v1` route but health needs a session,
+and writes refuse other sites. The login page, the gate (which returns to the page you were
+headed for) and the account page. Local sign-in walked in a browser; Ward not, since `.env` had
+no Ward lines yet. See [wiki/sign-in.md](wiki/sign-in.md) and
+[briefs/done/03-sign-in.md](briefs/done/03-sign-in.md).

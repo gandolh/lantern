@@ -36,9 +36,9 @@ describe("the API", () => {
     }
   });
 
-  it("answers an unknown route with the contract's error shape", async () => {
+  it("answers an unknown route outside /v1 with the contract's error shape", async () => {
     app = await buildApp({ dbPath: ":memory:" });
-    const res = await app.inject({ method: "GET", url: "/lantern-api/v1/nothing" });
+    const res = await app.inject({ method: "GET", url: "/lantern-api/nothing" });
     expect(res.statusCode).toBe(404);
     expect(errorBodySchema.parse(res.json()).code).toBe("not_found");
   });
@@ -56,7 +56,7 @@ describe("the API", () => {
     expect(page.statusCode).toBe(200);
     expect(page.body).toContain("<title>Lantern</title>");
     expect((await app.inject({ method: "GET", url: "/lantern/assets/app.js" })).body).toBe("console.log(1)");
-    // An unknown API route is never the page.
-    expect((await app.inject({ method: "GET", url: "/v1/nothing" })).statusCode).toBe(404);
+    // An unknown path outside the base is never the page.
+    expect((await app.inject({ method: "GET", url: "/elsewhere" })).statusCode).toBe(404);
   });
 });

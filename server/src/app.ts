@@ -1,14 +1,20 @@
 import { existsSync } from "node:fs";
 import type { ErrorBody, HealthResponse } from "@lantern/shared";
 import fastifyStatic from "@fastify/static";
-import Fastify, { type FastifyInstance, type FastifyReply, type FastifyServerOptions } from "fastify";
+import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest, type FastifyServerOptions } from "fastify";
 import type { z } from "zod";
+import { createWardClient, wardAuth, type Accounts, type WardClientOptions } from "../vendor/ward/ward-auth.js";
+import { openAccounts, USER_ROLE } from "./accounts.js";
+import { AUTH_ROUTE_PREFIX, DEV_ORIGIN } from "./config.js";
 import { openDatabase, type Db } from "./db.js";
 
 /**
- * The Lantern API. Every route is under `/v1`; `GET /v1/health` is open for
- * the deploy's check. The built page is served at `/lantern/` (in production
- * Caddy serves it instead), and `/` redirects there.
+ * The Lantern API. Every route is under `/v1` and needs a signed-in session,
+ * except `GET /v1/health`, open for the deploy's check. Sign-in lives under
+ * `/auth`, from the vendored ward-auth plugin: local accounts and "Sign in
+ * with Ward", no sign-up. Writes under `/v1` also refuse a browser that says
+ * it came from another site. The built page is served at `/lantern/` (in
+ * production Caddy serves it instead), and `/` redirects there.
  *
  * The browser reaches the API under `/lantern-api`; Caddy strips that prefix
  * in production, and this server strips it too (`stripApiPrefix`), so the
@@ -22,6 +28,9 @@ import { openDatabase, type Db } from "./db.js";
 export const API_PREFIX = "/lantern-api";
 /** Where the built page is served, unless `LANTERN_BASE` moves it. */
 export const PAGE_PATH = "/lantern/";
+
+/** The session cookie's name. Unique in the estate: every app shares one origin. */
+export const SESSION_COOKIE = "lantern_session";
 
 /** The largest request body accepted: every write is a few fields. */
 export const BODY_LIMIT = 64 * 1024;
@@ -61,6 +70,29 @@ export function parse<S extends z.ZodType>(schema: S, value: unknown, reply: Fas
   return undefined;
 }
 
+/**
+ * Whether a browser said the request came from this origin. Absent headers
+ * pass (a script or curl sends neither); a browser that sent them and named
+ * another site does not. On top of the cookie's `SameSite=Lax`, for writes.
+ */
+export function sameOrigin(request: FastifyRequest, publicOrigin: string): boolean {
+  const fetchSite = request.headers["sec-fetch-site"];
+  if (typeof fetchSite === "string" && fetchSite !== "" && fetchSite !== "same-origin") return false;
+  const origin = request.headers.origin;
+  if (typeof origin === "string" && origin !== "") {
+    try {
+      return new URL(origin).origin === publicOrigin;
+    } catch {
+      return false;
+    }
+  }
+  return true;
+}
+
+const WRITES = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
+const UNAUTHORIZED = "sign in to Lantern first";
+
 export interface AppOptions {
   /** A file path, or `:memory:` for tests. */
   dbPath: string;
@@ -72,6 +104,10 @@ export interface AppOptions {
   apiPrefix?: string;
   /** The page's base path, with a trailing slash. Default `/lantern/`. */
   webBase?: string;
+  /** "Sign in with Ward". Unset, local accounts only. */
+  ward?: WardClientOptions;
+  /** Peers besides loopback whose `X-Forwarded-For` the login lockout believes. Default none. */
+  trustedProxies?: readonly string[];
   /** The clock, in epoch milliseconds, for tests. */
   now?: () => number;
   logger?: FastifyServerOptions["logger"];
@@ -81,6 +117,8 @@ declare module "fastify" {
   interface FastifyInstance {
     /** The database, for the tests. */
     db: Db;
+    /** The local accounts, for the seed's tests. */
+    accounts: Accounts;
   }
 }
 
@@ -88,6 +126,7 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   const db = openDatabase(options.dbPath);
   const apiPrefix = options.apiPrefix ?? API_PREFIX;
   const webBase = options.webBase ?? PAGE_PATH;
+  const publicOrigin = options.publicOrigin ?? DEV_ORIGIN;
   const app = Fastify({
     logger: options.logger ?? false,
     bodyLimit: BODY_LIMIT,
@@ -115,6 +154,64 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
             ? "send the body as application/json"
             : "the request is not valid";
     return fail(reply, status, { code: "invalid_request", message });
+  });
+
+  // The session guard, first, so every route after it is behind it.
+  const accounts = openAccounts(db);
+  app.decorate("accounts", accounts);
+  // Checks the settings and imports the key now; talks to Ward only on first use, so Lantern starts while Ward is down.
+  const ward = options.ward && (await createWardClient(options.ward));
+  await app.register(wardAuth, {
+    accounts,
+    cookieName: SESSION_COOKIE,
+    // The API prefix as the browser sees it: every request that needs the session is under it.
+    cookiePath: apiPrefix,
+    publicOrigin,
+    routePrefix: AUTH_ROUTE_PREFIX,
+    publicRoutes: ["GET /v1/health"],
+    // The page offers no rename, and the seed matches accounts by name.
+    allowRename: false,
+    isPublic: (request) => {
+      const path = pathOf(request.url);
+      // Every API route needs a session; the plugin's own list decides under /auth.
+      if (isUnder(path, "/v1") || isUnder(path, AUTH_ROUTE_PREFIX)) return false;
+      // The page's files, the redirect to them and a 404: the login page has to load.
+      return true;
+    },
+    trustedProxies: options.trustedProxies ?? [],
+    ...(ward && {
+      ward: {
+        client: ward,
+        loginPath: `${webBase}login`,
+        settingsPath: `${webBase}account`,
+        afterSignInPath: webBase,
+        roleFor: () => USER_ROLE,
+      },
+    }),
+  });
+
+  // The guard answers `{ error: "unauthorized" }`; under `/v1` the contract's
+  // error shape is `{ code, message }`. The sign-in routes keep the plugin's
+  // shape for its hooks.
+  app.addHook("onSend", async (request, reply, payload) => {
+    if (reply.statusCode !== 401 || typeof payload !== "string" || !isUnder(pathOf(request.url), "/v1")) return payload;
+    let body: unknown;
+    try {
+      body = JSON.parse(payload);
+    } catch {
+      return payload;
+    }
+    if (typeof body !== "object" || body === null || !("error" in body) || "code" in body) return payload;
+    const refused: ErrorBody = { code: "unauthorized", message: UNAUTHORIZED };
+    return JSON.stringify(refused);
+  });
+
+  // Writes refuse a browser that says it came from another site. Runs after
+  // the guard, so a signed-out write is a 401 first.
+  app.addHook("onRequest", async (request, reply) => {
+    if (!WRITES.has(request.method) || !isUnder(pathOf(request.url), "/v1")) return;
+    if (sameOrigin(request, publicOrigin)) return;
+    return fail(reply, 403, { code: "cross_site", message: "open Lantern from its own address" });
   });
 
   app.get("/v1/health", async (): Promise<HealthResponse> => ({ ok: true }));

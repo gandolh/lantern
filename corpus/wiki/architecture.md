@@ -17,7 +17,9 @@ Vitest (one project at the root, `forks` pool for the native SQLite addon), ESLi
   from them and the page parses answers with them.
 - `server` (`@lantern/server`): Fastify 5 on better-sqlite3. `config.ts` reads the settings,
   `db.ts` opens the file and runs the migrations (`PRAGMA user_version`), `app.ts` builds the
-  routes, `index.ts` starts it.
+  routes behind the sign-in guard ([sign-in.md](sign-in.md)), `index.ts` starts it, `seed.ts`
+  makes the local account. ward-auth is vendored in `server/vendor/ward/` and
+  `web/vendor/ward/`.
 - `web` (`@lantern/web`): Vite and React 19. `route.ts` is a small hand-written router over
   `history`; `Shell.tsx` is the frame; each section is a page component.
 
@@ -30,7 +32,8 @@ Vitest (one project at the root, `forks` pool for the native SQLite addon), ESLi
 | VPS | Caddy serves the built page at `/lantern/` | Caddy forwards `/lantern-api/*` to the container on `127.0.0.1:8810` |
 
 The server strips `/lantern-api` itself too, so a request reaches the same route with or without
-it. Every route is under `/v1`; `GET /v1/health` answers `{ ok: true }`. Errors are
+it. Every route is under `/v1` and needs a session, except `GET /v1/health` (`{ ok: true }`);
+sign-in is under `/auth`. Errors are
 `{ code, message }`, and a message never quotes the request body.
 
 ## Settings
@@ -47,6 +50,7 @@ its value.
 | `PUBLIC_ORIGIN` | `http://localhost:5180` | the page's origin as the browser sees it |
 | `LANTERN_API_PREFIX` | `/lantern-api` | the API's prefix as the browser sees it |
 | `LANTERN_BASE` | `/lantern/` | the page's base path (the build reads it too) |
+| `AUTH_TRUSTED_PROXIES`, `WARD_OIDC_*`, `SEED_*` | empty | sign-in ([sign-in.md](sign-in.md)) |
 
 ## Data
 

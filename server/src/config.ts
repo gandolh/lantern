@@ -1,4 +1,11 @@
 import { z } from "zod";
+import { wardClientOptionsFromEnv, type WardClientOptions } from "../vendor/ward/ward-auth.js";
+
+/** Where the auth plugin's routes sit as Fastify sees them; the browser reaches them under the API prefix. */
+export const AUTH_ROUTE_PREFIX = "/auth";
+
+/** The Ward callback, under the API prefix: `WARD_OIDC_REDIRECT_URI` is the origin, the prefix, then this. */
+export const WARD_CALLBACK_PATH = `${AUTH_ROUTE_PREFIX}/ward/callback`;
 
 /** The Vite dev server, where the page runs in development. */
 export const DEV_ORIGIN = "http://localhost:5180";
@@ -15,6 +22,10 @@ export interface Config {
   apiPrefix: string;
   /** The page's base path, with a trailing slash. Default `/lantern/`. */
   webBase: string;
+  /** "Sign in with Ward", or undefined for local accounts only. `clientKey` is a secret. */
+  ward: WardClientOptions | undefined;
+  /** `AUTH_TRUSTED_PROXIES`: peers besides loopback whose `X-Forwarded-For` the login lockout believes. */
+  trustedProxies: string[];
 }
 
 /** The environment cannot run the server. The message names every variable at fault. */
@@ -58,10 +69,44 @@ export function describeIssue(issue: z.core.$ZodIssue): string {
   return issue.message.startsWith(key) ? issue.message : `${key}: ${issue.message}`;
 }
 
+/**
+ * The Ward settings, read by the library's own reader so the rules are its
+ * (an empty `WARD_OIDC_ISSUER` means off; with it set, the client id, key and
+ * redirect URI must be too). On top: the redirect URI must be the callback
+ * under the API prefix, where the session cookie and the dev proxy are.
+ * Messages never repeat the key.
+ */
+function wardSettings(env: NodeJS.ProcessEnv, apiPrefix: string | undefined, problems: string[]): WardClientOptions | undefined {
+  let ward: WardClientOptions | undefined;
+  try {
+    ward = wardClientOptionsFromEnv(env);
+  } catch (error) {
+    problems.push(`${error instanceof Error ? error.message : String(error)}. Set all of them, or leave WARD_OIDC_ISSUER empty for local accounts only.`);
+    return undefined;
+  }
+  if (ward === undefined || apiPrefix === undefined) return ward;
+  const expected = `${apiPrefix}${WARD_CALLBACK_PATH}`;
+  if (!URL.canParse(ward.redirectUri) || new URL(ward.redirectUri).pathname !== expected) {
+    problems.push(`WARD_OIDC_REDIRECT_URI must be the callback as the browser reaches it: the page's origin, then ${expected}.`);
+  }
+  return ward;
+}
+
+/** `AUTH_TRUSTED_PROXIES`, comma-separated, blanks dropped. The plugin checks each entry when it registers. */
+function trustedProxies(value: string | undefined): string[] {
+  return (value ?? "")
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter((entry) => entry !== "");
+}
+
 /** The settings from `env`, or a `ConfigError` naming every variable that is wrong. */
 export function loadConfig(env: NodeJS.ProcessEnv): Config {
+  const problems: string[] = [];
   const parsed = envSchema.safeParse(env);
-  if (!parsed.success) throw new ConfigError(parsed.error.issues.map(describeIssue).join("\n"));
+  if (!parsed.success) problems.push(...parsed.error.issues.map(describeIssue));
+  const ward = wardSettings(env, parsed.success ? parsed.data.LANTERN_API_PREFIX : undefined, problems);
+  if (!parsed.success || problems.length > 0) throw new ConfigError(problems.join("\n"));
   const values = parsed.data;
   return {
     host: values.HOST,
@@ -70,5 +115,7 @@ export function loadConfig(env: NodeJS.ProcessEnv): Config {
     publicOrigin: values.PUBLIC_ORIGIN,
     apiPrefix: values.LANTERN_API_PREFIX,
     webBase: values.LANTERN_BASE,
+    ward,
+    trustedProxies: trustedProxies(env.AUTH_TRUSTED_PROXIES),
   };
 }
