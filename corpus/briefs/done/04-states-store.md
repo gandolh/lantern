@@ -46,3 +46,24 @@ Depends on 03 (the user id comes from the session).
   each other's rows; bad type, id or state are 400s; signed out is 401; a cross-site write is
   refused.
 - No page changes yet; nothing calls TMDB.
+
+## Outcome (2026-11-04)
+
+Built as specified; the tables, rules and routes are in
+[data-model.md](../../wiki/data-model.md).
+
+- **Paging** is by an opaque cursor (`updated_at`, media type, id) instead of a bare `before`
+  time, so titles set in the same millisecond never fall between pages. `GET /v1/states` takes
+  `cursor` and answers `next`.
+- **`state=rated`** filters on any of the four ratings, for the ratings page.
+- **Also built**: `GET /v1/titles/:type/:id/state`, and `DELETE …/skip` for the cards' undo.
+- **No foreign key** from the states to ward-auth's `auth_users`: the library creates its tables
+  after Lantern's migrations. Each row still carries the user id, and every query is scoped by
+  it.
+- `parse` and `fail` moved to `server/src/reply.ts`, so route modules don't import `app.ts`.
+
+Checks: `npm run typecheck`, `npm run lint`, `npm test` (7 files, 39 tests; 11 new: set,
+replace and clear; one state at a time; film and series with the same id apart; 400s naming the
+field; skips and a state dropping one; paging, filters and same-millisecond paging; counts;
+many titles' states at once; two users apart; 401 signed out and 403 cross-site). No page
+changes, so no browser walk; nothing calls TMDB.

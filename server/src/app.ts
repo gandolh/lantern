@@ -1,12 +1,14 @@
 import { existsSync } from "node:fs";
 import type { ErrorBody, HealthResponse } from "@lantern/shared";
 import fastifyStatic from "@fastify/static";
-import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest, type FastifyServerOptions } from "fastify";
-import type { z } from "zod";
+import Fastify, { type FastifyInstance, type FastifyRequest, type FastifyServerOptions } from "fastify";
 import { createWardClient, wardAuth, type Accounts, type WardClientOptions } from "../vendor/ward/ward-auth.js";
 import { openAccounts, USER_ROLE } from "./accounts.js";
 import { AUTH_ROUTE_PREFIX, DEV_ORIGIN } from "./config.js";
 import { openDatabase, type Db } from "./db.js";
+import { fail } from "./reply.js";
+import { registerStateRoutes } from "./routes/states.js";
+import { createStatesStore, type StatesStore } from "./states.js";
 
 /**
  * The Lantern API. Every route is under `/v1` and needs a signed-in session,
@@ -52,22 +54,6 @@ export function isUnder(path: string, prefix: string): boolean {
 
 export function pathOf(url: string): string {
   return url.split("?")[0]!;
-}
-
-export function fail(reply: FastifyReply, status: number, body: ErrorBody): FastifyReply {
-  return reply.status(status).send(body);
-}
-
-/** Parse with a contract schema, or answer 400 and return undefined. Messages name the field, never its value. */
-export function parse<S extends z.ZodType>(schema: S, value: unknown, reply: FastifyReply): z.output<S> | undefined {
-  const result = schema.safeParse(value);
-  if (result.success) return result.data;
-  const issue = result.error.issues[0];
-  void fail(reply, 400, {
-    code: "invalid_request",
-    message: issue ? `${issue.path.join(".") || "request"}: ${issue.message}` : "invalid request",
-  });
-  return undefined;
 }
 
 /**
@@ -119,6 +105,8 @@ declare module "fastify" {
     db: Db;
     /** The local accounts, for the seed's tests. */
     accounts: Accounts;
+    /** The states store, for the tests. */
+    states: StatesStore;
   }
 }
 
@@ -215,6 +203,10 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   });
 
   app.get("/v1/health", async (): Promise<HealthResponse> => ({ ok: true }));
+
+  const states = createStatesStore(db, options.now);
+  app.decorate("states", states);
+  registerStateRoutes(app, states);
 
   // The built page at `webBase`; any other path under it is the page too (index.html).
   const webDist = options.webDist;

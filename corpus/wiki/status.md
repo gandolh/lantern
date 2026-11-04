@@ -1,5 +1,5 @@
 ---
-summary: Where Lantern stands, per area, as of 2026-11-04. Research closed after the owner's grill; the first version is briefs 02-11, of which the skeleton (02) and sign-in (03) are built. What is open, the todos (bump @fastify/static), and the owner's next steps.
+summary: Where Lantern stands, per area, as of 2026-11-04. Research closed after the owner's grill; the first version is briefs 02-11, of which 02-04 (skeleton, sign-in, states) are built. What is open, the todos (bump @fastify/static), and the owner's next steps.
 updated: 2026-11-04
 ---
 
@@ -18,13 +18,16 @@ _2026-11-04_. Brief 01 is done: the owner settled the first version in a grill
   with Ward when the five `WARD_OIDC_*` are set, no sign-up; every `/v1` route but health needs
   a session, and writes refuse other sites ([sign-in.md](sign-in.md)). Ward not yet walked
   locally: Lantern's `.env` had no `WARD_OIDC_*` lines on 2026-11-04.
+- **States** (2026-11-04). Ratings, not interested, want to watch and skipped cards, per user,
+  with no TMDB facts in them; set, clear, list and count over `/v1`
+  ([data-model.md](data-model.md)). No page uses them yet.
 - **Research** (2026-10-28 to 2026-11-04, done). taste.io and the stack in
   [research.md](research.md); TMDB and OMDb, their endpoints and terms, in
   [sources.md](sources.md). No real call made yet.
 
 ## Open briefs
 
-04 to 11, in `briefs/todo/`, run in number order. 04 to 06 need no key; 07 opens with the first
+05 to 11, in `briefs/todo/`, run in number order. 05 and 06 need no key; 07 opens with the first
 real TMDB and OMDb calls.
 
 ## Todos

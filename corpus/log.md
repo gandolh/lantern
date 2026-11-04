@@ -69,3 +69,11 @@ and writes refuse other sites. The login page, the gate (which returns to the pa
 headed for) and the account page. Local sign-in walked in a browser; Ward not, since `.env` had
 no Ward lines yet. See [wiki/sign-in.md](wiki/sign-in.md) and
 [briefs/done/03-sign-in.md](briefs/done/03-sign-in.md).
+
+## [2026-11-04] done | Brief 04: states
+
+`title_states` (one state per user and title: a rating, not interested or want to watch) and
+`card_skips`, with no TMDB facts in either, so the six-month cache rule never reaches the
+owner's ratings. Routes to set, clear, list (newest first, cursor-paged) and count, and to skip
+and unskip. See [wiki/data-model.md](wiki/data-model.md) and
+[briefs/done/04-states-store.md](briefs/done/04-states-store.md).

@@ -10,7 +10,30 @@ import Database from "better-sqlite3";
 export type Db = Database.Database;
 
 /** Append only: a migration that has shipped is never edited. */
-export const MIGRATIONS: string[] = [];
+export const MIGRATIONS: string[] = [
+  // The owner's own data: a title's state per user, and the skipped cards.
+  // A title is its media type and TMDB's id; no TMDB fact is stored here, so
+  // nothing in these tables falls under TMDB's six-month cache rule.
+  `
+  CREATE TABLE title_states (
+    user_id TEXT NOT NULL,
+    media_type TEXT NOT NULL CHECK (media_type IN ('movie', 'tv')),
+    tmdb_id INTEGER NOT NULL CHECK (tmdb_id > 0),
+    state TEXT NOT NULL CHECK (state IN ('awful', 'meh', 'good', 'amazing', 'not_interested', 'want_to_watch')),
+    updated_at INTEGER NOT NULL,
+    PRIMARY KEY (user_id, media_type, tmdb_id)
+  ) WITHOUT ROWID;
+  CREATE INDEX title_states_by_time ON title_states (user_id, updated_at DESC, media_type DESC, tmdb_id DESC);
+  CREATE INDEX title_states_by_state ON title_states (user_id, state, updated_at DESC);
+  CREATE TABLE card_skips (
+    user_id TEXT NOT NULL,
+    media_type TEXT NOT NULL CHECK (media_type IN ('movie', 'tv')),
+    tmdb_id INTEGER NOT NULL CHECK (tmdb_id > 0),
+    skipped_at INTEGER NOT NULL,
+    PRIMARY KEY (user_id, media_type, tmdb_id)
+  ) WITHOUT ROWID;
+  `,
+];
 
 function migrate(db: Db, migrations: readonly string[]): void {
   const current = db.pragma("user_version", { simple: true }) as number;
