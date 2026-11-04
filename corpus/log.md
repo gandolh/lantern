@@ -96,3 +96,32 @@ One container, `lantern-api`, from `infrastructure/` (compose project `lantern`,
 name, the vps-deploy stack table and the owner's steps. The compose file parses; the image was
 not built on the shared machine. Everything that needs no key is now built; brief 07 waits for
 the keys. See [briefs/done/06-container-and-owner-setup.md](briefs/done/06-container-and-owner-setup.md).
+
+## [2026-11-04] pause | The owner drops TMDB; replan in progress, run paused
+
+Later on 2026-11-04 the owner said "Drop tmdb, keep only omdb", and chose OMDb plus IMDb's free
+non-commercial data files to fill the gap (a title pool for search, the cards and the
+suggestions). The owner then paused the run. Where it stands, for the resume:
+
+- **Done and committed:** briefs 01-06 (`60179cd`, `7679b40`, `79e992a`, `f5df29c`, `ddca44f`,
+  `1b1c067`). Brief 05's TMDB client is still in the code and is to be removed.
+- **In progress, not committed (left in the tree):** the replan. Edited: `wiki/decisions.md`
+  (the TMDB entries marked superseded, a "Revisited" section with the owner's words and five new
+  entries), `wiki/sources.md` (rewritten for IMDb's files and OMDb, with IMDb's terms and credit
+  line read 2026-11-04), `wiki/overview.md` (the new plan, briefs 07-14), `wiki/glossary.md`,
+  `wiki/research.md` (a note), and the new `wiki/titles.md` (the pool, as planned).
+- **Left of the replan:** rewrite briefs 07-11 and write 12-14 as `wiki/overview.md`'s table
+  lists them (07 drop TMDB: IMDb ids, the full OMDb record, posters from OMDb; 08 the pool
+  import; 09 search over the pool; 10 cards; 11 suggestions; 12 watchlist and ratings pages; 13
+  the title page and the first real OMDb calls; 14 README); drop `TMDB_API_KEY` from
+  `.env.example`; update `wiki/status.md`; regenerate the index and lint; commit; run
+  `brief-board sync` from /tmp.
+- **Then build** 07 to 14 in order. The owner has created `.env` with `OMDB_API_KEY` (the Ward
+  lines are empty), so brief 13 can make real OMDb calls; `.env` is the owner's and is never
+  edited.
+- **Choices so far:** vote threshold 1,000 IMDb votes, to be checked against the counts the
+  real import prints at 500, 1,000, 2,000 and 5,000; `tvMovie` kept, as a film; no OMDb search
+  fallback in the first version (search covers the pool only; listed under "Later"); the pool's
+  size is unknown until the one real import runs (not run yet). States move to IMDb ids through a
+  new migration that drops and recreates `title_states` and `card_skips` and drops `tmdb_cache`
+  (no real data exists yet).
