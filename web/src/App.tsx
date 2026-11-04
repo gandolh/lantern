@@ -1,5 +1,6 @@
 import { AccountPage } from "./AccountPage";
 import { Placeholder } from "./Placeholder";
+import { RatePage } from "./RatePage";
 import { SearchPage } from "./SearchPage";
 import { TitlePage } from "./TitlePage";
 import { useRoute, type Route } from "./route";
@@ -20,7 +21,7 @@ function PageFor({ route }: { route: Route }) {
     case "suggestions":
       return <Placeholder title="Suggestions">What to watch next, from what you liked, each saying why.</Placeholder>;
     case "rate":
-      return <Placeholder title="Rate">Popular titles, one card at a time: rate them, mark them, or skip.</Placeholder>;
+      return <RatePage />;
     case "watchlist":
       return <Placeholder title="Watchlist">The titles you want to watch.</Placeholder>;
     case "ratings":

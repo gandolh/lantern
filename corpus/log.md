@@ -171,3 +171,10 @@ facts. Walked on the real pool. See
 poster, plot, people and three scores. The live check matched the reader; OMDb's poster URLs
 had changed form, so the large size now swaps any Amazon modifier for 760 pixels. Three real
 OMDb calls in all. See [briefs/done/10-title-page-with-omdb.md](briefs/done/10-title-page-with-omdb.md).
+
+## [2026-11-04] done | Brief 11: the rating cards
+
+`GET /v1/cards` deals the pool's most-voted unmarked titles; the cards page asks OMDb for the
+card on screen and the next only. Swipes are for titles not seen (right want to watch, left not
+interested, up skip), ratings are taps; Undo and keys. Walked with pointer drags on an emulated
+phone; six OMDb calls. See [briefs/done/11-rating-cards.md](briefs/done/11-rating-cards.md).

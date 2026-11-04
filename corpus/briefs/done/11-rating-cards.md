@@ -42,3 +42,26 @@ Depends on 08, 09 (the state picker) and 10 (the record route).
   (states and skips excluded, by kind, most-voted first).
 - A browser walk in a phone-sized window with touch: a swipe each way, a tap rating, a skip, an
   undo; the rated titles then show on the ratings list. The outcome counts the OMDb calls made.
+
+## Outcome (2026-11-04)
+
+Built as specified.
+
+- **The deck** (`GET /v1/cards?kind=&count=&exclude=`) walks the votes index, leaving out titles
+  with a state, skipped titles and those the page already holds; each card carries OMDb's record
+  only if it is kept. The page deals 10 at a time and asks for more under 3.
+- **OMDb** is asked for the card on screen and the next one, each once; a card shows the pool's
+  facts and "Loading the plot…" while it waits, and its pool facts alone if OMDb can't answer.
+- **The swipe mapping** (recorded in [decisions.md](../../wiki/decisions.md)): right want to
+  watch, left not interested, up skip; ratings are four big buttons. The card follows the
+  pointer, a label says what letting go will do, 90 px commits, less snaps back. Keys: 1-4 rate,
+  arrows for the swipes, Z undoes. Undo keeps the last 20.
+- **A failed save** puts the card back and says so; a failed undo says so.
+
+Checks: `npm run typecheck`, `npm run lint`, `npm test` (15 files, 84 tests; 5 new for the deck:
+most-voted first, states, skips and held cards left out, by kind, records only when kept, bad
+queries). A browser walk on an emulated Pixel 7 (412 x 915) with mouse-driven pointer drags: a
+drag right (want to watch), left (not interested), a tap on Amazing, a drag up (skip), a short
+drag that snapped back, and Z undoing the skip; the states and skips in the database matched.
+Six real OMDb calls (the cards shown and the next ones). Real finger touch was not tried: the
+browser drives pointer events with a mouse.

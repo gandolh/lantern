@@ -1,5 +1,5 @@
 ---
-summary: Where Lantern stands, per area, as of 2026-11-04. Briefs 01-10 built (skeleton, sign-in, states, container, TMDB taken out for OMDb and IMDb ids, the title pool import, search, the OMDb title page); the owner dropped TMDB the same day for OMDb plus IMDb's files, so 07-14 were rewritten (cards, suggestions, lists, README to come). What is open, the todos (bump @fastify/static), and the owner's next steps.
+summary: Where Lantern stands, per area, as of 2026-11-04. Briefs 01-11 built (skeleton, sign-in, states, container, TMDB taken out for OMDb and IMDb ids, the title pool import, search, the OMDb title page, the rating cards); the owner dropped TMDB the same day for OMDb plus IMDb's files, so 07-14 were rewritten (suggestions, lists, README to come). What is open, the todos (bump @fastify/static), and the owner's next steps.
 updated: 2026-11-04
 ---
 
@@ -29,6 +29,10 @@ to 14 ([overview.md](overview.md), "The build"). The owner pushes; nothing here 
 - **Container and owner setup** (2026-11-04). `infrastructure/` holds the API's Dockerfile and
   a compose file (`lantern-api` on loopback 8810); `docs/owner-setup.md` is the vps-deploy
   stack's brief. The compose file parses; the image was not built on the shared machine.
+- **Rating cards** (2026-11-04). `GET /v1/cards` deals the pool's most-voted titles without a
+  state or a skip; the cards page asks OMDb for the card on screen and the next one only. Swipe
+  right want to watch, left not interested, up skip; ratings are taps; Undo and keys (1-4,
+  arrows, Z) ([decisions.md](decisions.md)).
 - **Search and the title page** (2026-11-04). `GET /v1/search` over the pool (exact title first,
   then prefix, then the rest, most-voted first; accents and case ignored), `GET /v1/titles/:id`;
   the search page, the state picker (four ratings, want to watch, not interested; tap again to
@@ -43,7 +47,7 @@ to 14 ([overview.md](overview.md), "The build"). The owner pushes; nothing here 
 
 ## Open briefs
 
-11 to 14, in `briefs/todo/`, run in number order, rewritten on 2026-11-04 after TMDB was
+12 to 14, in `briefs/todo/`, run in number order, rewritten on 2026-11-04 after TMDB was
 dropped.
 
 ## Todos

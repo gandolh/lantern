@@ -1,9 +1,12 @@
 import {
+  cardsResponseSchema,
   clearStateResponseSchema,
+  skipResponseSchema,
   recordResponseSchema,
   searchResponseSchema,
   stateRowSchema,
   titleItemSchema,
+  type CardsResponse,
   type RecordResponse,
   type SearchResponse,
   type TitleItem,
@@ -33,4 +36,17 @@ export async function saveState(imdbId: string, state: TitleState | null): Promi
 /** A title's OMDb record: kept on the server, or asked of OMDb once (one call of the day's 1,000). */
 export function getRecord(imdbId: string, signal?: AbortSignal): Promise<RecordResponse> {
   return request("GET", `/v1/titles/${imdbId}/record`, (v) => recordResponseSchema.parse(v), { signal });
+}
+
+/** The next cards, leaving out those the page already holds. */
+export function dealCards(kind: TitleKind | undefined, exclude: readonly string[], count = 10, signal?: AbortSignal): Promise<CardsResponse> {
+  const params = new URLSearchParams({ count: String(count) });
+  if (kind) params.set("kind", kind);
+  if (exclude.length > 0) params.set("exclude", exclude.slice(0, 50).join(","));
+  return request("GET", `/v1/cards?${params}`, (v) => cardsResponseSchema.parse(v), { signal });
+}
+
+/** Skip a card, or take the skip back. */
+export async function saveSkip(imdbId: string, skipped: boolean): Promise<void> {
+  await request(skipped ? "POST" : "DELETE", `/v1/titles/${imdbId}/skip`, (v) => skipResponseSchema.parse(v));
 }

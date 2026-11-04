@@ -8,6 +8,7 @@ import { AUTH_ROUTE_PREFIX, DEV_ORIGIN } from "./config.js";
 import { openDatabase, type Db } from "./db.js";
 import { fail } from "./reply.js";
 import { createPool, type Pool } from "./pool/pool.js";
+import { registerCardRoutes } from "./routes/cards.js";
 import { registerPoolRoutes } from "./routes/pool.js";
 import { registerSourceRoutes } from "./routes/sources.js";
 import { registerStateRoutes } from "./routes/states.js";
@@ -237,6 +238,7 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   app.decorate("pool", pool);
   registerPoolRoutes(app, pool);
   registerTitleRoutes(app, { pool, states, records });
+  registerCardRoutes(app, { db, records });
 
   // The built page at `webBase`; any other path under it is the page too (index.html).
   const webDist = options.webDist;

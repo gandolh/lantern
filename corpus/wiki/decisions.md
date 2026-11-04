@@ -1,5 +1,5 @@
 ---
-summary: Locked calls for Lantern, settled by the owner on 2026-11-04, each with what was rejected and why. One user and no social features; on the VPS with Ward and local accounts, no sign-up, /lantern/ and /lantern-api/ on ports 5180 and 8810, no background work; films and series, a series rated once per show; four steps plus not interested and want to watch as states; English only; no where-to-stream; rating cards that stay after the start. Revisited the same day - TMDB dropped (its entries kept, marked superseded): OMDb for details, posters and scores plus IMDb's non-commercial files as the title pool, imported by hand; titles keyed by IMDb id; suggestions rank the pool by a plain taste profile of genres, directors and writers, with a reason and no match %. Read before proposing to change any of these.
+summary: Locked calls for Lantern, settled by the owner on 2026-11-04, each with what was rejected and why. One user and no social features; on the VPS with Ward and local accounts, no sign-up, /lantern/ and /lantern-api/ on ports 5180 and 8810, no background work; films and series, a series rated once per show; four steps plus not interested and want to watch as states; English only; no where-to-stream; rating cards that stay after the start. Revisited the same day - TMDB dropped (its entries kept, marked superseded): OMDb for details, posters and scores plus IMDb's non-commercial files as the title pool, imported by hand; titles keyed by IMDb id; suggestions rank the pool by a plain taste profile of genres, directors and writers, with a reason and no match %; on the cards, swipes are for the titles not seen (right want to watch, left not interested, up skip) and ratings are taps. Read before proposing to change any of these.
 updated: 2026-11-04
 ---
 
@@ -128,3 +128,12 @@ them; each suggestion says "because you liked X", X being the rated title that a
 its score. Plain arithmetic: TMDB's AI rule no longer applies, but the owner's choice of plain
 scoring stands. No match %. Rejected: a trained model; and similarity from IMDb's people file,
 which the pool leaves out.
+
+## Swipes on the cards are for the titles not seen
+_2026-11-04_, taken while building the cards (the owner asked for swiping, not for a mapping).
+Right is want to watch, left is not interested, up is skip; the four ratings are taps, on big
+buttons under the card. Every choice also has a button, and Undo takes the last one back. The
+cards deal the best-known titles, so a quick "not seen, want it / not for me / no opinion"
+deserves a gesture, while a rating is a choice among four that a swipe can't carry. Rejected:
+taste.io's right for love (it collapses four steps into one), and swiping to rate good or meh
+(two of four ratings on a gesture, the other two hidden).

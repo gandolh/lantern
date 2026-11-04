@@ -714,3 +714,173 @@ code {
 .title-details dd {
   font-weight: 400;
 }
+
+/* ---- the rating cards ---------------------------------------------------- */
+
+.rate-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rate-undo {
+  min-height: 36px;
+}
+
+.card-stage {
+  position: relative;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.swipe-card {
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+  transition: transform 180ms ease-out, opacity 180ms ease-out;
+}
+
+.swipe-card.is-dragging {
+  transition: none;
+  cursor: grabbing;
+}
+
+.swipe-card.is-leaving {
+  opacity: 0;
+}
+
+.card-behind {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  transform: scale(0.96) translateY(8px);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.swipe-label {
+  position: absolute;
+  top: 16px;
+  z-index: 2;
+  padding: 6px 12px;
+  border: 3px solid currentColor;
+  border-radius: 10px;
+  background: var(--surface);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.swipe-label-right {
+  left: 16px;
+  color: var(--good);
+  transform: rotate(-8deg);
+}
+
+.swipe-label-left {
+  right: 16px;
+  color: var(--awful);
+  transform: rotate(8deg);
+}
+
+.swipe-label-up {
+  left: 50%;
+  color: var(--text-muted);
+  transform: translateX(-50%);
+}
+
+.card-face {
+  display: grid;
+  grid-template-columns: 42% 1fr;
+  gap: 12px;
+  padding: 12px;
+}
+
+.card-poster {
+  pointer-events: none;
+}
+
+.card-text {
+  min-width: 0;
+}
+
+.card-title {
+  margin: 0 0 4px;
+  font-size: 1.2rem;
+  line-height: 1.25;
+}
+
+.card-title a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.card-facts {
+  margin: 0 0 4px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.card-plot {
+  margin: 8px 0 0;
+  font-size: 0.88rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 7;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-actions {
+  max-width: 440px;
+  margin: 14px auto 0;
+  display: grid;
+  gap: 8px;
+}
+
+.card-ratings {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.card-ratings .state-button {
+  min-height: 48px;
+}
+
+.card-others {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.card-others .state-button {
+  font-size: 0.85rem;
+  padding: 0 6px;
+}
+
+.card-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.empty {
+  padding: 16px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swipe-card {
+    transition: opacity 120ms linear;
+  }
+}
