@@ -41,3 +41,23 @@ Depends on 02, 03 and 05 (the settings it lists).
 - `docs/owner-setup.md` names every secret by variable only, and writes `<production origin>`,
   never the domain.
 - `npm run typecheck`, `npm run lint` and `npm test` still pass.
+
+## Outcome (2026-11-04)
+
+Built as specified: `infrastructure/Dockerfile`, `infrastructure/docker-compose.yml`,
+`.dockerignore`, `docs/owner-setup.md` and `docs/README.md`.
+
+- **The compose project is named `lantern`.** Without a name, compose calls the project after
+  the folder, `infrastructure`, which Wicket's compose file shares; a `down` in one could then
+  treat the other's container as an orphan.
+- **The image ships `server/dist/sources/check.js`**, so the live check can run in the
+  container too; the tests and their helpers are deleted from the image as in Wicket's.
+- **The owner setup** adds an "Outbound" row (the three hosts the API calls) and an "Idle" row
+  (no timers or WebSockets, so it may sleep), and warns that linking Ward after a separate Ward
+  sign-in leaves two users with two sets of ratings.
+
+Checks: `docker compose -f infrastructure/docker-compose.yml config` parses (run with an empty,
+then deleted, `infrastructure/.env`). The image was not built: other sessions share this
+machine, so that is the owner's step 4. `LANTERN_BASE=/lantern/ npm run build` built the server
+and the page (asset paths under `/lantern/`); the build output was removed afterwards.
+`npm run typecheck`, `npm run lint`, `npm test` (85 tests) still pass.

@@ -1,0 +1,48 @@
+# Lantern: the API. Build context is the repo root (..) because the image needs
+# the root lockfile and every workspace manifest.
+#
+#   docker compose -f infrastructure/docker-compose.yml up -d
+#
+# `.env` in THIS directory is written by the deploy (0600) and is read twice:
+# compose interpolates ${...} below from it, and lantern-api declares it as
+# env_file so the same values reach the process. For a local run,
+# `touch infrastructure/.env` is enough. It is git-ignored because it carries
+# TMDB_API_KEY, OMDB_API_KEY and the Ward client key.
+#
+# The project is named, so it never shares compose's default project name
+# (the folder, `infrastructure`) with another app checked out the same way.
+name: lantern
+
+services:
+  lantern-api:
+    build:
+      context: ..
+      dockerfile: infrastructure/Dockerfile
+      target: prod
+    image: lantern-api:1.0
+    ports:
+      # LOOPBACK ONLY. Without the 127.0.0.1 prefix this would be published on
+      # every interface, reachable over plain HTTP past Caddy and its TLS. The
+      # server's HOST is 0.0.0.0 because that is inside the container's network
+      # namespace; this line decides who can reach it.
+      - "127.0.0.1:${LANTERN_PORT:-8810}:${LANTERN_PORT:-8810}"
+    env_file:
+      - .env
+    # These beat env_file. A dev .env copied here (HOST=127.0.0.1, a local
+    # LANTERN_DB) would otherwise leave the server unreachable or writing
+    # outside the volume.
+    environment:
+      HOST: 0.0.0.0
+      PORT: "${LANTERN_PORT:-8810}"
+      LANTERN_DB: /data/lantern.sqlite
+    volumes:
+      # The ratings, the accounts and the source cache. Bind-mounted from the
+      # host so they survive deploys and "back up Lantern" means one path.
+      # Defaults to a local dir so a dev `compose up` works.
+      - ${LANTERN_DATA_DIR:-../data}:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- \"http://127.0.0.1:${LANTERN_PORT:-8810}/v1/health\""]
+      interval: 30s
+      timeout: 3s
+      start_period: 10s

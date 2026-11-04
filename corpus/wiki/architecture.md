@@ -54,7 +54,18 @@ its value.
 
 ## Data
 
-One SQLite file, WAL mode. `data/` is gitignored; on the VPS it is a bind-mounted directory.
+One SQLite file, WAL mode ([data-model.md](data-model.md)). `data/` is gitignored; on the VPS it
+is a bind-mounted directory.
+
+## On the VPS
+
+One container, `lantern-api`, from [infrastructure/Dockerfile](../../infrastructure/Dockerfile)
+and [infrastructure/docker-compose.yml](../../infrastructure/docker-compose.yml) (compose
+project `lantern`): `node:24-alpine`, the compiled `shared` and `server` with their runtime
+dependencies and the vendored ward-auth, no test code. It listens on `0.0.0.0:8810` inside and
+is published on `127.0.0.1:8810` only; `/data` is a bind mount. The page is built separately
+(`npm run build`, `LANTERN_BASE=/lantern/`) and served by Caddy. Everything the vps-deploy stack
+needs, and the owner's steps, are in [docs/owner-setup.md](../../docs/owner-setup.md).
 
 ## The page
 

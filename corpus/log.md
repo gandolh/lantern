@@ -88,3 +88,11 @@ TMDB data past 180 days; OMDb answers are kept once found. Posters come through
 `npm run sources:check -w @lantern/server`, waits for the keys. See
 [wiki/source-calls.md](wiki/source-calls.md) and
 [briefs/done/05-tmdb-and-omdb-clients.md](briefs/done/05-tmdb-and-omdb-clients.md).
+
+## [2026-11-04] done | Brief 06: the container and the owner's setup
+
+One container, `lantern-api`, from `infrastructure/` (compose project `lantern`, loopback 8810,
+`/data` bind-mounted). `docs/owner-setup.md` holds the Ward registration, the three secrets by
+name, the vps-deploy stack table and the owner's steps. The compose file parses; the image was
+not built on the shared machine. Everything that needs no key is now built; brief 07 waits for
+the keys. See [briefs/done/06-container-and-owner-setup.md](briefs/done/06-container-and-owner-setup.md).

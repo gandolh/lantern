@@ -1,5 +1,5 @@
 ---
-summary: Where Lantern stands, per area, as of 2026-11-04. Research closed after the owner's grill; the first version is briefs 02-11, of which 02-05 (skeleton, sign-in, states, the source clients) are built. What is open, the todos (bump @fastify/static), and the owner's next steps.
+summary: Where Lantern stands, per area, as of 2026-11-04. Research closed after the owner's grill; the first version is briefs 02-11, of which 02-06 (everything that needs no key) are built. What is open, the todos (bump @fastify/static), and the owner's next steps.
 updated: 2026-11-04
 ---
 
@@ -24,14 +24,17 @@ _2026-11-04_. Brief 01 is done: the owner settled the first version in a grill
 - **Sources** (2026-11-04). The TMDB and OMDb clients, their queues, the server-side cache
   (TMDB data never served past 180 days) and the poster proxy, tested on hand-written fixtures
   ([source-calls.md](source-calls.md)). **No real call yet**: the live check waits for the keys.
+- **Container and owner setup** (2026-11-04). `infrastructure/` holds the API's Dockerfile and
+  a compose file (`lantern-api` on loopback 8810); `docs/owner-setup.md` is the vps-deploy
+  stack's brief. The compose file parses; the image was not built on the shared machine.
 - **Research** (2026-10-28 to 2026-11-04, done). taste.io and the stack in
   [research.md](research.md); TMDB and OMDb, their endpoints and terms, in
   [sources.md](sources.md). No real call made yet.
 
 ## Open briefs
 
-06 to 11, in `briefs/todo/`, run in number order. 06 needs no key; 07 opens with the first
-real TMDB and OMDb calls.
+07 to 11, in `briefs/todo/`, run in number order. All need the TMDB key; 07 opens with the
+first real TMDB and OMDb calls (`npm run sources:check -w @lantern/server`).
 
 ## Todos
 
@@ -40,7 +43,14 @@ real TMDB and OMDb calls.
 
 ## Next (owner)
 
+In this order; the details are in `docs/owner-setup.md`.
+
 - Run Ward's local seed once Lantern is in it (the Ward repo's own brief), so `.env` gains the
   five `WARD_OIDC_*` lines, then try "Sign in with Ward" at <http://localhost:5180/lantern/>.
 - Create `.env` from `.env.example` and fill `TMDB_API_KEY` and `OMDB_API_KEY` (registered on
-  2026-11-04). Either TMDB value works: the API key or the API Read Access Token.
+  2026-11-04). Either TMDB value works: the API key or the API Read Access Token. Briefs 07-11
+  wait for this.
+- When the first version is done: register Lantern in production Ward (slug `lantern`), put the
+  three secrets in vps-deploy, have the stack written from the table in `docs/owner-setup.md`,
+  deploy, then seed your account in the container and link Ward.
+- Optionally, check the container locally (`docs/owner-setup.md`, step 4).
