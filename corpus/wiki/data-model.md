@@ -79,6 +79,7 @@ Behind sign-in; the writes behind the Origin check ([sign-in.md](sign-in.md)). C
 | `DELETE /v1/titles/:id/skip` | `{ skipped: false }` (the cards' undo) |
 | `GET /v1/states?state=&limit=&cursor=` | `{ rows, next }`; `state` is one of the six or `rated` (any of the four); `limit` up to 200, default 50 |
 | `GET /v1/states/counts` | `{ counts }`: per state |
+| `GET /v1/lists/:list?kind=&rating=&cursor=` | `watchlist`, `ratings` (one step or all four) or `not-interested`: `{ rows, next, counts }`, each row with the pool's facts (or, for a title the latest import dropped, OMDb's kept record, or only its id) and whether a poster is kept |
 
 `:id` is an IMDb id (`tt` and 7 to 10 digits); anything else, an unknown state or an extra body
 field is a 400 whose message starts with the field's name.

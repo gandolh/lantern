@@ -1,4 +1,4 @@
-import { RATINGS, TITLE_STATES, type StateCountsResponse, type StateFilter, type StateRow, type TitleState } from "@lantern/shared";
+import { RATINGS, TITLE_STATES, type StateCountsResponse, type StateFilter, type StateRow, type TitleKind, type TitleState } from "@lantern/shared";
 import type { Db } from "./db.js";
 
 /**
@@ -10,6 +10,8 @@ import type { Db } from "./db.js";
 
 export interface ListOptions {
   state?: StateFilter;
+  /** Only titles of this kind in the pool; a title the pool lacks then drops out. */
+  kind?: TitleKind;
   limit: number;
   /** The `next` of the page before. */
   cursor?: string;
@@ -73,7 +75,7 @@ export function createStatesStore(db: Db, now: () => number = Date.now): StatesS
     set: (userId, imdbId, state) => set(userId, imdbId, state),
     clear: (userId, imdbId) => deleteOne.run(userId, imdbId).changes > 0,
 
-    list(userId, { state, limit, cursor }) {
+    list(userId, { state, kind, limit, cursor }) {
       const where = ["user_id = ?"];
       const params: (string | number)[] = [userId];
       if (state === "rated") {
@@ -82,6 +84,10 @@ export function createStatesStore(db: Db, now: () => number = Date.now): StatesS
       } else if (state !== undefined) {
         where.push("state = ?");
         params.push(state);
+      }
+      if (kind !== undefined) {
+        where.push("imdb_id IN (SELECT imdb_id FROM titles WHERE kind = ?)");
+        params.push(kind);
       }
       if (cursor !== undefined) {
         where.push("(updated_at, imdb_id) < (?, ?)");

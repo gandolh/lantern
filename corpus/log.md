@@ -186,3 +186,9 @@ dislikes both, with "Because you liked X". The first real run showed a series' e
 swamping everything, so each title's weight is now spread over its features of a kind. About
 40 ms per request. See [wiki/suggestions.md](wiki/suggestions.md) and
 [briefs/done/12-suggestions.md](briefs/done/12-suggestions.md).
+
+## [2026-11-04] done | Brief 13: the watchlist and ratings pages
+
+`GET /v1/lists/:list` joins the states with the pool (or OMDb's kept record for a title the
+import dropped). The watchlist and the ratings pages, with tabs and counts, changes in place and
+Undo. See [briefs/done/13-watchlist-and-ratings-pages.md](briefs/done/13-watchlist-and-ratings-pages.md).

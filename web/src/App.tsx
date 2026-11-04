@@ -1,4 +1,5 @@
 import { AccountPage } from "./AccountPage";
+import { RatingsPage, WatchlistPage } from "./ListPages";
 import { Placeholder } from "./Placeholder";
 import { RatePage } from "./RatePage";
 import { SearchPage } from "./SearchPage";
@@ -24,9 +25,9 @@ function PageFor({ route }: { route: Route }) {
     case "rate":
       return <RatePage />;
     case "watchlist":
-      return <Placeholder title="Watchlist">The titles you want to watch.</Placeholder>;
+      return <WatchlistPage />;
     case "ratings":
-      return <Placeholder title="Ratings">What you rated, by step, and what you are not interested in.</Placeholder>;
+      return <RatingsPage />;
     case "search":
       return <SearchPage query={route.query} />;
     case "title":

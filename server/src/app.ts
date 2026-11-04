@@ -9,6 +9,7 @@ import { openDatabase, type Db } from "./db.js";
 import { fail } from "./reply.js";
 import { createPool, type Pool } from "./pool/pool.js";
 import { registerCardRoutes } from "./routes/cards.js";
+import { registerListRoutes } from "./routes/lists.js";
 import { registerPoolRoutes } from "./routes/pool.js";
 import { registerSourceRoutes } from "./routes/sources.js";
 import { registerStateRoutes } from "./routes/states.js";
@@ -242,6 +243,7 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   registerTitleRoutes(app, { pool, states, records });
   registerCardRoutes(app, { db, records });
   registerSuggestionRoutes(app, { suggester: createSuggester(db, states), pool, records });
+  registerListRoutes(app, { states, pool, records });
 
   // The built page at `webBase`; any other path under it is the page too (index.html).
   const webDist = options.webDist;

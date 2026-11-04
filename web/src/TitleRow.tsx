@@ -27,9 +27,11 @@ export function TitleRow({
           {title.title}
         </Link>
         <p className="title-row-facts">{facts.join(" · ")}</p>
-        <p className="title-row-score">
-          IMDb {title.rating.toFixed(1)} <span className="muted">({votes(title.votes)} votes)</span>
-        </p>
+        {title.votes > 0 && (
+          <p className="title-row-score">
+            IMDb {title.rating.toFixed(1)} <span className="muted">({votes(title.votes)} votes)</span>
+          </p>
+        )}
         {note && <p className="title-row-note">{note}</p>}
         <StatePicker key={title.imdbId} imdbId={title.imdbId} state={item.state} title={title.title} compact onChange={onChange} />
       </div>

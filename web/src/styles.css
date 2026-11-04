@@ -889,3 +889,45 @@ code {
   margin: 4px 0 0;
   font-size: 0.88rem;
 }
+
+/* ---- the lists ------------------------------------------------------------ */
+
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin: 8px 0 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs button {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tabs button[aria-selected="true"] {
+  border-color: transparent;
+  background: var(--text);
+  color: var(--bg);
+}
+
+.tab-count {
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+
+.undo-notice {
+  position: sticky;
+  top: calc(var(--top-h) + 8px);
+  z-index: 5;
+  box-shadow: var(--shadow);
+}

@@ -81,3 +81,40 @@ export const suggestionsResponseSchema = z.object({
   liked: z.number().int(),
 });
 export type SuggestionsResponse = z.infer<typeof suggestionsResponseSchema>;
+
+/** The three lists of titles with a state. */
+export const LISTS = ["watchlist", "ratings", "not-interested"] as const;
+export type ListName = (typeof LISTS)[number];
+
+/** `GET /v1/lists/:list?kind=&rating=&cursor=`; `rating` narrows the ratings list to one step. */
+export const listQuerySchema = z.strictObject({
+  kind: titleKindSchema.optional(),
+  rating: z.enum(["awful", "meh", "good", "amazing"]).optional(),
+  cursor: z
+    .string()
+    .regex(/^\d+\.tt\d{7,10}$/, { message: "cursor must be the next value of the page before" })
+    .optional(),
+});
+
+export const listRowSchema = titleItemSchema.extend({
+  state: z.enum(["awful", "meh", "good", "amazing", "not_interested", "want_to_watch"]),
+  updatedAt: z.number().int(),
+  /** False when the latest import dropped the title: its facts then come from OMDb's kept record, or are only its id. */
+  inPool: z.boolean(),
+});
+export type ListRow = z.infer<typeof listRowSchema>;
+
+export const listResponseSchema = z.object({
+  rows: z.array(listRowSchema),
+  next: z.string().nullable(),
+  /** How many titles each state holds, for the tabs. */
+  counts: z.object({
+    awful: z.number().int(),
+    meh: z.number().int(),
+    good: z.number().int(),
+    amazing: z.number().int(),
+    not_interested: z.number().int(),
+    want_to_watch: z.number().int(),
+  }),
+});
+export type ListResponse = z.infer<typeof listResponseSchema>;
