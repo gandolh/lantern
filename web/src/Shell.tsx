@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { ImdbCredit } from "./Credits";
 import { AccountIcon, RateIcon, RatingsIcon, SearchIcon, SuggestionsIcon, WatchlistIcon } from "./Icons";
 import { Link } from "./Link";
 import type { Page, Route } from "./route";
@@ -45,6 +46,9 @@ export function Shell({ current, children }: { current: Page; children: ReactNod
 
       <footer className="footer">
         <p>Lantern, for rating films and series and finding the next one.</p>
+        <p>
+          <ImdbCredit />
+        </p>
       </footer>
 
       <nav className="tabbar" aria-label="Sections">

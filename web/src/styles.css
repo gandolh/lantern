@@ -393,3 +393,26 @@ a {
   margin: 0;
   font-weight: 600;
 }
+
+.account-section {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.account-section h2 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+.credit a {
+  color: inherit;
+}
+
+code {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: var(--surface-sunk);
+}

@@ -147,3 +147,13 @@ found 30 days, a refusal never). Posters come through `/v1/posters/:id`, for tit
 record is kept, never asking OMDb. Fixtures only. See
 [wiki/source-calls.md](wiki/source-calls.md) and
 [briefs/done/07-drop-tmdb-imdb-ids-omdb-record.md](briefs/done/07-drop-tmdb-imdb-ids-omdb-record.md).
+
+## [2026-11-04] done | Brief 08: the title pool, imported from IMDb's files
+
+`npm run titles:import -w @lantern/server` (in the container `node server/dist/pool/cli.js`)
+streams `title.ratings`, `title.basics` and `title.crew` and replaces the pool in one
+transaction. Films (with `tvMovie`) and series with 1,000 votes or more: 65,732 titles on
+2026-11-04, 32 s, 14.5 MiB. The one real run peaked at 665 MiB because kept fields pinned their
+read chunks (V8 sliced strings); copying them cut a synthetic run from 565 to 246 MiB. IMDb's
+credit line is in the footer and on the account page. See [wiki/titles.md](wiki/titles.md) and
+[briefs/done/08-title-pool-import.md](briefs/done/08-title-pool-import.md).

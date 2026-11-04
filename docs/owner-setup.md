@@ -30,7 +30,7 @@ brief-board were registered the same way.
    addresses:
    - redirect URI: `<production origin>/lantern-api/auth/ward/callback`
    - sign-out return URI: `<production origin>/lantern/`
-5. Grant a role on the app to your own Ward account (step 6 links it).
+5. Grant a role on the app to your own Ward account (step 7 links it).
 
 ## 2. The secrets
 
@@ -62,6 +62,7 @@ data files need no key.
 | Set by compose | `HOST`, `PORT`, `LANTERN_DB` |
 | Optional env | `LANTERN_PORT` (the published port, default 8810) |
 | Outbound | HTTPS to `www.omdbapi.com` and `m.media-amazon.com` (posters) from the server, and to `datasets.imdbws.com` during an import. The browser never calls them |
+| Title import | By hand, about monthly: `node server/dist/pool/cli.js` inside `lantern-api` (step 6). About 310 MB downloaded, half a minute, a few hundred MB of memory; the server keeps running |
 | Idle | No timers, no WebSockets: the container does work only while answering a request, so it may sleep when idle |
 | Ward client | slug `lantern`, like brief-board's and Wicket's |
 
@@ -96,7 +97,24 @@ curl -sI <production origin>/lantern/
 
 Expect `{"ok":true}` and a `200`.
 
-## 6. Your account, and Ward
+## 6. Import the titles
+
+Search, the cards and the suggestions draw from a pool of IMDb's films and series, which starts
+empty. Load it once after the first deploy, then about monthly. On the box as the services
+account:
+
+```
+export DOCKER_HOST=unix:///run/user/$(id -u)/docker.sock
+cd /srv/lantern-api
+docker compose -f infrastructure/docker-compose.yml exec lantern-api node server/dist/pool/cli.js
+```
+
+It streams IMDb's three files (about 310 MB), keeps films and series with at least 1,000 votes
+(about 66,000 on 2026-11-04), and replaces the pool in one go; ratings and the watchlist are
+never touched. Add `--min-votes 2000` for a smaller pool. A failed run leaves the old pool. IMDb's
+data is for personal, non-commercial use only.
+
+## 7. Your account, and Ward
 
 There is no register page. On the box as the services account, run the seed inside the
 container. It asks for a username and password and shows neither:
@@ -126,7 +144,8 @@ No output is right. A line saying every caller shares one failure counter means
 
 1. `cp .env.example .env`, then fill `OMDB_API_KEY`. Leave the rest empty; the defaults suit
    local development.
-2. `npm install`, then make your local account: `npm run seed -w @lantern/server`.
+2. `npm install`, then make your local account: `npm run seed -w @lantern/server`, and load the
+   titles: `npm run titles:import -w @lantern/server` (half a minute, about 310 MB downloaded).
 3. `npm run dev`: the API on `127.0.0.1:8810` and the page at <http://localhost:5180/lantern/>.
    For `npm start` (the built page on the server's own port, after `npm run build`), set
    `PUBLIC_ORIGIN=http://127.0.0.1:8810`.

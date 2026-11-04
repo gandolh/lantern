@@ -54,3 +54,34 @@ Depends on 07.
   re-run replacing the pool without touching states, a failed run leaving the old pool.
 - The real import runs **once**, into a scratch database; its time, peak memory, table size and
   the threshold counts go in the outcome and in `titles.md`.
+
+## Outcome (2026-11-04)
+
+Built as specified; the pool, its numbers and the command are in
+[titles.md](../../wiki/titles.md).
+
+- **Choices**: threshold 1,000 votes (default; `--min-votes` per run); `tvMovie` kept as a film;
+  shorts, episodes, specials, videos and games left out.
+- **The real import, once**, from the built JavaScript into a scratch database: 52,746 films and
+  12,986 series (65,732), 32 s (34 s wall clock, about 310 MB downloaded), 14.5 MiB in the
+  database, **peak memory 665 MiB**. Counts: 96,167 at 500 votes, 65,732 at 1,000, 43,711 at
+  2,000, 24,442 at 5,000.
+- **The memory was a bug**, found after that run: kept fields were V8 slices of whole 64 KB read
+  chunks, so the kept titles pinned nearly all of `title.basics`. They are copied now. On
+  synthetic files of the same shape the peak fell from 565 MiB to 246 MiB, and the import fits
+  a 128 MiB heap (it ran out of memory there before). The line reader was also switched from
+  readline to a pulled splitter; that alone changed nothing measurable. The real import was not
+  rerun.
+- **A changed file layout** (an unexpected header) stops the import before anything is
+  written, and the old pool stays.
+- **The account page** shows the pool ("52,746 films and 12,986 series from IMDb, each with at
+  least 1,000 votes, imported 4 November 2026") and IMDb's credit; the footer carries the credit
+  on every page.
+- `docs/owner-setup.md` gains step 6, the import inside the container.
+
+Checks: `npm run typecheck`, `npm run lint`, `npm test` (12 files, 67 tests; 6 new on small TSV
+fixtures: the filters, `\N`, a title with quotes and commas, crew joined, the threshold counts,
+a re-run that keeps the states, a bad header leaving the old pool, gzipped files over HTTP). A
+browser walk at 412 x 915 against the real pool: signed in, the account page and the footer
+show the pool and the credit. The browser MCP tools could not start (the session's runtime
+directory was gone after a restart), so the walk used the same agent-browser through its CLI.

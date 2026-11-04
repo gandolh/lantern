@@ -82,6 +82,35 @@ export const MIGRATIONS: string[] = [
     fetched_at INTEGER NOT NULL
   );
   `,
+  // The title pool, built from IMDb's non-commercial files by the import
+  // command and replaced whole by each run; and a line per run.
+  `
+  CREATE TABLE titles (
+    imdb_id TEXT PRIMARY KEY CHECK (imdb_id GLOB 'tt[0-9]*'),
+    kind TEXT NOT NULL CHECK (kind IN ('movie', 'series')),
+    imdb_type TEXT NOT NULL,
+    title TEXT NOT NULL,
+    search_title TEXT NOT NULL,
+    start_year INTEGER,
+    end_year INTEGER,
+    runtime INTEGER,
+    genres TEXT NOT NULL DEFAULT '',
+    rating REAL NOT NULL,
+    votes INTEGER NOT NULL,
+    directors TEXT NOT NULL DEFAULT '',
+    writers TEXT NOT NULL DEFAULT ''
+  ) WITHOUT ROWID;
+  CREATE INDEX titles_by_votes ON titles (votes DESC);
+  CREATE INDEX titles_by_kind ON titles (kind, votes DESC);
+  CREATE TABLE pool_imports (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    imported_at INTEGER NOT NULL,
+    min_votes INTEGER NOT NULL,
+    movies INTEGER NOT NULL,
+    series INTEGER NOT NULL,
+    took_ms INTEGER NOT NULL
+  );
+  `,
 ];
 
 function migrate(db: Db, migrations: readonly string[]): void {

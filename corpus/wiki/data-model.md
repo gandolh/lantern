@@ -1,5 +1,5 @@
 ---
-summary: What Lantern keeps in its one SQLite file, as built from 2026-11-04. The owner's own data (title_states: one state per user and IMDb id; card_skips) holds no outside facts; OMDb's records (omdb_records, found kept for good); ward-auth's own tables; the migrations under PRAGMA user_version (the third rebuilt the states on IMDb ids when TMDB was dropped); the states routes and the rules they follow (one state at a time, a state drops a skip, every query scoped to the user, paging by a cursor).
+summary: What Lantern keeps in its one SQLite file, as built from 2026-11-04. The owner's own data (title_states: one state per user and IMDb id; card_skips) holds no outside facts; OMDb's records (omdb_records, found kept for good); the title pool (titles, pool_imports); ward-auth's own tables; the migrations under PRAGMA user_version (the third rebuilt the states on IMDb ids when TMDB was dropped); the states routes and the rules they follow (one state at a time, a state drops a skip, every query scoped to the user, paging by a cursor).
 updated: 2026-11-04
 ---
 
@@ -33,6 +33,17 @@ What OMDb answered per title, already read; how it is used is in
 | Table | Key | Columns |
 |---|---|---|
 | `omdb_records` | `imdb_id` | `outcome` (`found` or `not_found`), `body` (the record, JSON), `poster` (1 when it has one), `fetched_at` |
+
+## The title pool
+
+Written only by the import ([titles.md](titles.md)), replaced whole by each run.
+
+| Table | Key | Columns |
+|---|---|---|
+| `titles` | `imdb_id` | `kind` (`movie` or `series`), `imdb_type`, `title`, `search_title`, `start_year`, `end_year`, `runtime`, `genres` (comma-separated), `rating`, `votes`, `directors` and `writers` (comma-separated `nm…` ids) |
+| `pool_imports` | `id` | `imported_at`, `min_votes`, `movies`, `series`, `took_ms` |
+
+Indexed by votes (most-voted first) and by kind and votes.
 
 ## History
 

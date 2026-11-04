@@ -7,6 +7,8 @@ import { openAccounts, USER_ROLE } from "./accounts.js";
 import { AUTH_ROUTE_PREFIX, DEV_ORIGIN } from "./config.js";
 import { openDatabase, type Db } from "./db.js";
 import { fail } from "./reply.js";
+import { createPool, type Pool } from "./pool/pool.js";
+import { registerPoolRoutes } from "./routes/pool.js";
 import { registerSourceRoutes } from "./routes/sources.js";
 import { registerStateRoutes } from "./routes/states.js";
 import { createRecordCache } from "./sources/cache.js";
@@ -120,6 +122,8 @@ declare module "fastify" {
     states: StatesStore;
     /** OMDb's records, for the tests. */
     records: Records;
+    /** The title pool, for the tests. */
+    pool: Pool;
   }
 }
 
@@ -227,6 +231,10 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   });
   app.decorate("records", records);
   registerSourceRoutes(app, records, options.posterFetch ?? globalThis.fetch);
+
+  const pool = createPool(db);
+  app.decorate("pool", pool);
+  registerPoolRoutes(app, pool);
 
   // The built page at `webBase`; any other path under it is the page too (index.html).
   const webDist = options.webDist;

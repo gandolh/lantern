@@ -1,0 +1,11 @@
+tconst	titleType	primaryTitle	originalTitle	isAdult	startYear	endYear	runtimeMinutes	genres
+tt0000001	short	A Short	A Short	0	1894	\N	1	Short
+tt0111161	movie	The Shawshank Redemption	The Shawshank Redemption	0	1994	\N	142	Drama
+tt0944947	tvSeries	Game of Thrones	Game of Thrones	0	2011	2019	57	Action,Adventure,Drama
+tt1375666	movie	Inception	Inception	0	2010	\N	148	Action,Adventure,Sci-Fi
+tt0000002	movie	Six Hundred Votes	Six Hundred Votes	0	2001	\N	90	Comedy
+tt0000003	tvMovie	Amélie & "Friends", Part 2	Le fabuleux destin	0	\N	\N	\N	\N
+tt0000004	movie	An Adult Title	An Adult Title	1	2005	\N	80	Drama
+tt0000005	tvMiniSeries	A Mini Series	A Mini Series	0	2020	2020	\N	Crime,Drama
+tt0000006	tvEpisode	An Episode	An Episode	0	2015	\N	45	Drama
+tt0000008	movie	Not Rated	Not Rated	0	2015	\N	45	Drama

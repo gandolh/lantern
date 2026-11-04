@@ -1,6 +1,10 @@
+import { poolInfoSchema, type PoolInfo } from "@lantern/shared";
 import { useEffect } from "react";
 import { useLogout, useSession, useWardLink, useWardResult, useWardSignOut } from "../vendor/ward/ward-auth-react.js";
+import { request } from "./api";
+import { ImdbCredit } from "./Credits";
 import { accountMessage } from "./messages";
+import { useQuery } from "./useQuery";
 
 /**
  * The account page: who is signed in and how, "Link Ward" when the server
@@ -50,6 +54,8 @@ export function AccountPage() {
         </p>
       )}
 
+      <PoolSection />
+
       <div className="actions">
         {ward.enabled && !ward.linked && !link.linked && (
           <button type="button" className="button" disabled={link.pending} onClick={() => void link.link()}>
@@ -65,6 +71,35 @@ export function AccountPage() {
           </button>
         )}
       </div>
+    </section>
+  );
+}
+
+const DATE = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" });
+const NUMBER = new Intl.NumberFormat("en-GB");
+
+/** How many titles the pool holds and when they were imported, with IMDb's credit. */
+function PoolSection() {
+  const pool = useQuery<PoolInfo>("pool", (signal) => request("GET", "/v1/pool", (v) => poolInfoSchema.parse(v), { signal }));
+  return (
+    <section className="account-section" aria-labelledby="pool-heading">
+      <h2 id="pool-heading">Titles</h2>
+      {pool.status === "error" && <p className="auth-error">Couldn't read the title list. {pool.error.message}</p>}
+      {pool.data && pool.data.titles === 0 && (
+        <p>
+          No titles yet. Run <code>npm run titles:import -w @lantern/server</code> on the server to load IMDb's films and series.
+        </p>
+      )}
+      {pool.data && pool.data.titles > 0 && (
+        <p>
+          {NUMBER.format(pool.data.movies)} films and {NUMBER.format(pool.data.series)} series from IMDb
+          {pool.data.minVotes !== null && <>, each with at least {NUMBER.format(pool.data.minVotes)} votes</>}
+          {pool.data.importedAt !== null && <>, imported {DATE.format(pool.data.importedAt)}</>}.
+        </p>
+      )}
+      <p className="muted">
+        <ImdbCredit />
+      </p>
     </section>
   );
 }
