@@ -201,3 +201,15 @@ vps-deploy stack: `lantern-api` on loopback 8810, data at `/data`, two secrets, 
 import as `node server/dist/…` inside the container. Briefs 01 to 14 are done; nothing is
 deployed. See [briefs/done/14-readme-and-docs.md](briefs/done/14-readme-and-docs.md) and
 [wiki/status.md](wiki/status.md).
+
+## [2026-11-10] todo | Briefs 15-18: the estate's three calls, specified for Lantern
+
+Four briefs for the owner's calls of 2026-11-09, written from measurements on a scratch copy:
+15 the house style and harness (Prettier churn by width, 5 `erasableSyntaxOnly` errors, 29
+non-null `!`, 4 other typed-lint findings, a missing `pretest`: 10 of 18 test files fail on a
+fresh clone), 16 Base UI by the conventions (declared but unused; three hand-built widget kinds
+to adopt; no bump brief since 1.9.0 is pinned), 17 the web app to Tailwind (21 token names in 38
+definitions, a 15 px root with rem type, the 760 px breakpoint), 18 the server in the code
+structure (17 routes, four copies of the repo-root and `.env` read, `connectionTimeout` sized for
+OMDb). `.claude` and `scripts` added to `.planned-roots`. See [briefs/todo/](briefs/todo/) and
+[wiki/status.md](wiki/status.md).
