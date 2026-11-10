@@ -1,4 +1,4 @@
-# Task 17: The web app to Tailwind
+# Task 17: The web app to Tailwind, and a theme switch
 
 **Depends on:**
 
@@ -6,8 +6,8 @@
 - In the owner's skills library:
   - brief 02, *A base-ui skill, styled with Tailwind*: rules 4-7, `migrating-from-plain-css.md` (the method), `check-base-ui.mjs`;
   - brief 15, *Enforce the base-ui and code-structure skills in every repo*: `check-base-ui` stops running `--warn-only` here.
-- **In Wicket: its brief 12, *The web app to Tailwind, and the small tools' shared tokens*.** It sets the family's token names first (Q17: Wicket, then the-board, then Lantern, per Q20). This brief copies those names and puts only Lantern's values and Lantern-only tokens behind them. If Wicket's brief hasn't landed, build from the names in the table below, which are read from it, and check them against its `@theme` block before step 2.
-- The owner's grilling of 2026-11-10: Q17 (token names), Q18 (dark mode), Q19 (visual parity), Q20 (order), and the new questions in decisions 1, 3, 4 and 5.
+- **In Wicket: its brief 12, *The web app to Tailwind, and the small tools' shared tokens*.** It sets the family's token names first (Q17 and Q61: Wicket, then the-board, then Lantern, per Q20). This brief copies those names and puts only Lantern's values and Lantern-only tokens behind them; where this brief and Wicket's differ, Wicket's list wins. If Wicket's brief hasn't landed, build from the names in the table below, which are read from it, and check them against its `@theme` block before step 2.
+- The owner's grilling of 2026-11-10: Q17 and Q61 (token names), Q18 (the theme switch), Q19 (visual parity), Q20 (order), Q44 (root font size), Q60 and Q62 (tests, type scale). All decided; see Owner decisions.
 
 **Runs after:** 16. Brief 16 changes structure and behaviour; this brief changes only the styling, so the before and after screenshots compare like with like.
 
@@ -15,13 +15,13 @@
 
 ## Context
 
-The owner's call of 2026-11-09: Base UI is styled with Tailwind v4, and whole apps move to Tailwind. Lantern's page is one plain stylesheet with a dark mode and no CSS dependency. This brief moves it to Tailwind 4.3.5 (Wicket's version, on the same Vite 8.3.5) with the looks unchanged, and gives Lantern's values the family's token names.
+The owner's call of 2026-11-09: Base UI is styled with Tailwind v4, and whole apps move to Tailwind. Lantern's page is one plain stylesheet with a dark mode and no CSS dependency. This brief moves it to Tailwind 4.3.5 (Wicket's version, on the same Vite 8.3.5) with the looks unchanged, gives Lantern's values the family's token names, and adds the Light / Dark / System switch.
 
 ### Corrections to the estate draft
 
 - **38 custom properties is 38 definitions, not names.** There are **21 names** on `:root` (`web/src/styles.css:9-29`) and 17 of them redefined under `prefers-color-scheme: dark` (`styles.css:38-60`). The four never redefined: `--radius`, `--top-h`, `--tab-h`, `--page-w`. All 21 are read: 100 `var()` uses.
 - **No third-party CSS.** Base UI ships none and `main.tsx` imports only `./styles.css` (line 6). The unlayered-vendor-CSS trap doesn't apply.
-- **The root font size is 15 px** (`styles.css:31`), and **21 rules size type in `rem`** against it, while spacing is in `px`. Tailwind's rem scale would shift if it were left alone (decision 3).
+- **The root font size is 15 px** (`styles.css:31`), and **21 rules size type in `rem`** against it, while spacing is in `px`. By Q44 the 15 px moves onto `body`, so those `rem` sizes become px tokens that keep today's pixels (decision 3).
 - **The first-version breakpoint is `min-width: 760px`**, twice (`styles.css:223, 658`): phone first, the tab bar below it and the top bar above. There is no `max-width` query.
 
 ### The stylesheet today (measured 2026-11-10)
@@ -46,7 +46,7 @@ Read from Wicket's brief 12 and Lantern's `:root` on 2026-11-10:
 
 | Family name (Wicket's `@theme`) | Lantern today | Lantern's value (light, dark) |
 |---|---|---|
-| `--color-bg`, `--color-surface`, `--color-surface-sunk`, `--color-text`, `--color-text-muted`, `--color-line`, `--color-accent` | `--bg`, `--surface`, `--surface-sunk`, `--text`, `--text-muted`, `--line`, `--accent` | Lantern's warm palette (`styles.css:9-15`, dark 40-46) |
+| `--color-page`, `--color-surface`, `--color-surface-sunk`, `--color-ink`, `--color-ink-muted`, `--color-line`, `--color-accent` | `--bg`, `--surface`, `--surface-sunk`, `--text`, `--text-muted`, `--line`, `--accent` | Lantern's warm palette (`styles.css:9-15`, dark 40-46) |
 | `--color-danger`, `--color-ok` | `--danger`, `--ok` | `styles.css:18-19`, dark 49-50 |
 | `--shadow-card` | `--shadow` | `styles.css:20`, dark 51 |
 | `--height-top` | `--top-h` (56 px) | |
@@ -72,15 +72,15 @@ Read from Wicket's brief 12 and Lantern's `:root` on 2026-11-10:
 
 **The `color-mix` colours stay `srgb`.** Tailwind's opacity suffix (`/88`) compiles to `oklab`, which gives a slightly different colour. Naming each `color-mix(in srgb, …)` as a token keeps the pixels.
 
-**Sizes, radii and weights**, with values unchanged (brief 17 doesn't collapse any):
+**Sizes, radii and weights**, with values unchanged apart from the type sizes' unit and the merges decision 4 allows:
 
-- **12 distinct font sizes** (`grep -oE "font-size: [^;]+" web/src/styles.css | sort | uniq -c`): `0.85rem` ×5, `0.88rem` ×4, `0.8rem` ×3, `16px` ×2, `1.6rem` ×2, `1.1rem` ×2, `0.72rem`, `0.82rem`, `1.15rem`, `1.2rem`, `1.25rem` and `0.9em`, plus the root's `15px`. Each gets a `--text-*` token named by its use (decision 4), in `rem`, so the root stays 15 px and nothing moves.
+- **12 distinct font sizes** (`grep -oE "font-size: [^;]+" web/src/styles.css | sort | uniq -c`): `0.85rem` ×5, `0.88rem` ×4, `0.8rem` ×3, `16px` ×2, `1.6rem` ×2, `1.1rem` ×2, `0.72rem`, `0.82rem`, `1.15rem`, `1.2rem`, `1.25rem` and `0.9em`, plus the root's `15px`. Each gets a `--text-*` token named by its use (decision 4), in px at today's computed size (decision 3), so nothing moves when the 15 px goes onto `body`.
 - **7 radii:** `10px` ×7, `999px` ×6, `var(--radius)` ×3 (12 px) and a literal `12px`, `8px`, `6px`, `16px`, `50%`. The family has three names (`--radius-control`, `--radius-card`, `--radius-pill`) with Wicket's values (4, 8 and 10 px); Lantern's values differ. Decision 5.
 - **5 weights:** 400, 500, 600, 700, 800: all of Tailwind's own `font-normal` to `font-extrabold`, so the default weight scale stays.
 
-Spacing: `--spacing: 4px`, with the default colour, text, radius, shadow and container scales cleared (`--color-*: initial` and so on), so only Lantern's tokens exist. Spacing is in `px` throughout; the odd values (for example the `3px` padding and `34px` height of `.segmented`, lines 447-458) are arbitrary values, listed in step 3's commit message.
+Spacing: Tailwind's default `--spacing` (0.25rem, 4 px on the browser's 16 px root, decision 3), with the default colour, text, radius, shadow and container scales cleared (`--color-*: initial` and so on), so only Lantern's tokens exist. Spacing is in `px` throughout; the odd values (for example the `3px` padding and `34px` height of `.segmented`, lines 447-458) are arbitrary values, listed in step 3's commit message.
 
-Dark mode: the 17 dark values are written once, as a redefinition of the `--color-*` and `--shadow-card` names inside `@media (prefers-color-scheme: dark)` in `@layer base`, and **no `dark:` variant appears in a class name** (decision 2).
+Dark mode: the 17 dark values are written once, as a redefinition of the `--color-*` and `--shadow-card` names under `[data-theme="dark"]` in `@layer base`, with `@custom-variant dark` keyed off the same attribute, and **no `dark:` variant appears in a class name** (decision 2).
 
 ### What the browser does today that Tailwind's preflight stops
 
@@ -94,18 +94,23 @@ Preflight resets heading size and weight, zeroes `p`, `dl`, `dd` and `ul` margin
 
 The fallback, if native controls shift: import Tailwind's `theme.css` and `utilities.css` without preflight, and keep the page's own resets in `@layer base`.
 
-**Not measured here** (no Tailwind in the repo): whether `max-w-narrow`-style custom container names compile as expected with the default scale cleared, and whether `@custom-variant`/`--breakpoint-wide` produce `min-width: 760px` exactly. Step 2 checks both against Wicket's measured behaviour (its `max-sm:` and `phone` finding: Tailwind's built-in max variants differ from a hand-written query by one pixel at the boundary, so the `wide` variant is checked at 759, 760 and 761 px).
+**Not measured here** (no Tailwind in the repo): whether `max-w-narrow`-style custom container names compile as expected with the default scale cleared, and whether `@custom-variant`/`--breakpoint-wide` produce `min-width: 760px` exactly. Step 2 checks both against Wicket's measured behaviour (Tailwind's built-in max variants differ from a hand-written query by one pixel at the boundary, which Wicket accepts under Q62; here a named `--breakpoint-wide` is exact, so it is checked once at 759, 760 and 761 px).
 
-## Owner decisions (defaults this brief builds)
+## Owner decisions
 
-1. **Token names for the small tools family** (Q17). Default: Wicket's names, as in the table, with Lantern's values. The open question is Wicket's: `bg-bg` and `text-text` against `page` and `ink`. Lantern follows whichever Wicket's brief settles; it doesn't answer it. *Raised in Wicket's brief.*
-2. **Dark mode** (Q18). Default: `prefers-color-scheme` through token redefinition, no `dark:` classes. It is what the page does today.
-3. **Tailwind's scale against a 15 px root** (Q44). Default: `--spacing: 4px`, the default scales cleared, and Lantern's own `--text-*` tokens in `rem`, so the 15 px root stays and 21 rem rules render as today. The alternative is moving the 15 px to `body`, which would make `rem` 16 px and shift every font size by 6.7%. The same question is Almanac's and Wicket's.
-4. **Naming the 12 font sizes.** Default: one token per distinct value, named by what it sizes, so each stays exact. *New question for the grilling*: Satchel's brief asks the same about 13 sizes. Collapsing `0.85rem`, `0.88rem` and `0.82rem` would change pixels, so it isn't done here; if the owner wants a scale, it is a design change with its own brief.
-5. **Lantern's radii against the family's three names.** Default: `--radius-card` (12 px, today's `--radius`), `--radius-pill` (999 px, ×6), `--radius-control` (10 px, ×7); the 6, 8 and 16 px radii get `--radius-xs`, `--radius-sm` and `--radius-hero` (the swipe card's 16 px), and `50%` is Tailwind's `rounded-full`. Wicket's values for the three family names differ (4, 8, 10 px), so the **names** are shared and the **values** are per app. *New question for the grilling*: do the family names promise a value, or only a role?
-6. **The phone and desktop breakpoint.** Default: `--breakpoint-wide: 760px`, giving `wide:` as `min-width: 760px`, exact to today's two rules. Alternative: `md:` at 768 px, a 8 px shift. The screenshots at 759, 760 and 761 px decide; not a grilling question.
-7. **The `<meta name="theme-color">` values** (`web/index.html:6-7`: `#14110f` and `#f7f4ef`). They duplicate `--color-bg` and can't read a stylesheet. Default: left, with a comment pointing at the token, and a test that the two values equal the tokens' (reads `index.html` and `index.css`). *New question for the grilling*: should the estate generate them?
-8. **Where the `@layer base` page rules live.** Default: `html` (font, size, line-height, colour, background, `color-scheme`, `-webkit-text-size-adjust`) and `:focus-visible` in `@layer base` in `index.css`, plus the dark redefinition. Everything else is a utility.
+Decided on 2026-11-10 unless marked as a default.
+
+1. **Token names for the small tools family** (Q17 and Q61, decided 2026-11-10, technical call). A name names a role, never a value. The family (wicket, the-board, lantern) converges on `surface`, `ink`, `accent`, `line` and `danger`, used as `bg-surface` and `text-ink`, with no `bg-bg`. Wicket's brief 12 sets the list and wins where this brief differs: `page` for the page background, `ink-muted` for the muted text. Lantern gives them its own values.
+2. **Dark mode: a Light / Dark / System switch, light by default** (Q18, decided 2026-11-10, owner). A first visit shows the light theme, not the system's. `dark:` keys off a `data-theme` attribute through `@custom-variant dark`, not `prefers-color-scheme`. The 17 dark values stay one block in `@layer base`, now under `[data-theme="dark"]`, redefining the `--color-*` and `--shadow-card` names, so every utility follows. The choice is kept on the device in `localStorage` (Lantern keeps no other settings). The control lives on the account page, on brief 16's `RadioGroup` wrapper, and writes nothing to the API. Step 6 builds it.
+3. **The 15 px root** (Q44, decided 2026-11-10, technical call). The root font size goes back to the browser's default and the app's 15 px moves onto `body`; a pixel size on `html` overrides the reader's own font setting and skews every `rem` utility. Tailwind's default spacing stays (4 px at a 16 px root). The 21 `rem` type sizes against the old 15 px root become px tokens holding today's computed pixels (`0.85rem` is 12.75 px, `1.6rem` 24 px, and so on), so nothing moves.
+4. **The type scale** (Q62 and Q19, decided 2026-11-10, technical calls). The font sizes become a named scale in `@theme` (`--text-*`), named by what each sizes, and the default scale is cleared. There are 12 distinct values; sizes within about half a pixel of each other (`0.8rem`, `0.82rem`, `0.85rem` and `0.88rem` are 12, 12.3, 12.75 and 13.2 px) may merge where the before and after screenshots show no visible change. Step 2 lists the final table.
+5. **Radii against the family's three names** (Q61, decided 2026-11-10, technical call). The names name a role, not a value, so the **names** are shared and the **values** are per app: `--radius-card` (12 px, today's `--radius`), `--radius-pill` (999 px, ×6), `--radius-control` (10 px, ×7); the 6, 8 and 16 px radii get `--radius-xs`, `--radius-sm` and `--radius-hero` (the swipe card's 16 px), and `50%` is Tailwind's `rounded-full`.
+6. **The phone and desktop breakpoint** (default). `--breakpoint-wide: 760px`, giving `wide:` as `min-width: 760px`, exact to today's two rules; it is a named breakpoint, not a custom variant. Alternative: `md:` at 768 px, an 8 px shift at the boundary.
+7. **The `<meta name="theme-color">` values** (`web/index.html:6-7`: `#14110f` and `#f7f4ef`). They duplicate `--color-page` and can't read a stylesheet, and their `media` queries can't follow a manual choice. Default: the theme script in step 6 replaces the two with one `theme-color` meta whose content it sets from the chosen theme's values, and a test (`web/src/theme.test.ts`) checks that those values equal the tokens' (it reads `index.html` and `index.css`).
+8. **Where the `@layer base` page rules live** (default). `html` (`color-scheme`, `-webkit-text-size-adjust`) and `body` (font, 15 px size, line-height, colour, background), and `:focus-visible`, in `@layer base` in `index.css`, plus the dark redefinition. Everything else is a utility.
+9. **Visual parity** (Q19, decided 2026-11-10, owner). Close enough: screenshots at 1280 and 390 px in light show no visible change to layout or colour. A few pixels of drift in spacing or rounding needn't be fixed or listed. Dark is checked for unreadable text.
+10. **Tests** (Q60 and Q62, decided 2026-11-10, technical calls). The three existing tests assert on text, so no class-name assertion needs rewriting. The theme module's tests run under jsdom (brief 16 adds it); flows stay in Playwright. Tests select by role, and `data-testid` only where no role fits.
+11. **No PRs, no branches** (Q4, decided 2026-11-10, owner). One commit per step, straight on `main`.
 
 ## Files you OWN
 
@@ -115,7 +120,7 @@ The fallback, if native controls shift: import Tailwind's `theme.css` and `utili
 - `web/src/SwipeCard.tsx`: class names only. The `style` transform stays.
 - `web/package.json`, `web/vite.config.ts` (the Tailwind plugin) and `package-lock.json`: `tailwindcss` and `@tailwindcss/vite` at 4.3.5, `clsx` and `tailwind-merge` at the versions the base-ui skill pins, all exact.
 - `eslint.config.js`: `eslint-plugin-better-tailwindcss` on `web/src/**` (brief 15's table).
-- A test for decision 7, in `web/src/theme.test.ts`.
+- The theme switch: `web/src/theme.ts`, the inline script and the `theme-color` meta in `web/index.html`, the control on `AccountPage.tsx`, and `web/src/theme.test.ts` (decision 7).
 - `.claude/rules/web.md`: the Tailwind lines.
 - Corpus: `corpus/wiki/web-app.md`, [wiki/architecture.md](../../wiki/architecture.md) (the paragraph on the page's frame and tokens, around line 75), [wiki/decisions.md](../../wiki/decisions.md), [wiki/status.md](../../wiki/status.md), [log.md](../../log.md).
 
@@ -125,11 +130,10 @@ The fallback, if native controls shift: import Tailwind's `theme.css` and `utili
 - The swipe gesture's code in `SwipeCard.tsx`, beyond its class names.
 - `web/src/components/ui/` behaviour: only the classes on the parts.
 - `web/vendor/`.
-- `web/index.html`'s `theme-color` values.
 
 ## What to do
 
-One commit per step; after each, `npm run check` passes and `npm run build` succeeds.
+One commit per step, straight on `main`; after each, `npm run check` passes and `npm run build` succeeds.
 
 1. **Screenshots before.** Bring the stack up from a scratch copy of the data, never the owner's:
    - `LANTERN_DB=<scratch file>`, `PUBLIC_ORIGIN` unset (so `http://localhost:5180`), and **no `OMDB_API_KEY`**, so every poster is the empty placeholder and the record route answers 503 `no_key`: deterministic, no outside call;
@@ -137,8 +141,8 @@ One commit per step; after each, `npm run check` passes and `npm run build` succ
    - `SEED_USERNAME=demo SEED_PASSWORD=<12 or more throwaway characters> npm run seed -w @lantern/server`;
    - `npm run dev`, then Playwright: sign in, and rate and mark titles through the page's own buttons so each list has rows.
 
-   Take each state at 1280 × 800 and 390 × 844, **light and dark** (`colorScheme`), plus the shell at 759, 760 and 761 px (top bar and tab bar swap at 760): suggestions; rate (idle, mid-swipe at a fixed pointer offset, the leaving card); search with results; a title page; the watchlist, the ratings tabs and not interested; an undo notice; sign-in; the account page. Keep the images out of git. Wait for `aria-busy` to clear before each shot.
-2. **Set up.** Add the dependencies and the plugin. Write `web/src/styles/index.css`: `@import "tailwindcss"`, `@theme` with the default scales cleared and the mapping above, `--spacing: 4px`, `--breakpoint-wide`, and the `@layer base` page rules with the dark redefinition. Write a comment at the top of `@theme` listing which names are the family's and which are Lantern's. Keep `styles.css` imported after `index.css` only for what hasn't moved yet; add `cn.ts` and its test. Check, in a scratch build, that `bg-red-500` and `text-sm` emit nothing and that `wide:` is `min-width: 760px`.
+   Take each state at 1280 × 800 and 390 × 844 in light (decision 9): suggestions; rate (idle, mid-swipe at a fixed pointer offset, the leaving card); search with results; a title page; the watchlist, the ratings tabs and not interested; an undo notice; sign-in; the account page. Keep the images out of git. Wait for `aria-busy` to clear before each shot.
+2. **Set up.** Add the dependencies and the plugin. Write `web/src/styles/index.css`: `@import "tailwindcss"`, `@theme` with the default scales cleared and the mapping above (default `--spacing`, px type tokens), `@custom-variant dark` on `data-theme`, `--breakpoint-wide`, and the `@layer base` page rules (`body` takes the 15 px) with the dark redefinition under `[data-theme="dark"]`. At this step the dark block may still sit under `prefers-color-scheme` until step 6, so the screenshots compare like with like. Write a comment at the top of `@theme` listing which names are the family's and which are Lantern's. Keep `styles.css` imported after `index.css` only for what hasn't moved yet; add `cn.ts` and its test. Check, in a scratch build, that `bg-red-500` and `text-sm` emit nothing and that `wide:` is `min-width: 760px`.
 3. **Convert, one area per commit**, deleting each rule from `styles.css` as its markup moves:
    1. the frame: `.app`, `.topbar`, `.tabbar`, brand, `Shell.tsx`;
    2. controls and fields, `Credits`, `Placeholder`, the sign-in gate (`AuthGate`, `LoginPage`) and the account page;
@@ -146,8 +150,14 @@ One commit per step; after each, `npm run check` passes and `npm run build` succ
    4. the title list, rows, posters, chips, the title page, the state picker and its rating colours, through lookup tables for the dynamic names;
    5. the rating cards: `SwipeCard` (`transition` under `motion-safe:`, the reduced-motion rule at line 882 kept as a `motion-reduce:` utility), the card actions, the undo notice.
 4. **Finish.** Delete `styles.css`. Remove the `scripts/conventions.json` exceptions for it, if any. The only `.css` file left is `web/src/styles/index.css`. Run `check-base-ui` strict: rules 4-7 report 0, with `SwipeCard.tsx:67` as the one allowed inline `style`.
-5. **Screenshots after.** Same states, same sizes. Diff each pair; fix a difference or list it with its reason. At 759, 760 and 761 px the frame must change exactly at 760.
-6. **Corpus.** Update `corpus/wiki/web-app.md`, the tokens paragraph of [wiki/architecture.md](../../wiki/architecture.md), a [wiki/decisions.md](../../wiki/decisions.md) entry ("Tailwind on the family's token names, Lantern's values"), `.claude/rules/web.md` (tokens only from `@theme`; no arbitrary colours; the `wide` variant; dark mode through the `@layer base` redefinition), [wiki/status.md](../../wiki/status.md) and [log.md](../../log.md). Run `bash corpus/lint.sh` until it is clean.
+5. **Screenshots after.** Same states, same sizes. Diff each pair; fix any difference a person would see in layout or colour, and let a few pixels of drift go (decision 9). Check once, in the browser and without a screenshot pair, that the frame changes exactly at 760 (759, 760 and 761 px).
+6. **The theme switch** (decision 2), in its own commit after the screenshots:
+   1. `web/src/theme.ts` reads the stored choice (`light`, `dark` or `system`, from `localStorage` inside a `try`, since storage can be blocked) and sets `data-theme` on `<html>`; the dark block moves from `prefers-color-scheme` to `[data-theme="dark"]`.
+   2. A small inline script in `web/index.html`'s `<head>` does the same before first paint: the stored choice, else `light`. With `system` it follows `prefers-color-scheme` and listens for changes, and it sets the one `theme-color` meta and `color-scheme` to match (decision 7).
+   3. A Light / Dark / System control on the account page, on brief 16's `RadioGroup` wrapper.
+   4. Tests: each stored value maps to the attribute; `system` follows a changed media query; the `theme-color` values equal the tokens'; the control is found by role.
+   5. Take dark screenshots of each main screen and read them for unreadable text.
+7. **Corpus.** Update `corpus/wiki/web-app.md`, the tokens paragraph of [wiki/architecture.md](../../wiki/architecture.md), a [wiki/decisions.md](../../wiki/decisions.md) entry ("Tailwind on the family's token names, Lantern's values"), `.claude/rules/web.md` (tokens only from `@theme`; no arbitrary colours; the `wide` variant; type sizes from the named scale; both themes change when a colour token changes, under `data-theme`, and the switch is the only place that sets it), and replace brief 15's "dark mode is `prefers-color-scheme` only" line, [wiki/status.md](../../wiki/status.md) and [log.md](../../log.md). Run `bash corpus/lint.sh` until it is clean.
 
 ## Acceptance
 
@@ -156,12 +166,15 @@ One commit per step; after each, `npm run check` passes and `npm run build` succ
 - [ ] `grep -rnE "(bg|text|border)-\[#|rgb\(" web/src --include=*.tsx` prints nothing.
 - [ ] `check-base-ui` strict passes with rules 1-13 at 0 or excepted with a reason in `scripts/conventions.json`.
 - [ ] `web/src/lib/cn.ts`'s test shows `cn("text-small", "text-heading")` keeps the last and `cn("text-small", "text-accent")` keeps both (the `extendTailwindMerge` check).
-- [ ] The `theme.test.ts` test of decision 7 passes.
-- [ ] The before and after screenshots match at 1280 and 390 px, light and dark, and at 759, 760 and 761 px; every difference is fixed or listed with its reason in the outcome note.
+- [ ] The `theme.test.ts` tests of decisions 2 and 7 pass.
+- [ ] The light screenshot pairs at 1280 and 390 px show no visible change to layout or colour, with the CSS size before and after in the outcome note.
+- [ ] The switch has three choices. A first visit with no stored choice is light even when the system is dark; "Dark" and "System" (with a dark system) set `data-theme="dark"` before first paint, with no flash; the choice survives a reload. A Playwright test covers all three, and dark screenshots of each main screen show no unreadable text. `grep -rn "prefers-color-scheme" web/src web/index.html` finds only the "System" code and the theme script.
+- [ ] `grep -n "font-size" web/src/styles/index.css` shows the 15 px on `body`, none on `html`.
 - [ ] `npm run check` passes (typecheck, lint with `better-tailwindcss`, format, conventions, test), `npm run build` succeeds, and `bash corpus/lint.sh` ends clean.
 
 ## Interplay
 
-- Brief 16's `data-pressed` and `data-selected` selectors replace the `aria-*` ones here; the parts' classes are written in this brief.
-- If the owner picks `page` and `ink` over `bg` and `text` in Wicket's brief, the two names change in Lantern's `@theme` and in every `bg-bg` and `text-text` use, mechanically.
+- Brief 16's `data-checked`, `data-pressed` and `data-selected` selectors replace the `aria-*` ones here; the parts' classes are written in this brief. Its `RadioGroup` is the theme control's base.
+- Wicket's brief 12 owns the family token list. If a name changes there, change it here mechanically.
+- Brief 19 (the redesign) comes after this brief, changes values and layout on top of it, and must keep the switch working in both themes.
 - The Docker image doesn't build the page (the deploy builds it and Caddy serves it), so the Tailwind packages touch only the `deps` stage's `npm ci`.

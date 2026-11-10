@@ -7,7 +7,7 @@
   - brief 03, *A code-structure skill for the Fastify + React apps*: rules 1-11, the `server-skeleton.md` and `zod-type-provider.md` references, `migrating-a-server.md`, `check-structure.mjs`, and the dependency-cruiser and knip presets;
   - brief 16, *The Fastify servers adopt the code structure*: the per-server table and the method;
   - brief 15, *Enforce the base-ui and code-structure skills in every repo*: `check-structure` runs `--warn-only` until this brief is done.
-- The owner's grilling of 2026-11-10: Q1 (how vps-deploy starts the service), Q23 (`server/src/features/`), Q24 (plugin options, explicit registration), Q25 (response schemas everywhere), Q27 (the test runner), Q43 (error bodies), and the new questions in decisions 3, 4 and 8.
+- The owner's grilling of 2026-11-10: Q1 (how the service starts), Q23 (`server/src/features/`), Q24 (plugin options, explicit registration), Q25 and Q53 (response schemas, and their exemptions), Q27 (the test runner), Q43 (error bodies), Q55 and Q56 (where schemas live, no decorators as a test seam, a feature's CLI beside it). All decided; see Owner decisions.
 
 **Order:** after 15. It touches no file that 16 or 17 touch except `package-lock.json`, so it may run before them, but never at the same time as either. (If it runs first, brief 17's fixture path for the title import moves with the pool feature.)
 
@@ -158,19 +158,20 @@ The 404 handler stays in `app.ts` with the page, and isn't rate-limited: `@fasti
 - the root `package.json:18`: `start`;
 - `server/package.json`: `main` (line 7), `dev` (`tsx watch src/index.ts`, line 10), `start` (line 11).
 
-No code imports `@lantern/server`. vps-deploy builds and runs this image, so the `CMD` is the likely start command, but its Lantern stack isn't written yet ([wiki/status.md](../../wiki/status.md), "Next (owner)", step 5) and `docs/owner-setup.md`'s stack table doesn't name the file: so this is the cheapest moment to rename (decision 6). That vps-deploy wasn't readable here is Q1.
+No code imports `@lantern/server`. Q1 (a fact, 2026-11-10) settles how the service starts: pm2 is gone, every service runs in a container built from its repo's `infrastructure/Dockerfile` and started by a file path, and the build runs only `npm ci` and `npx tsc -b`, no tests or lint. So the `CMD` above is the start command, the rename is Lantern's own, and no owner step is needed (decision 6). Lantern's stack isn't deployed yet ([wiki/status.md](../../wiki/status.md), "Next (owner)", step 5), which makes now the cheapest moment.
 
 ### Timeouts: the longest response is not instant
 
 `GET /v1/titles/:id/record` waits in the OMDb queue (one call a second, `OMDB_SPACING_MS = 1000`, `server/src/sources/queue.ts:20`), then `fetchJson` allows 10 s (`SOURCE_TIMEOUT_MS`, `server/src/sources/http.ts:31`), waits up to 5 s on a 429 (`MAX_RETRY_AFTER_MS`, line 33) and tries once more: **about 26 s** plus the queue, with no byte sent in between. `GET /v1/posters/:id` can fetch twice at 10 s each (`POSTER_TIMEOUT_MS`, `posters.ts:13`; the second fetch is the `large` fallback, `sources.ts:40`): about 20 s.
 
-Fastify's `connectionTimeout` is the socket's idle time, so it **cuts a response that is still being computed**. Almanac's default of 10 s would break both routes. Lantern's default is therefore its own (decision 7).
+Fastify's `connectionTimeout` is the socket's idle time, so it **cuts a response that is still being computed**. Almanac's default of 10 s would break both routes. **The record route keeps its own `connectionTimeout`** (decision 7).
 
 ### Test impact
 
 - 15 server test files with 97 `it` calls (104 tests in all with the web's), on vitest with `pool: "forks"` (`vitest.config.ts`; the include `*/src/**/*.test.{ts,tsx}` still matches nested folders).
 - **8 files build the app with `buildApp({ dbPath: ":memory:", … })` directly**, and all 8 use `inject()`. There is no `startTestApp`; `testing.ts` holds `signIn`, `seedPool` and `TEST_ORIGIN`. Nine files import `testing.ts`.
 - Moved tests need their relative imports updated. No test changes its assertions: none matches a validation message, and the 400 and 404 status assertions (`states.test.ts:62, 66, 106, 107`, `server/src/routes/titles.test.ts:56, 75`) must pass unchanged.
+- The test files that read the decorated handles (`app.db`, `app.states`, `app.records`, `app.pool`, `app.accounts`: about 20 reads) switch to the handles `buildTestApp` returns (decision 8).
 - New tests:
   - a reply that fails its response schema is a 500 `internal` with no detail (a route stubbed to return a wrong shape);
   - an extra field on a store row is stripped from a reply (the leak protection the schemas add);
@@ -178,33 +179,36 @@ Fastify's `connectionTimeout` is the socket's idle time, so it **cuts a response
   - an unsigned request to a route with a declared `200` is still a 401 with `{ code: "unauthorized", message }`, not a 500 (the trap above);
   - `repoRoot()` finds `package.json`, and `loadEnvFile()` reads a scratch `.env`.
 
-## Owner decisions (defaults this brief builds)
+## Owner decisions
 
-1. **`server/src/features/<name>/`** (Q23). Default: yes, as in the move map: eight features, three of them leaves.
-2. **Typed plugin options and explicit registration** (Q24). Default: the stores are built in `app.ts` and passed to each feature plugin as options (`FastifyPluginAsyncZod<Deps>`), as `registerTitleRoutes(app, { pool, states, records })` already does. `app.decorate` stays only for the test seams (`db`, `states`, `records`, `pool`, `accounts`, `app.ts:120-133`): they exist so tests can reach the stores, and are not how features get them.
-3. **The error body** (Q43). The skill's rule 8 names `{ error, message, issues? }`; Lantern sends `{ code, message }`, which its web parses and `shared/` defines. Default: keep Lantern's; the rule's substance (one handler, no 5xx detail, a validation code) holds. Same answer as Almanac's and Wicket's: the skill prescribes the handler, not the shape.
-4. **A response schema on every route** (Q25). Default: yes, except the poster route (bytes), per the table. *New question for the grilling*: the skill's rule allows no exception for a route that streams or sends binary: is "no response schema, listed in `conventions.json`" the rule for those (Newspapper has 7 stream routes, Lantern has 1)?
-5. **The CLIs' paths.** The title import and the seed run by hand in the container as `node server/dist/pool/cli.js` and `node server/dist/seed.js` (`docs/owner-setup.md:65, 109, 128`). Default: `seed.ts` stays at the root and its command is unchanged; `server/src/pool/cli.ts` moves with its feature to `server/src/features/pool/cli.ts`, and `server/src/sources/check.ts` to `server/src/features/sources/check.ts`. That changes one container command (`node server/dist/features/pool/cli.js`) and two npm scripts (`server/package.json:13-14`), in `docs/owner-setup.md:65, 109, 151`, `README.md:50`, the wiki (`status.md:47-48, 75`, `titles.md:47-48`, `source-calls.md:78-79`) and the three docstrings. **Nothing is deployed and the owner hasn't run the import in the container**, so now costs the least. Alternative: keep both CLI files at their current dist paths (`server/src/pool/cli.ts`, `server/src/sources/check.ts`) as the exception to "everything under `server/src/features/`", recorded in `conventions.json`. *New question for the grilling*: does the structure let a feature's CLI live beside it?
-6. **The entry file** (Q1). Default: rename to `server.ts`, and change the Dockerfile, the two scripts and `main` in the same commit. If vps-deploy's Lantern stack names `dist/index.js` when it is written, the exact edit is handed to the owner as an owner step; or keep `index.ts` and record the exception.
-7. **Timeouts and proxy.** Defaults:
-   - `connectionTimeout: 45_000`, above the record route's worst case of about 26 s plus the OMDb queue; **Almanac's 10 s would cut it**;
+Decided on 2026-11-10 unless marked as a default.
+
+1. **`server/src/features/<name>/`** (Q23, decided 2026-11-10, technical call). As in the move map: eight features, three of them leaves.
+2. **Typed plugin options and explicit registration** (Q24, decided 2026-11-10, technical call). The stores are built in `app.ts` and passed to each feature plugin as typed options (`FastifyPluginAsyncZod<Deps>`), as `registerTitleRoutes(app, { pool, states, records })` already does, and the features are registered by name in one list. The `app.decorate` calls for the tests (`db`, `states`, `records`, `pool`, `accounts`, `app.ts:120-133`) are removed (decision 8).
+3. **The error body** (Q43, decided 2026-11-10, technical call). One error handler, keeping Lantern's body, `{ code, message }`, which its web parses and `shared/` defines. It passes Fastify's own 4xx through and never echoes a thrown message to the client. The skill prescribes the handler, not the shape.
+4. **A response schema on every route, with one exemption** (Q25 and Q53, decided 2026-11-10, technical calls). Every route sends a response schema for the statuses its handler sends, except the poster route, which sends bytes with the upstream's content type and status. It gets a `conventions.json` entry with its reason (Q53: streams and binary routes are exempt that way).
+5. **The CLIs sit beside their feature** (Q56, decided 2026-11-10, technical call). `seed.ts` stays at the root and its command is unchanged; `server/src/pool/cli.ts` moves with its feature to `server/src/features/pool/cli.ts`, and `server/src/sources/check.ts` to `server/src/features/sources/check.ts`. That changes one container command (`node server/dist/features/pool/cli.js`) and two npm scripts (`server/package.json:13-14`), in `docs/owner-setup.md:65, 109, 151`, `README.md:50`, the wiki (`status.md:47-48, 75`, `titles.md:47-48`, `source-calls.md:78-79`) and the three docstrings. **Nothing is deployed and the owner hasn't run the import in the container**, so now costs the least.
+6. **The entry file** (Q1, decided 2026-11-10, fact). Rename to `server.ts`, and change the Dockerfile's `CMD`, the two scripts and `main` in the same commit. The deploy is left alone (it runs no tests or lint), and no owner step is needed for the start command.
+7. **Timeouts and proxy** (technical call). **The record route keeps its `connectionTimeout`: 45_000**, above the route's worst case of about 26 s plus the OMDb queue; Almanac's 10 s would cut it. The skills library's brief should state that `connectionTimeout` must exceed the longest idle response.
    - `requestTimeout: 30_000` (the time to receive a request; every body is a few fields, `BODY_LIMIT` 64 kB);
    - `keepAliveTimeout: 125_000`, above Caddy's default two-minute idle keep-alive to its upstreams; check the deploy's Caddy snippet for its own `keepalive`;
    - `trustProxy`: loopback plus `AUTH_TRUSTED_PROXIES`, one list (`config.ts:100`), so `request.ip` in logs is the client. Ward's login lockout reads the socket itself, so this changes nothing there.
-8. **Test helper.** Default: no `buildTestApp` helper is added; the 8 tests keep calling `buildApp` with `:memory:` (a helper would touch 8 files for nothing), and the exception is recorded in `conventions.json` if the checker looks for the name.
-9. **The test runner** (Q27). Default: vitest stays.
-10. **Logging and Fastify 5.12.8.** Default: JSON as today, no `pino-pretty`; the 5.12.8 bump isn't in this brief.
+8. **No decorators as a test seam** (Q56, decided 2026-11-10, technical call). Tests pass dependencies as plugin options. `AppOptions` gains optional prebuilt `db`, `states`, `records`, `pool` and `accounts`, each defaulting to what `buildApp` builds from `dbPath` today. `server/src/testing.ts` gains `buildTestApp(options)`, which opens the `:memory:` database, builds the stores, passes them in and returns `{ app, db, states, records, pool, accounts }`. The tests that call `buildApp` directly (8 files) and the ones that read the decorated handles move to it; no assertion changes.
+9. **The test runner** (Q27, decided 2026-11-10, technical call). vitest stays.
+10. **Where schemas live** (Q55, decided 2026-11-10, technical call). A schema stays in `shared/` because the web imports it; a schema only the server uses lives in its feature folder. Every schema named in this brief is in `shared/` today.
+11. **Logging and Fastify 5.12.8** (default). JSON as today, no `pino-pretty`; the 5.12.8 bump isn't in this brief.
+12. **No PRs, no branches** (Q4, decided 2026-11-10, owner). One commit per step, straight on `main`.
 
 ## Files you OWN
 
-- `server/src/**`: the moves, the new plugins, the schemas wired in.
+- `server/src/**`: the moves, the new plugins, the schemas wired in, `buildTestApp` and the tests' switch to it.
 - `server/package.json` (scripts, `main`, the new dependencies pinned) and `package-lock.json`.
 - `shared/src/**`: only if a schema needs `.describe` or a status schema added, with its test. Input schemas don't change.
 - `infrastructure/Dockerfile`: the `CMD` line.
 - The root `package.json`: `start`, and `check:conventions` (dependency-cruiser added, `check-structure`'s `--warn-only` dropped).
 - `.dependency-cruiser.cjs` (new, from the skill's preset) and `knip.json` (the entries).
 - `eslint.config.js`: `no-process-env` (from `eslint-plugin-n`) from warning to error, and the CLI list for the new paths.
-- `scripts/conventions.json`: the poster route (decision 4) and any exception from decisions 5, 6 or 8.
+- `scripts/conventions.json`: the poster route (decision 4), and any other exception with its reason.
 - `.claude/rules/server.md`: the structure lines.
 - `docs/owner-setup.md`, `README.md`: the changed commands (decision 5).
 - Corpus: [wiki/architecture.md](../../wiki/architecture.md) (the layout, the request path, the settings), [wiki/titles.md](../../wiki/titles.md), [wiki/source-calls.md](../../wiki/source-calls.md), [wiki/sign-in.md](../../wiki/sign-in.md) (the guard moved to `server/src/plugins/auth`), [wiki/decisions.md](../../wiki/decisions.md), [wiki/status.md](../../wiki/status.md), [log.md](../../log.md).
@@ -214,19 +218,19 @@ Fastify's `connectionTimeout` is the socket's idle time, so it **cuts a response
 - `web/`. A response schema that drops a field the web reads is a finding: fix the schema, not the web.
 - `shared/` input schemas and their behaviour.
 - `server/vendor/`: generated.
-- The deploy beyond the `CMD` line; vps-deploy edits are handed to the owner.
+- The deploy beyond the `CMD` line. Nothing in vps-deploy changes (Q1).
 - Behaviour: status codes, error codes and messages, and every route's JSON apart from fields the comparison shows were leaks.
 - The suggestion scoring's arithmetic, the OMDb queue and cache rules, the migrations.
 
 ## What to do
 
-Follow `migrating-a-server.md`. One commit per step; after each, `npm run check` and `npm run build` pass, and `npm start` serves `GET /lantern-api/v1/health`.
+Follow `migrating-a-server.md`. One commit per step, straight on `main`; after each, `npm run check` and `npm run build` pass, and `npm start` serves `GET /lantern-api/v1/health`.
 
 1. **Before.**
    - Run `check-structure` strict and record its counts by rule.
    - On a scratch `LANTERN_DB`, import the fixtures (`npm run titles:import -w @lantern/server -- --from server/src/pool/fixtures --min-votes 1`), seed a throwaway user, rate and mark a few titles through the API, and **with no `OMDB_API_KEY`**. Save the JSON of every route above, signed in, with fixed query values; for the record route save the 503 body; for a poster save the 404 body.
-2. **`config.ts` and the split.** The new helpers in `config.ts`, and their tests (including the `repoRoot()` one). The four CLIs and the entry use them, and no copy of `REPO_ROOT` is left. `index.ts` becomes `server.ts`, with the entry changes (decision 6), `close-with-grace`, the timeouts and `trustProxy`. `no-process-env` (from `eslint-plugin-n`) now finds nothing: make it an error.
-3. **The error plugin, and `server/src/plugins/auth`.** `server/src/plugins/errors.ts` with `fail()`; the guard, the 401 rewrite, the origin hook and `currentUserId` in `server/src/plugins/auth/index.ts`; `accounts.ts` and `auth.test.ts` beside it. Every test passes unchanged. Fix the vendor import depth.
+2. **`config.ts` and the split.** The new helpers in `config.ts`, and their tests (including the `repoRoot()` one). The four CLIs and the entry use them, and no copy of `REPO_ROOT` is left. `index.ts` becomes `server.ts`, with the entry changes (decision 6), `close-with-grace`, the timeouts and `trustProxy` (decision 7: `connectionTimeout` stays 45_000). `no-process-env` (from `eslint-plugin-n`) now finds nothing: make it an error.
+3. **The error plugin, and `server/src/plugins/auth`.** `server/src/plugins/errors.ts` with `fail()`; the guard, the 401 rewrite, the origin hook and `currentUserId` in `server/src/plugins/auth/index.ts`; `accounts.ts` and `auth.test.ts` beside it. Add `buildTestApp` and the optional prebuilt stores here, and move the tests to it (decision 8); every assertion passes unchanged. Fix the vendor import depth.
 4. **Feature folders.** Use `git mv`, file by file per the map, so history follows. Leaves first: `states`, `pool`, `sources`; then `titles`, `cards`, `suggestions`, `lists`, `health`. Add the `index.ts` files. Update the CLI commands and docs (decision 5). Add `.dependency-cruiser.cjs`, and check that a deliberate import of `server/src/features/states/store.js` from `server/src/features/lists/` fails it and that a leaf importing a dependent fails it.
 5. **The type provider and the schemas, one feature per commit:** health, states, pool, sources, titles, cards, suggestions, lists. Each commit:
    - declares params, querystring, body and the response statuses the handler sends;
@@ -248,7 +252,8 @@ Follow `migrating-a-server.md`. One commit per step; after each, `npm run check`
 - [ ] `grep -rn "REPO_ROOT\|loadEnvFile" server/src --include=*.ts | grep -v config` prints nothing, and the `repoRoot()` test passes.
 - [ ] The five new tests in "Test impact" pass, along with every existing test unchanged.
 - [ ] The before and after JSON comparison is in `log.md`, with every dropped field named.
-- [ ] `npm run build` writes `server/dist/server.js` and `server/dist/features/pool/cli.js`. `docker build -f infrastructure/Dockerfile .` succeeds, the container answers its health check, and `docker run … node server/dist/features/pool/cli.js --help`-style invocation reaches `main` (a bad `--min-votes` prints its error). The vps-deploy step, if any, is handed to the owner as exact commands.
+- [ ] `npm run build` writes `server/dist/server.js` and `server/dist/features/pool/cli.js`. `docker build -f infrastructure/Dockerfile .` succeeds, the container answers its health check, and `docker run … node server/dist/features/pool/cli.js --help`-style invocation reaches `main` (a bad `--min-votes` prints its error). No vps-deploy change is needed (decision 6).
+- [ ] `grep -rn "app\.decorate\|app\.\(db\|states\|records\|pool\|accounts\)\b" server/src --include=*.ts` prints nothing: no decorator is left as a test seam.
 - [ ] A scratch request to `/v1/titles/<id>/record` that takes 20 s (a stubbed slow fetch) completes under `connectionTimeout: 45_000` and would be cut under 10 s, shown by a test or a recorded run.
 - [ ] dependency-cruiser fails on a deliberate cross-feature import and passes clean.
 - [ ] `npm run check` passes, and `bash corpus/lint.sh` ends clean.
@@ -257,4 +262,5 @@ Follow `migrating-a-server.md`. One commit per step; after each, `npm run check`
 
 - Brief 15's `eslint.config.js` CLI list and `knip.json` entries change here with the paths.
 - Brief 17's screenshot recipe imports the fixtures from `server/src/pool/fixtures`; after this brief they live under `server/src/features/pool/fixtures`.
+- The record route's `connectionTimeout` (decision 7) is the one setting not to copy from other servers' briefs.
 - The skills library should hear about three findings before the other servers run its brief 16: a declared `401` or `403` response schema turns the guard's reply into a 500; `connectionTimeout` cuts a response still being computed, so the default can't be one number; and the checker's `.parse(request.` pattern misses a repo that parses through a helper.

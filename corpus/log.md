@@ -213,3 +213,18 @@ definitions, a 15 px root with rem type, the 760 px breakpoint), 18 the server i
 structure (17 routes, four copies of the repo-root and `.env` read, `connectionTimeout` sized for
 OMDb). `.claude` and `scripts` added to `.planned-roots`. See [briefs/todo/](briefs/todo/) and
 [wiki/status.md](wiki/status.md).
+
+## [2026-11-10] brief | Briefs 15-18 revised to the owner's answers; brief 19 added
+
+The owner's grilling of 2026-11-10 answered the open questions the briefs were built on. Brief 15:
+`house-style` is vendored (no git dependency, so the Dockerfile is untouched), Prettier width 120
+(201 lines in 50 files as the one-off reformat, replacing the 150 default). Brief 16: Lantern
+adopts Base UI (Q22); the kind filter is a `RadioGroup`, the state picker a guarded `ToggleGroup`
+that still allows clearing, the ratings tabs `Tabs`; jsdom only for the guarded wrapper. Brief 17:
+family token names `page`, `surface`, `ink`, `accent`, `line`, `danger`, a Light / Dark / System
+switch on `data-theme` (light first, with the `theme-color` meta following it), the 15 px on
+`body` with px type tokens, "close enough" parity. Brief 18: the poster route is exempt from
+response schemas with a `conventions.json` entry, the CLIs sit beside their feature, the test
+decorators go (`buildTestApp`, plugin options), the start command is Lantern's own (Q1), and the
+26 s record route keeps its `connectionTimeout` of 45 s. Brief 19 is new: a redesign with Hallmark
+on the estate board. Work happens on `main`, with no PRs. Nothing was changed outside `corpus/`.

@@ -54,15 +54,17 @@ on the shared machine. 104 tests; typecheck and lint clean. The owner pushes.
 
 ## Open briefs
 
-Four, written 2026-11-10 for the owner's calls of 2026-11-09 (Base UI 1.9.0 everywhere, whole apps
-on Tailwind v4, the researched conventions enforced); they run in order, 15 first:
+Five. Four were written 2026-11-10 for the owner's calls of 2026-11-09 (Base UI 1.9.0 everywhere, whole apps
+on Tailwind v4, the researched conventions enforced) and revised the same day to the owner's grilling
+answers; the fifth is the redesign. They run in order, 15 first:
 
 - **15** the house style and the quality harness (Prettier, tsconfig flags, typed lint, `check`,
   a `pretest` that builds `shared`, `.claude/rules/`, a root `CLAUDE.md`).
 - **16** Base UI by the conventions: `@base-ui/react` is declared and unused, so this is an
   adoption (the kind filter, the state picker, the ratings tabs). No bump brief: 1.9.0 is pinned.
-- **17** the web app to Tailwind, on the small tools family's token names.
+- **17** the web app to Tailwind, on the small tools family's token names, with a Light / Dark / System switch.
 - **18** the server in the code structure (`features/`, the zod type provider, `server.ts`).
+- **19** a redesign with Hallmark, approved on the estate board before any code changes.
 
 ## Todos
 

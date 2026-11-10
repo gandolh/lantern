@@ -4,11 +4,11 @@
 
 - In Lantern: nothing. This brief runs first.
 - In the owner's skills library:
-  - brief 27, *A house style, and a quality harness that enforces it*: the `house-style` package at `v1.0.0`, the `house-style` skill, and the plugin's `Stop` and `PostToolUse` hooks;
+  - brief 27, *A house style, and a quality harness that enforces it*: the `house-style` configs at `v1.0.0` (vendored into each repo, decision 1) with their `house-style:sync` script, the `house-style` skill, and the plugin's `Stop` and `PostToolUse` hooks;
   - brief 15, *Enforce the base-ui and code-structure skills in every repo*: how the convention checkers are wired and when they run `--warn-only`.
-- The owner's grilling of 2026-11-10, questions Q5-Q14 and Q45-Q46 of the skills library's open questions, and the new questions in decisions 2, 6 and 10.
+- The owner's grilling of 2026-11-10, questions Q5-Q14 and Q45-Q51 of the skills library's open questions. All decided; see Owner decisions.
 
-**Runs before:** 16, 17 and 18. The reformat touches up to 43 TypeScript files, and those briefs rewrite or move most of them. Formatting first gives one clean reformat commit, and the formatter hook keeps every later diff formatted.
+**Runs before:** 16, 17 and 18. The reformat at width 120 touches 50 TypeScript files, and those briefs rewrite or move most of them. Formatting first gives one clean reformat commit, and the formatter hook keeps every later diff formatted.
 
 **Before you start:** run `brief-board guide` ([CLAUDE.md](../../CLAUDE.md)).
 
@@ -54,7 +54,7 @@ Taken on a scratch copy of the repo (never in it), after `npm ci`: Prettier 3.8.
 | 180 | 68 | 20 |
 | 200 | 102 | 24 |
 
-Lantern is written wide: 117 lines run past 130 columns, and the least churn is flat from 150 to 180. At the estate's likely 120 it is 201 lines in 50 files (3.1%).
+Lantern is written wide: 117 lines run past 130 columns, and the least churn is flat from 150 to 180. The estate's width is 120 (decision 2), so the one-off reformat is the 120 row: 201 lines in 50 files (3.1%).
 
 The other file types:
 
@@ -101,30 +101,32 @@ The parser also reports one "namespace", `server/src/app.ts:120`. It is `declare
 
 **Not measured:** `@vitest/eslint-plugin` recommended (not installed on the scratch copy); `projectService` against `project` timing; `check` and `check:fast` as scripts (they don't exist). Step 1 measures them.
 
-## Owner decisions (defaults this brief builds)
+## Owner decisions
 
-1. **Where the configs come from** (Q6, brief 27 decision 1). Default: the `house-style` package, extended from Lantern's configs.
+Decided on 2026-11-10 unless marked as a default.
 
-   Lantern adds a constraint: the Docker `deps` stage runs a full `npm ci` **without `git`**, and `tsconfig.base.json` is copied into that stage (`infrastructure/Dockerfile:36`). A `github:` dependency would break it. Default within that: the tagged GitHub tarball URL, which npm fetches without git. If the owner prefers `github:`, add `git` to the `apk add` line at line 29 in the same commit. If Q6 goes the other way (configs copied into the repo), the same rules land as local files with a version header. Steps 3-5 don't change.
-2. **Width** (Q8). Default: the estate's one width. If it isn't settled when this runs, use 150: Lantern's churn is flat from 150 to 180 (67-70 lines), and the-board's least churn is also 150, so the family shares it. *New question for the grilling*: is the small tools family's width 150 while the estate is 120 or 130? At 120 Lantern pays 201 lines.
-3. **Markdown stays out of Prettier** (Q45). Default: `.prettierignore` lists `*.md`.
-4. **tsconfig** (Q11). Default: add `verbatimModuleSyntax` and `erasableSyntaxOnly`, not `exactOptionalPropertyTypes`.
-5. **Typed lint** (Q12). Default: the six rules through `projectService` (7 s here), with `switch-exhaustiveness-check` set to `considerDefaultExhaustiveForUnions: true`.
-6. **The house shapes** (Q13). Default:
-   - `no-non-null-assertion`: **error in source, warning in tests** (17 fixed, 12 left as warnings). `server/src/testing.ts` and `server/src/sources/testing.ts` are test helpers and take the test setting. *New question for the grilling*: the-board has 65 `!` and wicket 51 in tests, so is the split the estate's rule?
-   - `no-console` is an error outside the four CLI files and the entry.
-   - `no-process-env` (from `eslint-plugin-n`) starts as a **warning**, because its 6 findings are brief 18's work.
-   - the rest are errors.
-7. **`check:fast`** (Q10). Default: a typecheck plus ESLint on the changed files, under about 15 s warm with one changed file.
-8. **The Claude Code layer** (Q7). Default: the plugin's hooks. If the owner chooses committed hooks, add them to `.claude/settings.json` here.
-9. **A root `CLAUDE.md`** (Q46). Default: create one, and move the repo-wide rules out of [corpus/CLAUDE.md](../../CLAUDE.md) into it: the no-secrets, no-CI, no-pushes, no-deploys bullets, and the brief-board section.
-10. **`pretest`.** Default: `"pretest": "tsc -b shared"`, as `dev` already does. This is the estate's fix (Almanac has it; the-board, Satchel and Shelfmark need it). Alternative: a vitest alias from `@lantern/shared` to its source, which hides the build step but makes tests run against source the server never ships.
+1. **Where the configs come from** (Q6, decided 2026-11-10, technical call). `house-style` is **vendored**: Lantern holds a copy with a version header, refreshed by a `house-style:sync` script that finds the `house-style` checkout by name, the way Ward's library is shared today. It is not a git, `github:` or tarball dependency. Lantern's Docker `deps` stage runs a full `npm ci` **without `git`**, and `tsconfig.base.json` is copied into that stage (`infrastructure/Dockerfile:36`); npm locks GitHub dependencies as git URLs, so a dependency would need `git` in the image. So **the Dockerfile is not touched by this brief**. The copy and the version header come from brief 27, and the vendored copy is excluded from Prettier, ESLint and knip, like `server/vendor/`.
+2. **Width: 120** (Q8 and Q51, decided 2026-11-10, technical call). One estate width, and the small-tools family (wicket, the-board, lantern) uses it too (Q61). Lantern is written wide, so the one-off reformat is large: 201 lines in 50 files (3.1%), taken in its own commit (step 2). The earlier 150 default is dropped.
+3. **Markdown stays out of Prettier** (Q45, decided 2026-11-10, technical call). `.prettierignore` lists `*.md`.
+4. **tsconfig** (Q11, decided 2026-11-10, technical call). Add `verbatimModuleSyntax` and `erasableSyntaxOnly` now; the five parameter properties become fields. `exactOptionalPropertyTypes` comes after a count, in a later brief. `strict` is on, and TypeScript is 6.0.3. `noUncheckedIndexedAccess` is already on.
+5. **Typed lint** (Q12 and Q48, decided 2026-11-10, technical calls). The six rules through `projectService` (7 s here), with `switch-exhaustiveness-check` set to `considerDefaultExhaustiveForUnions: true`. `no-floating-promises` names `node:test`'s `describe`, `it` and `test` in `allowForKnownSafeCalls`, which Lantern (vitest) doesn't need.
+6. **The house shapes** (Q13 and Q47, decided 2026-11-10, technical calls):
+   - `no-non-null-assertion`: **error in source, warning in tests** (17 fixed, 12 left as warnings). `server/src/testing.ts` and `server/src/sources/testing.ts` are test helpers and take the test setting.
+   - `no-console` is an error outside the four CLI files and the entry (console is allowed in scripts and CLIs).
+   - A default export is allowed where a framework needs one (config files).
+   - `no-process-env` (from `eslint-plugin-n`) starts as a **warning**, because its 6 findings are brief 18's work (a default).
+   - the rest are errors. Comments as prose are checked by the review gate (Q14). Components use named exports (Q49); Lantern has none with a default export.
+7. **`check:fast`** (Q10, decided 2026-11-10, technical call). A typecheck plus ESLint on the changed files, built incrementally (`tsc -b`). Target 15 s warm with one changed file; up to about 30 s is accepted where `tsc` alone is slower.
+8. **The Claude Code layer** (Q7, decided 2026-11-10, technical call). The plugin's hooks: `Stop` runs `check:fast`, `PostToolUse` formats the saved file. Nothing is committed to `.claude/settings.json`.
+9. **A root `CLAUDE.md`** (Q46, decided 2026-11-10, technical call). Create one, and move the repo-wide rules out of [corpus/CLAUDE.md](../../CLAUDE.md) into it: the no-secrets, no-CI, no-pushes, no-deploys bullets, and the brief-board section.
+10. **`pretest`** (default). `"pretest": "tsc -b shared"`, as `dev` already does. This is the estate's fix (Almanac has it; the-board, Satchel and Shelfmark need it). Alternative: a vitest alias from `@lantern/shared` to its source, which hides the build step but makes tests run against source the server never ships.
+11. **No PRs, no branches** (Q4, decided 2026-11-10, owner). One commit per step, straight on `main`. The owner reviews `main`.
 
 ## Files you OWN
 
 - `tsconfig.base.json`, and `web/tsconfig.json` (only to add `incremental` with a `tsBuildInfoFile`).
 - `eslint.config.js`.
-- New: the Prettier config, `.prettierignore` and `.git-blame-ignore-revs`.
+- New: the Prettier config, `.prettierignore` and `.git-blame-ignore-revs`, the vendored `house-style` copy and the `house-style:sync` script entry.
 - The root `package.json` (scripts, devDependencies) and `package-lock.json`.
 - The reformat itself: whitespace-only changes to every file Prettier covers.
 - The fixes the new rules ask for:
@@ -134,19 +136,19 @@ The parser also reports one "namespace", `server/src/app.ts:120`. It is `declare
 - New: `.claude/rules/web.md`, `.claude/rules/server.md`, `CLAUDE.md`.
 - [corpus/CLAUDE.md](../../CLAUDE.md): its repo-wide rules move out.
 - `scripts/conventions.json` (brief 15 of the library's exceptions file), if an exception is needed.
-- `infrastructure/Dockerfile`: only the `apk add` line, and only under decision 1's `github:` branch.
 - Corpus: [wiki/decisions.md](../../wiki/decisions.md) (a new entry), [wiki/status.md](../../wiki/status.md), [log.md](../../log.md), [.planned-roots](../../.planned-roots) (drop `.claude` and `scripts` once they exist).
 
 ## Files you must NOT touch
 
 - Behaviour. Apart from the fixes above, every change is formatting or configuration.
+- `infrastructure/Dockerfile` (decision 1 needs no change to it).
 - `server/vendor/` and `web/vendor/`: generated copies of the Ward library, ignored by ESLint and Prettier.
 - The layout of `server/src` and the CSS, which are briefs 18 and 17.
 - The skills library and the `house-style` repo. A rule that seems wrong for Lantern is reported back, not patched locally.
 
 ## What to do
 
-One commit per step, each with `npm run typecheck`, `npm test`, `npm run lint` and `npm run build` green.
+One commit per step, straight on `main`, each with `npm run typecheck`, `npm test`, `npm run lint` and `npm run build` green.
 
 1. **Measure first**, on a scratch copy. Record in the `log.md` entry:
    - the six typed rules' counts and lint time with `projectService` against `project` (the table above is the baseline);
@@ -158,12 +160,12 @@ One commit per step, each with `npm run typecheck`, `npm test`, `npm run lint` a
    A rule that finds more than about 20 real problems, or mostly false ones, goes back to the owner before it is turned on (brief 27's rule: bring it, don't loosen it). `no-non-null-assertion` is the only one over that line, and decision 6 already answers it.
 2. **`pretest`, Prettier and the reformat.**
    1. Add `"pretest": "tsc -b shared"`. Confirm: with `shared/dist` removed, `npm test` passes.
-   2. Add `prettier` (pinned) and the config: `printWidth` per decision 2, `trailingComma: "all"`, the rest default.
-   3. Add `.prettierignore`: `*.md`; `server/vendor/` and `web/vendor/`; `package-lock.json`; `dist/`, `data/`, `coverage/`; `web/public/`.
+   2. Vendor `house-style` (decision 1) and add `prettier` (pinned) with the config: `printWidth: 120`, `trailingComma: "all"`, the rest default.
+   3. Add `.prettierignore`: `*.md`; `server/vendor/` and `web/vendor/`; the vendored `house-style` copy; `package-lock.json`; `dist/`, `data/`, `coverage/`; `web/public/`.
    4. Add `"format": "prettier --write ."` and `"format:check": "prettier --check ."`, and commit this alone.
-   5. Run `npm run format` and commit only that, as `style: format with Prettier`.
+   5. Run `npm run format` and commit only that, as `style: format with Prettier` (the one-off reformat at width 120: about 201 lines in 50 files).
    6. Add that commit's full hash to `.git-blame-ignore-revs`, in its own commit, and hand the owner the one-time `git config blame.ignoreRevsFile .git-blame-ignore-revs`.
-3. **tsconfig.** Add `verbatimModuleSyntax` and `erasableSyntaxOnly` to `tsconfig.base.json`.
+3. **tsconfig.** Add `verbatimModuleSyntax` and `erasableSyntaxOnly` to `tsconfig.base.json` (decision 4).
    - Replace the five parameter properties with declared fields assigned in the constructor. Behaviour and `readonly` stay.
    - Add `"incremental": true` and a `tsBuildInfoFile` under `node_modules/.tmp/` to `web/tsconfig.json`.
    - The Dockerfile's `npx tsc -b server` must still build.
@@ -192,6 +194,7 @@ One commit per step, each with `npm run typecheck`, `npm test`, `npm run lint` a
 5. **The gate.** In the root `package.json`:
    - `check` runs `typecheck`, `lint`, `format:check`, `check:conventions` and `test`.
    - `check:conventions` is knip plus the two convention checkers from the `house-style` package (or `scripts/`). `check-base-ui` runs `--warn-only` until brief 17 is done, and `check-structure` `--warn-only` until brief 18 is done. knip reports `exports` as a warning, and `dependencies` strictly: the unused `@base-ui/react` fails it until brief 16 imports it, so this step marks that one dependency as expected in `knip.json`, with a comment naming brief 16, and brief 16 removes the line.
+   - Add the `house-style:sync` script beside them.
    - `check:fast` runs `typecheck`, then ESLint on the files changed against `HEAD` plus untracked ones. A small Node script in `scripts/`, with no shell-only syntax (the owner works on Windows under WSL).
    - `lint` stays `eslint .`.
 
@@ -200,7 +203,7 @@ One commit per step, each with `npm run typecheck`, `npm test`, `npm run lint` a
    - **`web.md`** (`paths: ["web/src/**"]`):
      - read the `base-ui` skill;
      - Base UI only through `web/src/components/ui/` wrappers, from subpaths (brief 16 creates the folder);
-     - dark mode is `prefers-color-scheme` only, no `data-theme`;
+     - dark mode follows the system until brief 17 replaces it with the Light / Dark / System switch on `data-theme` (brief 17 rewrites this line);
      - the swipe card owns pointer drags and the rating page owns the window's keys, so a new control on `/rate` must not eat arrow keys ([wiki/decisions.md](../../wiki/decisions.md), "Swipes on the cards are for the titles not seen");
      - glossary words in UI copy ([wiki/glossary.md](../../wiki/glossary.md));
      - tests are static markup (`renderToStaticMarkup`) and assert on roles and text, not class names.
@@ -230,7 +233,7 @@ One commit per step, each with `npm run typecheck`, `npm test`, `npm run lint` a
 ## Acceptance
 
 - [ ] `npm run check` passes. Its run time and `check:fast`'s, warm with one changed file, are in the outcome note, and `check:fast` is under about 15 s or the owner has accepted the time.
-- [ ] `npx prettier --check .` passes. The reformat is one commit that changes whitespace only (`git diff -w <hash>^ <hash>` shows nothing beyond line wrapping), and its hash is in `.git-blame-ignore-revs`.
+- [ ] `npx prettier --check .` passes at width 120. The reformat is one commit that changes whitespace only (`git diff -w <hash>^ <hash>` shows nothing beyond line wrapping), and its hash is in `.git-blame-ignore-revs`.
 - [ ] With `shared/dist` removed, `npm test` passes: `pretest` built it.
 - [ ] `tsconfig.base.json` has `verbatimModuleSyntax` and `erasableSyntaxOnly`. `npm run typecheck` and `docker build -f infrastructure/Dockerfile .` pass.
 - [ ] ESLint reports zero errors with every rule in step 4's table, and the counts before and after are in the outcome note. `npx eslint . 2>&1 | grep -c warning` is the 12 test `!`s and nothing else.
@@ -243,4 +246,5 @@ One commit per step, each with `npm run typecheck`, `npm test`, `npm run lint` a
 
 - Brief 16 imports Base UI, which clears knip's one unused dependency, and removes the expected-unused line from `knip.json`. Brief 17 adds `better-tailwindcss` and drops `check-base-ui`'s `--warn-only`. Brief 18 adds dependency-cruiser, drops `check-structure`'s `--warn-only`, and turns `no-process-env` (from `eslint-plugin-n`) into an error.
 - The reformat changes `web/src/styles.css` by 4 lines; brief 17 deletes the file.
+- The skills library's brief 27 owns the vendored copy and `house-style:sync`; a rule that looks wrong for Lantern is reported there, not patched here.
 - If brief 18 renames `server/src/index.ts` to `server.ts`, the CLI list in `eslint.config.js` changes with it.
