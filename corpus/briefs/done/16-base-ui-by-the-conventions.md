@@ -157,3 +157,58 @@ One commit per numbered step, straight on `main`. After each, `npm run check` pa
 - Brief 19 (the redesign) comes after 17 and keeps these wrappers.
 - The skills library's `check-base-ui` heuristic may flag a `Toggle` with an icon child. That is a false positive to report to the skill rather than except here.
 - Decision 2 is the estate's rule (Q41 and Q57) for any filter and any picker that saves; decision 3 applies to any page with window-level keys.
+
+## Outcome
+
+Built on 2026-11-11 on `main`, committed and not pushed. Commits: `aae832f` (the `RadioGroup` wrapper,
+`KindFilter`, the `/rate` key guard, jsdom), `1748bb7` (`Tabs`), `204f5ac` (the guarded `ToggleGroup`
+and the state picker, Testing Library), `7357233` (the key guard no longer skips a plain `role=group`),
+`75da18e` (web-app page, decision, status, rules), then this closeout. Steps 2 and 3 share a commit,
+and tabs came before the picker. Board: `ready_for_deploy`; the owner step is `node cli.ts lantern
+deploy` from the vps-deploy checkout.
+
+**Counts.** `check-base-ui` before: 1 finding (rule 5, `styles.css` is not `styles/index.css`). After:
+the same one; rules 1-3 and 8-11 read 0, and rules 4, 6 and 7 are not reported by the checker here.
+Brief 17 moves the stylesheet and then drops `--warn-only`. `knip` reports no unused dependency (the
+`@base-ui/react` ignore is gone from `knip.config.js`; the file is now `export default preset`).
+`npm run check` exit 0, 122 tests (was 104). Added dev dependencies in `web`: `jsdom` 31.0.0,
+`@testing-library/react` 16.3.2, `@testing-library/dom` 10.4.2, `@testing-library/user-event` 14.6.1.
+
+**Browser pass** (a scratch database of made-up titles and a scratch account, OMDb key blanked, outside
+the repo):
+
+- kind filter on `/rate`: ArrowRight moved All to Films to Series and chose each; the card was not swiped.
+- `/rate` from the page body: ArrowRight swipes; after tapping Good, ArrowRight still swipes.
+- ratings list: 50 rows, 50 pickers, 50 picker Tab stops of 300 buttons.
+- ratings tabs: ArrowRight moved All to Awful to Meh and chose each; Enter keeps the pick.
+- state picker on a list row: two arrow presses sent no write.
+
+**Screenshots** (suggestions, ratings, title, rate; light and dark; 1280 and 390): before and after
+differ in 0 pixels over a 12-point channel threshold, in all 16 pairs. They are in scratch, not in git.
+
+**Deviations.**
+
+- The three wrappers are in `components/ui/`, not two: `RadioGroup.tsx`, `ToggleGroup.tsx`, `Tabs.tsx`.
+- Tabs use `activateOnFocus` (the skill, Q41) where the brief said off; the arrows choose, so each
+  arrow loads that rating's list. A slow panel would pass `false`.
+- The `/rate` guard omits `[role=group]` from the brief's selector: the rating buttons sit in a
+  `role=group`, so with it the arrows stop swiping once a button is tapped (`web/src/keys.ts:7`). The
+  test says so. The picker's group is not on `/rate`.
+- No `Tabs.Panel`: `TitleList` owns both the strip (its `tabs` prop) and the list below it
+  (`web/src/ListPages.tsx`). `Tabs` wraps `TitleList`.
+- The keys test uses jsdom (the guard calls `closest`), not a bare function test.
+- The `RadioGroup` names the group with `aria-label` for the segmented look (the skill's
+  `aria-labelledby` sr-only label needs a Tailwind class); the `list` look is written but unused and
+  unstyled, for brief 17's theme switch.
+- Stylesheet: `.segmented button` and its pressed rule became `.segmented-option` and `[data-checked]`
+  (plus inline-flex centring for the span). The tab and picker CSS needed no change: Base UI keeps
+  `aria-selected` and `aria-pressed`.
+
+**For brief 17.** The segmented options are `Radio.Root` spans (`role=radio`, `data-checked`); the picker
+items and tabs are buttons with `aria-pressed` and `aria-selected` plus `data-pressed` and
+`data-active`. The `list` look's classes (`radio-list-*`) have no CSS yet.
+
+**For the skills library.** `references/tabs-toggle-group.md`'s `ToggleGroup` wrapper takes a required
+single value; a picker that allows clearing needs `value: T | null`, and rows inside the group need a
+wrapper that takes children. The nested rows keep one Tab stop (tested). A key guard on a page-level
+shortcut should list `radiogroup` and `tablist`, not `group`.
