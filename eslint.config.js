@@ -1,28 +1,26 @@
-import js from "@eslint/js";
-import reactHooks from "eslint-plugin-react-hooks";
-import tseslint from "typescript-eslint";
+import { houseStyle } from "./vendor/house-style/eslint.config.js";
 
 /**
- * Thin on purpose: the compiler (`strict`, `noUnusedLocals`,
- * `noUncheckedIndexedAccess`) is the main gate, and this adds what it cannot
- * see. The React hooks rules apply to the page only. Vendored code is a built
- * copy of another repo's library and is never linted or edited here.
+ * The house config from the vendored house-style copy, given Lantern's folders. Thin on purpose: the
+ * compiler is the first gate, and the house adds only what it cannot see. The rules and the reason
+ * for each are in the copy.
  */
-export default tseslint.config(
-  { ignores: ["**/dist/**", "**/node_modules/**", "data/**", "**/vendor/**"] },
-  js.configs.recommended,
-  ...tseslint.configs.recommended,
+export default [
+  ...houseStyle({
+    root: import.meta.dirname,
+    web: "web/src",
+    server: "server/src",
+    // Allowed to print: the server entry logs before its logger exists, and the seed, the title
+    // import and the source check talk to the person running them.
+    console: ["server/src/index.ts", "server/src/seed.ts", "server/src/sources/check.ts", "server/src/pool/cli.ts"],
+    tests: ["**/*.test.{ts,tsx}", "server/src/testing.ts", "server/src/sources/testing.ts"],
+    ignores: ["data/**"],
+  }),
   {
-    files: ["web/src/**/*.{ts,tsx}"],
-    plugins: { "react-hooks": reactHooks },
-    rules: reactHooks.configs.recommended.rules,
+    // A warning for now (2026-11-11): these files still read the environment themselves. When the
+    // server takes its settings from config.ts, this block goes and the rule is an error again.
+    name: "lantern/process-env-warns",
+    files: ["server/src/index.ts", "server/src/seed.ts", "server/src/sources/check.ts", "server/src/pool/cli.ts"],
+    rules: { "n/no-process-env": "warn" },
   },
-  {
-    rules: {
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        { argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" },
-      ],
-    },
-  },
-);
+];
