@@ -10,13 +10,13 @@ function inside(markup: string, selector: string): Element {
 }
 
 describe("pageOwnsKey", () => {
-  it("is true for the page body and a plain button", () => {
+  it("is true for the page body, a plain button and a button in a plain group", () => {
     expect(pageOwnsKey(document.body)).toBe(true);
     expect(pageOwnsKey(inside("<main><button id=x>Undo</button></main>", "#x"))).toBe(true);
+    expect(pageOwnsKey(inside('<div role="group"><button id=x>Good</button></div>', "#x"))).toBe(true);
   });
 
   it.each([
-    { markup: '<div role="group"><button id=x>a</button></div>', name: "a group" },
     { markup: '<div role="radiogroup"><span id=x role="radio">a</span></div>', name: "a radio group" },
     { markup: '<div role="tablist"><button id=x role="tab">a</button></div>', name: "a tab strip" },
     { markup: "<form><input id=x></form>", name: "an input" },
