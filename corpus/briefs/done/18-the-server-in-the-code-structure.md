@@ -264,3 +264,38 @@ Follow `migrating-a-server.md`. One commit per step, straight on `main`; after e
 - Brief 17's screenshot recipe imports the fixtures from `server/src/pool/fixtures`; after this brief they live under `server/src/features/pool/fixtures`.
 - The record route's `connectionTimeout` (decision 7) is the one setting not to copy from other servers' briefs.
 - The skills library should hear about three findings before the other servers run its brief 16: a declared `401` or `403` response schema turns the guard's reply into a 500; `connectionTimeout` cuts a response still being computed, so the default can't be one number; and the checker's `.parse(request.` pattern misses a repo that parses through a helper.
+
+## Outcome (2026-11-11)
+
+Built in 12 commits on `main` (config and `server.ts`; errors and auth plugins with `buildTestApp`; feature
+folders; the type provider with health, states, pool, sources, titles, then cards, suggestions and lists
+together; strict; corpus). `npm run check` passes (161 tests), `npm run build` writes `server/dist/server.js`
+and `server/dist/features/pool/cli.js`. Not run: `docker build` (no Docker on the shared machine), so the
+container health check and the in-container CLI run are the owner's.
+
+**check-structure, for the skills library's table:** before 39 (rule 1: 1, rule 3: 6, rule 6: 32; it already
+followed the `parse(` helper, so the helper finding is not a gap in this repo); after 0 strict, 2 excepted in
+`scripts/conventions.json` (the poster route's hand `safeParse` and no response schema; the `GET /` redirect).
+
+**Before and after JSON** (69 replies on made-up titles, no key): identical except list rows (keys in the
+schema's order: `poster` before `updatedAt`, same JSON), a PUT with no body (message now "received null"), and
+an unknown list with an unknown query key (400, was 404, because the query schema validates first). No field
+was dropped.
+
+**Deviations:**
+- Cards, suggestions and lists share one commit.
+- `sources/index.ts` re-exports the test helpers (`fakeFetch`, `fixture`, ...), because other features' tests
+  need them and a feature is used through its index only.
+- `pool/files.ts` takes `typeof globalThis.fetch` in place of the sources' `FetchLike`, so pool imports nothing
+  from sources; two pool tests still import `sources` and `states` through their indexes.
+- The seed, the title import and the source check call `loadConfig()` for the database path, so a bad
+  environment stops them with the config message.
+- The acceptance grep for `loadEnvFile` outside `config` can't print nothing: the entries call it.
+- `testing.ts` imports `normaliseTitle` from the pool folder directly (a test helper outside the features).
+
+**For the skills library:** a declared 401 or 403 schema would turn the guard's reply into a 500;
+`connectionTimeout` must exceed the longest silent response (45 s here, shown by a 20 s run); a missing
+request body reads "received null" under the provider; zod encodes keys in the schema's order, so list rows
+reorder.
+
+**For the other briefs:** the title fixtures are now `server/src/features/pool/fixtures`.
