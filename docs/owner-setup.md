@@ -62,7 +62,7 @@ data files need no key.
 | Set by compose | `HOST`, `PORT`, `LANTERN_DB` |
 | Optional env | `LANTERN_PORT` (the published port, default 8810) |
 | Outbound | HTTPS to `www.omdbapi.com` and `m.media-amazon.com` (posters) from the server, and to `datasets.imdbws.com` during an import. The browser never calls them |
-| Title import | By hand, about monthly: `node server/dist/pool/cli.js` inside `lantern-api` (step 6). About 310 MB downloaded, half a minute, a few hundred MB of memory; the server keeps running |
+| Title import | By hand, about monthly: `node server/dist/features/pool/cli.js` inside `lantern-api` (step 6). About 310 MB downloaded, half a minute, a few hundred MB of memory; the server keeps running |
 | Idle | No timers, no WebSockets: the container does work only while answering a request, so it may sleep when idle |
 | Ward client | slug `lantern`, like brief-board's and Wicket's |
 
@@ -106,7 +106,7 @@ account:
 ```
 export DOCKER_HOST=unix:///run/user/$(id -u)/docker.sock
 cd /srv/lantern-api
-docker compose -f infrastructure/docker-compose.yml exec lantern-api node server/dist/pool/cli.js
+docker compose -f infrastructure/docker-compose.yml exec lantern-api node server/dist/features/pool/cli.js
 ```
 
 If the stack lets the container sleep when idle, wake it first (open the page, or

@@ -45,7 +45,7 @@ Run by the owner, about monthly; nothing runs it on a timer:
 
 ```
 npm run titles:import -w @lantern/server [-- --min-votes 1000] [-- --from <folder>]
-node server/dist/pool/cli.js [--min-votes 1000]          (built; in the container, from /app)
+node server/dist/features/pool/cli.js [--min-votes 1000]          (built; in the container, from /app)
 ```
 
 It streams `title.ratings` (kept from 500 votes, for the report), then `title.basics`, then

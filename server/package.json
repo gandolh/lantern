@@ -10,8 +10,8 @@
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.js",
     "seed": "tsx src/seed.ts",
-    "sources:check": "tsx src/sources/check.ts",
-    "titles:import": "tsx src/pool/cli.ts"
+    "sources:check": "tsx src/features/sources/check.ts",
+    "titles:import": "tsx src/features/pool/cli.ts"
   },
   "dependencies": {
     "@fastify/static": "10.1.5",

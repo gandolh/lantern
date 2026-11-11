@@ -3,7 +3,7 @@ import { buildApp, createStores, type AppOptions, type Stores } from "./app.js";
 import { openDatabase, type Db } from "./db.js";
 import { seedUser } from "./plugins/auth/accounts.js";
 import { SESSION_COOKIE } from "./plugins/auth/index.js";
-import { normaliseTitle } from "./pool/normalise.js";
+import { normaliseTitle } from "./features/pool/normalise.js";
 
 /**
  * Test helpers, never imported by the server. `signIn` seeds a user (or

@@ -15,8 +15,13 @@ export default [
     server: "server/src",
     // Allowed to print: the server entry logs before its logger exists, and the seed, the title
     // import and the source check talk to the person running them.
-    console: ["server/src/server.ts", "server/src/seed.ts", "server/src/sources/check.ts", "server/src/pool/cli.ts"],
-    tests: ["**/*.test.{ts,tsx}", "server/src/testing.ts", "server/src/sources/testing.ts"],
+    console: [
+      "server/src/server.ts",
+      "server/src/seed.ts",
+      "server/src/features/sources/check.ts",
+      "server/src/features/pool/cli.ts",
+    ],
+    tests: ["**/*.test.{ts,tsx}", "server/src/testing.ts", "server/src/features/sources/testing.ts"],
     ignores: ["data/**"],
   }),
 ];

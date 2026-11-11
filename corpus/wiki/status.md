@@ -45,7 +45,7 @@ on the shared machine. 104 tests; typecheck and lint clean. The owner pushes.
   the search page, the state picker (four ratings, want to watch, not interested; tap again to
   clear) and a title page from the pool's facts. No outside call.
 - **Title pool** (2026-11-04). `npm run titles:import -w @lantern/server` (in the container:
-  `node server/dist/pool/cli.js`) streams IMDb's files into `titles`; 65,732 titles at 1,000
+  `node server/dist/features/pool/cli.js`) streams IMDb's files into `titles`; 65,732 titles at 1,000
   votes on 2026-11-04 ([titles.md](titles.md)). IMDb's credit line in the footer and on the
   account page.
 - **Base UI** (2026-11-11). The kind filter, the state picker and the ratings tabs are Base UI
@@ -90,6 +90,6 @@ In this order; the details are in `docs/owner-setup.md`.
 4. Put the two secrets in vps-deploy: `OMDB_API_KEY` and `WARD_OIDC_CLIENT_KEY` (step 2).
 5. Have the `lantern` stack written from the table in step 3, and deploy (step 5). Optionally
    check the container locally first (step 4).
-6. In the container: import the titles (`node server/dist/pool/cli.js`, step 6), then seed your
+6. In the container: import the titles (`node server/dist/features/pool/cli.js`, step 6), then seed your
    account and link Ward (step 7). Repeat the import about monthly.
 7. Choose a licence for the public repo, if any (none is set).

@@ -1,5 +1,4 @@
 import { existsSync } from "node:fs";
-import type { HealthResponse } from "@lantern/shared";
 import fastifyStatic from "@fastify/static";
 import Fastify, { type FastifyInstance, type FastifyServerOptions } from "fastify";
 import type { Accounts, WardClientOptions } from "../vendor/ward/ward-auth.js";
@@ -8,20 +7,23 @@ import { openDatabase, type Db } from "./db.js";
 import { authPlugin, pathOf } from "./plugins/auth/index.js";
 import { openAccounts } from "./plugins/auth/accounts.js";
 import { BODY_LIMIT, errorsPlugin, fail } from "./plugins/errors.js";
-import { createPool, type Pool } from "./pool/pool.js";
-import { registerCardRoutes } from "./routes/cards.js";
-import { registerListRoutes } from "./routes/lists.js";
-import { registerPoolRoutes } from "./routes/pool.js";
-import { registerSourceRoutes } from "./routes/sources.js";
-import { registerStateRoutes } from "./routes/states.js";
-import { registerSuggestionRoutes } from "./routes/suggestions.js";
-import { registerTitleRoutes } from "./routes/titles.js";
-import { createRecordCache } from "./sources/cache.js";
-import type { FetchLike } from "./sources/http.js";
-import { createOmdbClient, type OmdbClient } from "./sources/omdb.js";
-import { createRecords, type Records } from "./sources/records.js";
-import { createStatesStore, type StatesStore } from "./states.js";
-import { createSuggester } from "./suggest/suggest.js";
+import { registerCardRoutes } from "./features/cards/index.js";
+import { registerHealthRoutes } from "./features/health/index.js";
+import { registerListRoutes } from "./features/lists/index.js";
+import { createPool, registerPoolRoutes, type Pool } from "./features/pool/index.js";
+import {
+  createOmdbClient,
+  createRecordCache,
+  createRecords,
+  registerSourceRoutes,
+  type FetchLike,
+  type OmdbClient,
+  type Records,
+} from "./features/sources/index.js";
+
+import { registerTitleRoutes } from "./features/titles/index.js";
+import { createStatesStore, registerStateRoutes, type StatesStore } from "./features/states/index.js";
+import { createSuggester, registerSuggestionRoutes } from "./features/suggestions/index.js";
 
 /**
  * The Lantern API. Every route is under `/v1` and needs a signed-in session,
@@ -141,8 +143,7 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
     trustedProxies: options.trustedProxies ?? [],
   });
 
-  app.get("/v1/health", async (): Promise<HealthResponse> => ({ ok: true }));
-
+  registerHealthRoutes(app);
   registerStateRoutes(app, states);
   registerSourceRoutes(app, records, options.posterFetch ?? globalThis.fetch);
   registerPoolRoutes(app, pool);

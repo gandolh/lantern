@@ -76,7 +76,7 @@ message says) → `502 source_failed`, logged as a warning with the failure kind
 
 ```
 npm run sources:check -w @lantern/server [-- tt0111161] [-- --save <a folder outside the repo>]
-node server/dist/sources/check.js [tt0111161]      (built, from the repo root)
+node server/dist/features/sources/check.js [tt0111161]      (built, from the repo root)
 ```
 
 One real call (Inception, `tt1375666`, unless an id is given) through the real client and
