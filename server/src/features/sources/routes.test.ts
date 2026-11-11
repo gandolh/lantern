@@ -131,7 +131,7 @@ describe("sourceFailure", () => {
   });
 });
 
-describe("the sources route", () => {
+describe("the sources status route", () => {
   it("says whether OMDb has a key, and sends only the fields its schema names", async () => {
     const base = await buildTestApp();
     const leaky = await buildTestApp({
