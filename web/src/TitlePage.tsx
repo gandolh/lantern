@@ -41,7 +41,8 @@ export function TitlePage({ id }: { id: string }) {
       <section className="page">
         <h1 className="page-title">Not in Lantern's list</h1>
         <p className="muted">
-          This title isn't among the films and series Lantern imported from IMDb. <Link to={{ page: "search", query: "" }}>Search instead</Link>
+          This title isn't among the films and series Lantern imported from IMDb.{" "}
+          <Link to={{ page: "search", query: "" }}>Search instead</Link>
         </p>
       </section>
     );
@@ -54,7 +55,16 @@ export function TitlePage({ id }: { id: string }) {
       </section>
     );
   }
-  return <TitleView id={id} pool={pool?.title} state={pool?.state ?? null} poolPoster={pool?.poster ?? false} record={found} recordQuery={record} />;
+  return (
+    <TitleView
+      id={id}
+      pool={pool?.title}
+      state={pool?.state ?? null}
+      poolPoster={pool?.poster ?? false}
+      record={found}
+      recordQuery={record}
+    />
+  );
 }
 
 function TitleView({
@@ -74,15 +84,28 @@ function TitleView({
 }) {
   const title = pool?.title ?? record?.title ?? id;
   const kind = pool?.kind ?? (record?.type === "series" ? "series" : "movie");
-  const year = pool ? years(pool) : record ? years({ kind, year: record.year, endYear: record.ongoing ? null : record.endYear }) : null;
-  const length = record?.seasons ? `${record.seasons} season${record.seasons === 1 ? "" : "s"}` : runtime(pool?.runtime ?? record?.runtime ?? null);
+  const year = pool
+    ? years(pool)
+    : record
+      ? years({ kind, year: record.year, endYear: record.ongoing ? null : record.endYear })
+      : null;
+  const length = record?.seasons
+    ? `${record.seasons} season${record.seasons === 1 ? "" : "s"}`
+    : runtime(pool?.runtime ?? record?.runtime ?? null);
   const facts = [year, kindLabel(kind), length, record?.rated].filter((fact) => fact);
   const genres = pool?.genres ?? record?.genres ?? [];
 
   return (
     <article className="page title-page">
       <div className="title-head">
-        <Poster key={`${poolPoster}-${record?.hasPoster}`} imdbId={id} title={title} has={poolPoster || (record?.hasPoster ?? false)} size="large" className="title-poster" />
+        <Poster
+          key={`${poolPoster}-${record?.hasPoster}`}
+          imdbId={id}
+          title={title}
+          has={poolPoster || (record?.hasPoster ?? false)}
+          size="large"
+          className="title-poster"
+        />
         <div className="title-head-text">
           <h1 className="page-title">{title}</h1>
           <p className="title-facts">{facts.join(" · ")}</p>
@@ -95,7 +118,8 @@ function TitleView({
           )}
           {pool && (
             <p className="title-score">
-              <strong>IMDb {pool.rating.toFixed(1)}</strong> <span className="muted">from {votes(pool.votes)} votes</span>
+              <strong>IMDb {pool.rating.toFixed(1)}</strong>{" "}
+              <span className="muted">from {votes(pool.votes)} votes</span>
             </p>
           )}
           <p>
@@ -117,7 +141,15 @@ function TitleView({
 }
 
 /** OMDb's part of the page, or why it is missing. */
-function RecordSection({ record, query, kind }: { record: OmdbRecord | null; query: Query<{ record: OmdbRecord | null }>; kind: "movie" | "series" }) {
+function RecordSection({
+  record,
+  query,
+  kind,
+}: {
+  record: OmdbRecord | null;
+  query: Query<{ record: OmdbRecord | null }>;
+  kind: "movie" | "series";
+}) {
   if (query.status === "loading") {
     return (
       <p className="muted title-section" aria-busy="true">
@@ -145,8 +177,13 @@ function RecordSection({ record, query, kind }: { record: OmdbRecord | null; que
   if (!record) return <p className="muted title-section">OMDb has no details for this title.</p>;
 
   const people: [string, string[]][] = [
-    [kind === "series" ? "Created by" : "Directed by", kind === "series" && record.directors.length === 0 ? record.writers : record.directors],
-    ...(kind === "series" && record.directors.length === 0 ? [] : ([["Written by", record.writers]] as [string, string[]][])),
+    [
+      kind === "series" ? "Created by" : "Directed by",
+      kind === "series" && record.directors.length === 0 ? record.writers : record.directors,
+    ],
+    ...(kind === "series" && record.directors.length === 0
+      ? []
+      : ([["Written by", record.writers]] as [string, string[]][])),
     ["Starring", record.actors],
   ];
   return (
@@ -190,7 +227,11 @@ function Fact({ label, children }: { label: string; children: ReactNode }) {
 /** IMDb, Rotten Tomatoes and Metacritic, as OMDb gives them, with OMDb credited. */
 function ScoreSection({ scores }: { scores: Scores }) {
   const shown: [string, string, string | null][] = [
-    ["IMDb", scores.imdb ? `${scores.imdb.rating.toFixed(1)}/10` : "–", scores.imdb?.votes ? `${votes(scores.imdb.votes)} votes` : null],
+    [
+      "IMDb",
+      scores.imdb ? `${scores.imdb.rating.toFixed(1)}/10` : "–",
+      scores.imdb?.votes ? `${votes(scores.imdb.votes)} votes` : null,
+    ],
     ["Rotten Tomatoes", scores.rottenTomatoes !== null ? `${scores.rottenTomatoes}%` : "–", null],
     ["Metacritic", scores.metacritic !== null ? `${scores.metacritic}/100` : "–", null],
   ];

@@ -58,7 +58,10 @@ async function once(source: string, url: URL, options: GetJsonOptions): Promise<
     });
   } catch (error) {
     const timedOut = error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError");
-    throw new SourceError(timedOut ? "timeout" : "network", `${describe(source, url)}: ${timedOut ? "no answer in time" : "unreachable"}`);
+    throw new SourceError(
+      timedOut ? "timeout" : "network",
+      `${describe(source, url)}: ${timedOut ? "no answer in time" : "unreachable"}`,
+    );
   }
 }
 
@@ -68,15 +71,22 @@ async function once(source: string, url: URL, options: GetJsonOptions): Promise<
  * source whose errors carry a JSON body (OMDb answers 401 with one) hand
  * that body back instead of failing.
  */
-export async function getJson(source: string, url: URL, options: GetJsonOptions, okStatuses: readonly number[] = []): Promise<{ status: number; body: unknown }> {
+export async function getJson(
+  source: string,
+  url: URL,
+  options: GetJsonOptions,
+  okStatuses: readonly number[] = [],
+): Promise<{ status: number; body: unknown }> {
   let response = await once(source, url, options);
   if (response.status === 429) {
     await (options.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms))))(retryAfterMs(response));
     response = await once(source, url, options);
-    if (response.status === 429) throw new SourceError("rate_limited", `${describe(source, url)}: too many requests`, 429);
+    if (response.status === 429)
+      throw new SourceError("rate_limited", `${describe(source, url)}: too many requests`, 429);
   }
   if (!response.ok && !okStatuses.includes(response.status)) {
-    const failure: SourceFailure = response.status === 401 || response.status === 403 ? "refused" : response.status === 404 ? "not_found" : "http";
+    const failure: SourceFailure =
+      response.status === 401 || response.status === 403 ? "refused" : response.status === 404 ? "not_found" : "http";
     throw new SourceError(failure, `${describe(source, url)}: answered ${response.status}`, response.status);
   }
   try {

@@ -36,12 +36,19 @@ export function createRecordCache(db: Db, now: () => number = Date.now): RecordC
     get(imdbId) {
       const row = select.get(imdbId);
       if (!row) return undefined;
-      if (row.outcome === "not_found") return now() - row.fetchedAt < NOT_FOUND_FOR_MS ? { outcome: "not_found" } : undefined;
+      if (row.outcome === "not_found")
+        return now() - row.fetchedAt < NOT_FOUND_FOR_MS ? { outcome: "not_found" } : undefined;
       return { outcome: "found", record: JSON.parse(row.body) as StoredRecord };
     },
     put(imdbId, reading) {
       const found = reading.outcome === "found";
-      upsert.run(imdbId, reading.outcome, JSON.stringify(found ? reading.record : null), found && reading.record.posterUrl !== null ? 1 : 0, now());
+      upsert.run(
+        imdbId,
+        reading.outcome,
+        JSON.stringify(found ? reading.record : null),
+        found && reading.record.posterUrl !== null ? 1 : 0,
+        now(),
+      );
     },
     withPosters(imdbIds) {
       const found = new Set<string>();

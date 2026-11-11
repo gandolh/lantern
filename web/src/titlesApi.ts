@@ -17,7 +17,11 @@ import { request } from "./api";
 
 /** The page's requests about titles and their states. */
 
-export function searchTitles(query: string, kind: TitleKind | undefined, signal?: AbortSignal): Promise<SearchResponse> {
+export function searchTitles(
+  query: string,
+  kind: TitleKind | undefined,
+  signal?: AbortSignal,
+): Promise<SearchResponse> {
   const params = new URLSearchParams({ q: query });
   if (kind) params.set("kind", kind);
   return request("GET", `/v1/search?${params}`, (v) => searchResponseSchema.parse(v), { signal });
@@ -39,7 +43,12 @@ export function getRecord(imdbId: string, signal?: AbortSignal): Promise<RecordR
 }
 
 /** The next cards, leaving out those the page already holds. */
-export function dealCards(kind: TitleKind | undefined, exclude: readonly string[], count = 10, signal?: AbortSignal): Promise<CardsResponse> {
+export function dealCards(
+  kind: TitleKind | undefined,
+  exclude: readonly string[],
+  count = 10,
+  signal?: AbortSignal,
+): Promise<CardsResponse> {
   const params = new URLSearchParams({ count: String(count) });
   if (kind) params.set("kind", kind);
   if (exclude.length > 0) params.set("exclude", exclude.slice(0, 50).join(","));

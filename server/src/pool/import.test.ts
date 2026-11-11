@@ -24,7 +24,9 @@ describe("the import", () => {
   it("keeps films and series, not adult, with enough votes, and joins their crew", async () => {
     const report = await importPool({ db, datasets: fixtures, minVotes: 1000, now: () => 42 });
     const pool = createPool(db);
-    const ids = (db.prepare("SELECT imdb_id AS id FROM titles ORDER BY imdb_id").all() as { id: string }[]).map((row) => row.id);
+    const ids = (db.prepare("SELECT imdb_id AS id FROM titles ORDER BY imdb_id").all() as { id: string }[]).map(
+      (row) => row.id,
+    );
     // Not: a short, a 600-vote film, an adult film, an episode, an unrated film.
     expect(ids).toEqual(["tt0000003", "tt0000005", "tt0111161", "tt0944947", "tt1375666"]);
     expect(report).toMatchObject({ minVotes: 1000, movies: 3, series: 2 });
@@ -45,7 +47,14 @@ describe("the import", () => {
       writers: "nm1125275,nm1888967",
     });
     // A TV movie is a film; \N is none; quotes and commas in a title survive; a bad crew id is dropped.
-    expect(pool.get("tt0000003")).toMatchObject({ kind: "movie", title: 'Amélie & "Friends", Part 2', startYear: null, runtime: null, genres: "", directors: "" });
+    expect(pool.get("tt0000003")).toMatchObject({
+      kind: "movie",
+      title: 'Amélie & "Friends", Part 2',
+      startYear: null,
+      runtime: null,
+      genres: "",
+      directors: "",
+    });
     expect(pool.get("tt0000005")).toMatchObject({ kind: "series", writers: "nm0000002" });
   });
 
@@ -73,7 +82,11 @@ describe("the import", () => {
   it("leaves the old pool whole when a file is wrong", async () => {
     await importPool({ db, datasets: fixtures, minVotes: 1000 });
     const broken: DatasetSource = async (name: DatasetName) =>
-      name === "title.crew" ? (async function* () { yield "tconst\tdirectors"; })() : fixtures(name);
+      name === "title.crew"
+        ? (async function* () {
+            yield "tconst\tdirectors";
+          })()
+        : fixtures(name);
     await expect(importPool({ db, datasets: broken, minVotes: 1 })).rejects.toBeInstanceOf(DatasetFormatError);
     expect(createPool(db).info().titles).toBe(5);
   });

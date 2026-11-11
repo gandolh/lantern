@@ -38,7 +38,11 @@ export function registerSourceRoutes(app: FastifyInstance, records: Records, pos
     if (!posterUrl) return fail(reply, 404, { code: "not_found", message: "no poster kept for this title" });
     let poster = await fetchPoster(posterFetch, posterUrlFor(posterUrl, size as PosterSize));
     if (!poster.ok && size === "large") poster = await fetchPoster(posterFetch, posterUrl);
-    if (!poster.ok) return fail(reply, poster.status, { code: poster.status === 404 ? "not_found" : "source_failed", message: poster.reason });
+    if (!poster.ok)
+      return fail(reply, poster.status, {
+        code: poster.status === 404 ? "not_found" : "source_failed",
+        message: poster.reason,
+      });
     return reply.header("cache-control", POSTER_CACHE_CONTROL).type(poster.type).send(poster.bytes);
   });
 }

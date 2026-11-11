@@ -29,12 +29,21 @@ export function Shell({ current, children }: { current: Page; children: ReactNod
         </Link>
         <nav className="topnav" aria-label="Sections">
           {SECTIONS.map(({ route, label }) => (
-            <Link key={label} to={route} className="topnav-link" aria-current={route.page === current ? "page" : undefined}>
+            <Link
+              key={label}
+              to={route}
+              className="topnav-link"
+              aria-current={route.page === current ? "page" : undefined}
+            >
               {label}
             </Link>
           ))}
         </nav>
-        <Link to={{ page: "account" }} className="account-link" aria-current={current === "account" ? "page" : undefined}>
+        <Link
+          to={{ page: "account" }}
+          className="account-link"
+          aria-current={current === "account" ? "page" : undefined}
+        >
           <AccountIcon />
           <span className="account-label">Account</span>
         </Link>

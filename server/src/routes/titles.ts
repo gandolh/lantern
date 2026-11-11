@@ -1,4 +1,11 @@
-import { MAX_SEARCH_RESULTS, searchQuerySchema, titleParamsSchema, type RecordResponse, type SearchResponse, type TitleItem } from "@lantern/shared";
+import {
+  MAX_SEARCH_RESULTS,
+  searchQuerySchema,
+  titleParamsSchema,
+  type RecordResponse,
+  type SearchResponse,
+  type TitleItem,
+} from "@lantern/shared";
 import type { FastifyInstance } from "fastify";
 import { toPoolTitle, type Pool, type PoolRow } from "../pool/pool.js";
 import { fail, parse } from "../reply.js";
@@ -17,7 +24,10 @@ import { userIdOf } from "./states.js";
  *   GET /v1/titles/:id          one pool title; 404 when the pool lacks it
  *   GET /v1/titles/:id/record   OMDb's record, kept or asked once; null when OMDb doesn't know it
  */
-export function registerTitleRoutes(app: FastifyInstance, deps: { pool: Pool; states: StatesStore; records: Records }): void {
+export function registerTitleRoutes(
+  app: FastifyInstance,
+  deps: { pool: Pool; states: StatesStore; records: Records },
+): void {
   const { pool, states, records } = deps;
 
   /** Pool rows as items for one user: their states and kept posters in one query each. */
@@ -25,7 +35,11 @@ export function registerTitleRoutes(app: FastifyInstance, deps: { pool: Pool; st
     const ids = rows.map((row) => row.imdbId);
     const stated = states.statesOf(userId, ids);
     const posters = records.withPosters(ids);
-    return rows.map((row) => ({ title: toPoolTitle(row), state: stated.get(row.imdbId) ?? null, poster: posters.has(row.imdbId) }));
+    return rows.map((row) => ({
+      title: toPoolTitle(row),
+      state: stated.get(row.imdbId) ?? null,
+      poster: posters.has(row.imdbId),
+    }));
   };
 
   app.get("/v1/search", async (request, reply) => {

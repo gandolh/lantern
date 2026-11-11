@@ -82,7 +82,8 @@ function own(text: string): string {
 }
 
 /** IMDb writes `\N` for a missing value. */
-const value = (field: string | undefined): string | null => (field === undefined || field === "\\N" || field === "" ? null : field);
+const value = (field: string | undefined): string | null =>
+  field === undefined || field === "\\N" || field === "" ? null : field;
 
 function year(field: string | undefined): number | null {
   const v = value(field);
@@ -105,7 +106,8 @@ async function* rows(datasets: DatasetSource, name: DatasetName): AsyncGenerator
   let header = true;
   for await (const line of await datasets(name)) {
     if (header) {
-      if (line.replace(/^\uFEFF/, "") !== HEADERS[name]) throw new DatasetFormatError(`${name} has an unexpected header; IMDb may have changed its layout`);
+      if (line.replace(/^\uFEFF/, "") !== HEADERS[name])
+        throw new DatasetFormatError(`${name} has an unexpected header; IMDb may have changed its layout`);
       header = false;
       continue;
     }
@@ -114,7 +116,13 @@ async function* rows(datasets: DatasetSource, name: DatasetName): AsyncGenerator
   if (header) throw new DatasetFormatError(`${name} is empty`);
 }
 
-export async function importPool({ db, datasets, minVotes = DEFAULT_MIN_VOTES, now = Date.now, log = () => undefined }: ImportOptions): Promise<ImportReport> {
+export async function importPool({
+  db,
+  datasets,
+  minVotes = DEFAULT_MIN_VOTES,
+  now = Date.now,
+  log = () => undefined,
+}: ImportOptions): Promise<ImportReport> {
   const started = performance.now();
   const floor = Math.min(minVotes, ...REPORT_THRESHOLDS);
 
@@ -122,7 +130,8 @@ export async function importPool({ db, datasets, minVotes = DEFAULT_MIN_VOTES, n
   const ratings = new Map<string, { rating: number; votes: number }>();
   for await (const [id, rating, votes] of rows(datasets, "title.ratings")) {
     const n = Number(votes);
-    if (n >= floor && id !== undefined && /^tt\d{7,10}$/.test(id)) ratings.set(own(id), { rating: Number(rating), votes: n });
+    if (n >= floor && id !== undefined && /^tt\d{7,10}$/.test(id))
+      ratings.set(own(id), { rating: Number(rating), votes: n });
   }
   log(`title.ratings: ${ratings.size} titles with ${floor} votes or more`);
 
@@ -174,7 +183,13 @@ export async function importPool({ db, datasets, minVotes = DEFAULT_MIN_VOTES, n
   db.transaction(() => {
     db.exec("DELETE FROM titles");
     for (const title of kept.values()) insert.run({ ...title, searchTitle: normaliseTitle(title.title) });
-    db.prepare("INSERT INTO pool_imports (imported_at, min_votes, movies, series, took_ms) VALUES (?, ?, ?, ?, ?)").run(now(), minVotes, movies, series, tookMs);
+    db.prepare("INSERT INTO pool_imports (imported_at, min_votes, movies, series, took_ms) VALUES (?, ?, ?, ?, ?)").run(
+      now(),
+      minVotes,
+      movies,
+      series,
+      tookMs,
+    );
   })();
   return { minVotes, movies, series, atThreshold, tookMs };
 }

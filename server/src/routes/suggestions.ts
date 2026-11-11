@@ -11,11 +11,17 @@ const DEFAULT_SUGGESTIONS = 30;
 /**
  *   GET /v1/suggestions?kind=&limit=    the pool ranked by this user's taste; never asks OMDb
  */
-export function registerSuggestionRoutes(app: FastifyInstance, deps: { suggester: Suggester; pool: Pool; records: Records }): void {
+export function registerSuggestionRoutes(
+  app: FastifyInstance,
+  deps: { suggester: Suggester; pool: Pool; records: Records },
+): void {
   app.get("/v1/suggestions", async (request, reply) => {
     const query = parse(suggestionsQuerySchema, request.query, reply);
     if (!query) return reply;
-    const { ranked, rated, liked } = deps.suggester.suggest(userIdOf(request), { kind: query.kind, limit: query.limit ?? DEFAULT_SUGGESTIONS });
+    const { ranked, rated, liked } = deps.suggester.suggest(userIdOf(request), {
+      kind: query.kind,
+      limit: query.limit ?? DEFAULT_SUGGESTIONS,
+    });
     const ids = ranked.map((item) => item.imdbId);
     const rows = deps.pool.getMany(ids);
     const posters = deps.records.withPosters(ids);

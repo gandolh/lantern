@@ -12,7 +12,10 @@ let fetch: FakeFetch;
 let answer: unknown;
 
 const records = ({ apiKey }: { apiKey: string | undefined } = { apiKey: "omdb-test-key" }) =>
-  createRecords({ omdb: createOmdbClient({ apiKey, fetch, queue: immediateQueue() }), cache: createRecordCache(db, () => clock) });
+  createRecords({
+    omdb: createOmdbClient({ apiKey, fetch, queue: immediateQueue() }),
+    cache: createRecordCache(db, () => clock),
+  });
 
 beforeEach(() => {
   db = openDatabase(":memory:");

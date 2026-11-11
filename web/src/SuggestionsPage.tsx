@@ -40,7 +40,12 @@ export function SuggestionsPage() {
       </p>
       <div className="segmented" role="group" aria-label="Kind">
         {KINDS.map((option) => (
-          <button key={option.label} type="button" aria-pressed={kind === option.value} onClick={() => setKind(option.value)}>
+          <button
+            key={option.label}
+            type="button"
+            aria-pressed={kind === option.value}
+            onClick={() => setKind(option.value)}
+          >
             {option.label}
           </button>
         ))}
@@ -63,12 +68,15 @@ export function SuggestionsPage() {
         <div className="empty">
           <p>Rate a few titles you liked, good or amazing, and suggestions show up here.</p>
           <p>
-            <Link to={{ page: "rate" }}>Rate some cards</Link> or <Link to={{ page: "search", query: "" }}>search for a favourite</Link>. Not
-            interested isn't a rating, so it doesn't shape these.
+            <Link to={{ page: "rate" }}>Rate some cards</Link> or{" "}
+            <Link to={{ page: "search", query: "" }}>search for a favourite</Link>. Not interested isn't a rating, so it
+            doesn't shape these.
           </p>
         </div>
       )}
-      {list.data && list.data.liked > 0 && shown.length === 0 && <p className="muted">Nothing left to suggest from what you rated. Rate a few more.</p>}
+      {list.data && list.data.liked > 0 && shown.length === 0 && (
+        <p className="muted">Nothing left to suggest from what you rated. Rate a few more.</p>
+      )}
       {shown.length > 0 && (
         <ul className="title-list" aria-busy={list.status === "loading" || undefined}>
           {shown.map((item) => (

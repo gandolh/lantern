@@ -1,4 +1,12 @@
-import { RATINGS, TITLE_STATES, type StateCountsResponse, type StateFilter, type StateRow, type TitleKind, type TitleState } from "@lantern/shared";
+import {
+  RATINGS,
+  TITLE_STATES,
+  type StateCountsResponse,
+  type StateFilter,
+  type StateRow,
+  type TitleKind,
+  type TitleState,
+} from "@lantern/shared";
 import type { Db } from "./db.js";
 
 /**
@@ -50,14 +58,20 @@ function parseCursor(cursor: string): [number, string] {
 }
 
 export function createStatesStore(db: Db, now: () => number = Date.now): StatesStore {
-  const selectOne = db.prepare<[string, string], StateRow>(`SELECT ${COLUMNS} FROM title_states WHERE user_id = ? AND imdb_id = ?`);
+  const selectOne = db.prepare<[string, string], StateRow>(
+    `SELECT ${COLUMNS} FROM title_states WHERE user_id = ? AND imdb_id = ?`,
+  );
   const upsert = db.prepare<[string, string, string, number]>(`
     INSERT INTO title_states (user_id, imdb_id, state, updated_at) VALUES (?, ?, ?, ?)
     ON CONFLICT (user_id, imdb_id) DO UPDATE SET state = excluded.state, updated_at = excluded.updated_at`);
   const deleteOne = db.prepare<[string, string]>("DELETE FROM title_states WHERE user_id = ? AND imdb_id = ?");
-  const insertSkip = db.prepare<[string, string, number]>("INSERT OR IGNORE INTO card_skips (user_id, imdb_id, skipped_at) VALUES (?, ?, ?)");
+  const insertSkip = db.prepare<[string, string, number]>(
+    "INSERT OR IGNORE INTO card_skips (user_id, imdb_id, skipped_at) VALUES (?, ?, ?)",
+  );
   const deleteSkip = db.prepare<[string, string]>("DELETE FROM card_skips WHERE user_id = ? AND imdb_id = ?");
-  const selectSkipped = db.prepare<[string], { imdbId: string }>("SELECT imdb_id AS imdbId FROM card_skips WHERE user_id = ?");
+  const selectSkipped = db.prepare<[string], { imdbId: string }>(
+    "SELECT imdb_id AS imdbId FROM card_skips WHERE user_id = ?",
+  );
   const selectAll = db.prepare<[string], StateRow>(`SELECT ${COLUMNS} FROM title_states WHERE user_id = ?`);
   const selectCounts = db.prepare<[string], { state: TitleState; n: number }>(
     "SELECT state, count(*) AS n FROM title_states WHERE user_id = ? GROUP BY state",
@@ -114,7 +128,9 @@ export function createStatesStore(db: Db, now: () => number = Date.now): StatesS
       for (let start = 0; start < imdbIds.length; start += BATCH) {
         const batch = imdbIds.slice(start, start + BATCH);
         const rows = db
-          .prepare<string[], StateRow>(`SELECT ${COLUMNS} FROM title_states WHERE user_id = ? AND imdb_id IN (${batch.map(() => "?").join(", ")})`)
+          .prepare<string[], StateRow>(
+            `SELECT ${COLUMNS} FROM title_states WHERE user_id = ? AND imdb_id IN (${batch.map(() => "?").join(", ")})`,
+          )
           .all(userId, ...batch);
         for (const row of rows) found.set(row.imdbId, row.state);
       }

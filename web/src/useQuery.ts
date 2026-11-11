@@ -35,7 +35,11 @@ export function useQuery<T>(key: string | null, load: (signal: AbortSignal) => P
       },
       (error: unknown) => {
         if (controller.signal.aborted) return;
-        setAnswer((previous) => ({ tag: current, data: previous.data, error: error instanceof Error ? error : new Error(String(error)) }));
+        setAnswer((previous) => ({
+          tag: current,
+          data: previous.data,
+          error: error instanceof Error ? error : new Error(String(error)),
+        }));
       },
     );
     return () => controller.abort();

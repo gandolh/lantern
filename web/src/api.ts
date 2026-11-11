@@ -64,7 +64,11 @@ export async function request<T>(
   }
   if (!res.ok) {
     const error = errorBodySchema.safeParse(await res.json().catch(() => null));
-    throw new ApiError(res.status, error.success ? error.data.code : "http_error", error.success ? error.data.message : `${path} answered ${res.status}`);
+    throw new ApiError(
+      res.status,
+      error.success ? error.data.code : "http_error",
+      error.success ? error.data.message : `${path} answered ${res.status}`,
+    );
   }
   return parse(await res.json());
 }

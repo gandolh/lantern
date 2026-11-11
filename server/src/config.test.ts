@@ -106,7 +106,10 @@ describe("the Ward settings", () => {
     }
     expect(message).toMatch(/\/lantern-api\/auth\/ward\/callback/);
     expect(message).not.toContain("not-checked-here");
-    const config = loadConfig({ ...ward, WARD_OIDC_REDIRECT_URI: "https://example.com/lantern-api/auth/ward/callback" });
+    const config = loadConfig({
+      ...ward,
+      WARD_OIDC_REDIRECT_URI: "https://example.com/lantern-api/auth/ward/callback",
+    });
     expect(config.ward?.clientId).toBe("lantern");
   });
 });

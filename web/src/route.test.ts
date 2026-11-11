@@ -19,7 +19,14 @@ describe("routeOf", () => {
   });
 
   it("calls anything else not found", () => {
-    for (const path of ["/lantern/nope", "/lantern/title/603", "/lantern/title/tt12", "/lantern/movie/603", "/lantern/title/tt1375666/x", "/elsewhere"]) {
+    for (const path of [
+      "/lantern/nope",
+      "/lantern/title/603",
+      "/lantern/title/tt12",
+      "/lantern/movie/603",
+      "/lantern/title/tt1375666/x",
+      "/elsewhere",
+    ]) {
       expect(routeOf(path, "", BASE)).toEqual({ page: "not-found" });
     }
   });

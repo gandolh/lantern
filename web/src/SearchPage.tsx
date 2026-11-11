@@ -33,7 +33,9 @@ export function SearchPage({ query }: { query: string }) {
     return () => clearTimeout(timer);
   }, [text, query]);
 
-  const results = useQuery(query === "" ? null : `${kind ?? "all"}:${query}`, (signal) => searchTitles(query, kind, signal));
+  const results = useQuery(query === "" ? null : `${kind ?? "all"}:${query}`, (signal) =>
+    searchTitles(query, kind, signal),
+  );
 
   return (
     <section className="page search-page">
@@ -61,13 +63,20 @@ export function SearchPage({ query }: { query: string }) {
       </form>
       <div className="segmented" role="group" aria-label="Kind">
         {KINDS.map((option) => (
-          <button key={option.label} type="button" aria-pressed={kind === option.value} onClick={() => setKind(option.value)}>
+          <button
+            key={option.label}
+            type="button"
+            aria-pressed={kind === option.value}
+            onClick={() => setKind(option.value)}
+          >
             {option.label}
           </button>
         ))}
       </div>
 
-      {query === "" && <p className="muted">Type a title. Lantern searches its own list of IMDb's best-known films and series.</p>}
+      {query === "" && (
+        <p className="muted">Type a title. Lantern searches its own list of IMDb's best-known films and series.</p>
+      )}
       {results.status === "error" && (
         <p className="auth-error" role="alert">
           Search didn't work. {results.error.message}{" "}
@@ -77,7 +86,9 @@ export function SearchPage({ query }: { query: string }) {
         </p>
       )}
       {query !== "" && results.data && results.data.results.length === 0 && results.status === "ok" && (
-        <p className="muted">Nothing in Lantern's list matches "{query}". Titles with fewer than a thousand IMDb votes aren't in it.</p>
+        <p className="muted">
+          Nothing in Lantern's list matches "{query}". Titles with fewer than a thousand IMDb votes aren't in it.
+        </p>
       )}
       {query !== "" && results.data && (
         <ul className="title-list" aria-busy={results.status === "loading" || undefined}>

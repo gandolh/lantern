@@ -63,7 +63,10 @@ export function RatePage() {
     if (fetching.current || exhausted || loadError !== null) return;
     fetching.current = true;
     const round = generation.current;
-    dealCards(kind, queue.map((card) => card.title.imdbId)).then(
+    dealCards(
+      kind,
+      queue.map((card) => card.title.imdbId),
+    ).then(
       ({ cards }) => {
         fetching.current = false;
         if (round !== generation.current) return;
@@ -146,7 +149,8 @@ export function RatePage() {
     reverted.catch(() => setSaveError(`Couldn't undo "${last.card.title.title}". Try again.`));
   }, [done, leaving]);
 
-  const rate = (state: TitleState) => act({ kind: "state", state }, state === "awful" || state === "meh" ? "left" : "right");
+  const rate = (state: TitleState) =>
+    act({ kind: "state", state }, state === "awful" || state === "meh" ? "left" : "right");
   const swipe = (direction: SwipeDirection) => act(SWIPES[direction].action, direction);
 
   // Keys on a desktop: 1-4 rate, arrows for the swipes, Z undoes.
@@ -175,13 +179,23 @@ export function RatePage() {
     <section className="page rate-page">
       <div className="rate-head">
         <h1 className="page-title">Rate</h1>
-        <button type="button" className="button rate-undo" onClick={undo} disabled={done.length === 0 || leaving !== null}>
+        <button
+          type="button"
+          className="button rate-undo"
+          onClick={undo}
+          disabled={done.length === 0 || leaving !== null}
+        >
           Undo
         </button>
       </div>
       <div className="segmented" role="group" aria-label="Kind">
         {KINDS.map((option) => (
-          <button key={option.label} type="button" aria-pressed={kind === option.value} onClick={() => chooseKind(option.value)}>
+          <button
+            key={option.label}
+            type="button"
+            aria-pressed={kind === option.value}
+            onClick={() => chooseKind(option.value)}
+          >
             {option.label}
           </button>
         ))}
@@ -218,30 +232,52 @@ export function RatePage() {
           <div className="card-actions" role="group" aria-label={`Your verdict on ${current.title.title}`}>
             <div className="card-ratings">
               {RATINGS.map((rating, i) => (
-                <button key={rating} type="button" className={`state-button state-${rating}`} onClick={() => rate(rating)} aria-keyshortcuts={String(i + 1)}>
+                <button
+                  key={rating}
+                  type="button"
+                  className={`state-button state-${rating}`}
+                  onClick={() => rate(rating)}
+                  aria-keyshortcuts={String(i + 1)}
+                >
                   {STATE_LABELS[rating]}
                 </button>
               ))}
             </div>
             <div className="card-others">
-              <button type="button" className="state-button" onClick={() => swipe("left")} aria-keyshortcuts="ArrowLeft">
+              <button
+                type="button"
+                className="state-button"
+                onClick={() => swipe("left")}
+                aria-keyshortcuts="ArrowLeft"
+              >
                 ← Not interested
               </button>
               <button type="button" className="state-button" onClick={() => swipe("up")} aria-keyshortcuts="ArrowUp">
                 ↑ Skip
               </button>
-              <button type="button" className="state-button" onClick={() => swipe("right")} aria-keyshortcuts="ArrowRight">
+              <button
+                type="button"
+                className="state-button"
+                onClick={() => swipe("right")}
+                aria-keyshortcuts="ArrowRight"
+              >
                 Want to watch →
               </button>
             </div>
-            <p className="muted card-hint">Seen it? Rate it. Not seen it? Swipe right to save it, left if it's not for you, up to skip.</p>
+            <p className="muted card-hint">
+              Seen it? Rate it. Not seen it? Swipe right to save it, left if it's not for you, up to skip.
+            </p>
           </div>
         </>
       ) : exhausted ? (
         <div className="empty">
-          <p>No more cards{kind ? ` for ${kind === "movie" ? "films" : "series"}` : ""}: every title in Lantern's list has a verdict or was skipped.</p>
           <p>
-            <Link to={{ page: "search", query: "" }}>Search for a title</Link> instead, or run the title import again for newer ones.
+            No more cards{kind ? ` for ${kind === "movie" ? "films" : "series"}` : ""}: every title in Lantern's list
+            has a verdict or was skipped.
+          </p>
+          <p>
+            <Link to={{ page: "search", query: "" }}>Search for a title</Link> instead, or run the title import again
+            for newer ones.
           </p>
         </div>
       ) : (
@@ -262,7 +298,14 @@ function CardFace({ card, record }: { card: Card; record: OmdbRecord | null | "e
   const facts = [years(title), kindLabel(title.kind), runtime(title.runtime)].filter((fact) => fact);
   return (
     <div className="card-face">
-      <Poster key={`${card.poster || kept?.hasPoster}`} imdbId={title.imdbId} title={title.title} has={card.poster || (kept?.hasPoster ?? false)} size="large" className="card-poster" />
+      <Poster
+        key={`${card.poster || kept?.hasPoster}`}
+        imdbId={title.imdbId}
+        title={title.title}
+        has={card.poster || (kept?.hasPoster ?? false)}
+        size="large"
+        className="card-poster"
+      />
       <div className="card-text">
         <h2 className="card-title">
           <Link to={{ page: "title", id: title.imdbId }}>{title.title}</Link>
@@ -278,4 +321,3 @@ function CardFace({ card, record }: { card: Card; record: OmdbRecord | null | "e
     </div>
   );
 }
-

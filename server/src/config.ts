@@ -44,12 +44,14 @@ export const optional = <T extends z.ZodType>(schema: T) =>
 
 const envSchema = z.object({
   HOST: optional(z.string().trim()).transform((value) => value ?? "127.0.0.1"),
-  PORT: optional(z.coerce.number<string>().int().min(1).max(65535, { message: "PORT must be a port number (1-65535)." })).transform(
-    (value) => value ?? 8810,
-  ),
+  PORT: optional(
+    z.coerce.number<string>().int().min(1).max(65535, { message: "PORT must be a port number (1-65535)." }),
+  ).transform((value) => value ?? 8810),
   LANTERN_DB: optional(z.string().trim()),
   // The messages never repeat a key's value.
-  OMDB_API_KEY: optional(z.string().trim().regex(/^\S+$/, { message: "OMDB_API_KEY must be one value with no spaces." })),
+  OMDB_API_KEY: optional(
+    z.string().trim().regex(/^\S+$/, { message: "OMDB_API_KEY must be one value with no spaces." }),
+  ),
   PUBLIC_ORIGIN: optional(
     z.string().refine((value) => URL.canParse(value) && new URL(value).origin === value, {
       message: "PUBLIC_ORIGIN must be a bare origin such as https://example.com: no path and no trailing slash.",
@@ -80,18 +82,26 @@ export function describeIssue(issue: z.core.$ZodIssue): string {
  * under the API prefix, where the session cookie and the dev proxy are.
  * Messages never repeat the key.
  */
-function wardSettings(env: NodeJS.ProcessEnv, apiPrefix: string | undefined, problems: string[]): WardClientOptions | undefined {
+function wardSettings(
+  env: NodeJS.ProcessEnv,
+  apiPrefix: string | undefined,
+  problems: string[],
+): WardClientOptions | undefined {
   let ward: WardClientOptions | undefined;
   try {
     ward = wardClientOptionsFromEnv(env);
   } catch (error) {
-    problems.push(`${error instanceof Error ? error.message : String(error)}. Set all of them, or leave WARD_OIDC_ISSUER empty for local accounts only.`);
+    problems.push(
+      `${error instanceof Error ? error.message : String(error)}. Set all of them, or leave WARD_OIDC_ISSUER empty for local accounts only.`,
+    );
     return undefined;
   }
   if (ward === undefined || apiPrefix === undefined) return ward;
   const expected = `${apiPrefix}${WARD_CALLBACK_PATH}`;
   if (!URL.canParse(ward.redirectUri) || new URL(ward.redirectUri).pathname !== expected) {
-    problems.push(`WARD_OIDC_REDIRECT_URI must be the callback as the browser reaches it: the page's origin, then ${expected}.`);
+    problems.push(
+      `WARD_OIDC_REDIRECT_URI must be the callback as the browser reaches it: the page's origin, then ${expected}.`,
+    );
   }
   return ward;
 }

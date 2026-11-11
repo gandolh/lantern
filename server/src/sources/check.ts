@@ -29,7 +29,8 @@ async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const saveAt = args.indexOf("--save");
   const saveDir = saveAt > -1 ? resolve(args[saveAt + 1] ?? "") : undefined;
-  if (saveDir !== undefined && saveDir.startsWith(resolve(REPO_ROOT))) throw new Error("--save must point outside the repository");
+  if (saveDir !== undefined && saveDir.startsWith(resolve(REPO_ROOT)))
+    throw new Error("--save must point outside the repository");
   const imdbId = args.find((arg, i) => /^tt\d{7,10}$/.test(arg) && args[i - 1] !== "--save") ?? "tt1375666";
 
   const config = loadConfig(process.env);
@@ -39,14 +40,31 @@ async function main(): Promise<void> {
     mkdirSync(saveDir, { recursive: true });
     writeFileSync(join(saveDir, `omdb-${imdbId}.json`), `${JSON.stringify(answer, null, 2)}\n`);
   }
-  console.log(`OMDb ${imdbId}: ${Object.keys(record(answer) ?? {}).sort().join(", ")}`);
+  console.log(
+    `OMDb ${imdbId}: ${Object.keys(record(answer) ?? {})
+      .sort()
+      .join(", ")}`,
+  );
   const reading = readOmdb(answer, imdbId);
-  console.log(JSON.stringify(reading.outcome === "found" ? { ...forPage(reading.record), posterHost: reading.record.posterUrl && new URL(reading.record.posterUrl).hostname } : reading, null, 2));
+  console.log(
+    JSON.stringify(
+      reading.outcome === "found"
+        ? {
+            ...forPage(reading.record),
+            posterHost: reading.record.posterUrl && new URL(reading.record.posterUrl).hostname,
+          }
+        : reading,
+      null,
+      2,
+    ),
+  );
   console.log("1 real call.");
 }
 
 main().catch((err: unknown) => {
   // Source errors name the source, never the key.
-  console.error(err instanceof ConfigError ? `Settings: ${err.message}` : err instanceof Error ? err.message : String(err));
+  console.error(
+    err instanceof ConfigError ? `Settings: ${err.message}` : err instanceof Error ? err.message : String(err),
+  );
   process.exit(1);
 });

@@ -69,7 +69,13 @@ export function createPool(db: Db): Pool {
       const movies = byKind.movie ?? 0;
       const series = byKind.series ?? 0;
       const run = last.get();
-      return { titles: movies + series, movies, series, importedAt: run?.importedAt ?? null, minVotes: run?.minVotes ?? null };
+      return {
+        titles: movies + series,
+        movies,
+        series,
+        importedAt: run?.importedAt ?? null,
+        minVotes: run?.minVotes ?? null,
+      };
     },
     get: (imdbId) => one.get(imdbId),
     search(query, { kind, limit }) {
@@ -94,7 +100,11 @@ export function createPool(db: Db): Pool {
       const found = new Map<string, PoolRow>();
       for (let start = 0; start < imdbIds.length; start += BATCH) {
         const batch = imdbIds.slice(start, start + BATCH);
-        for (const row of db.prepare<string[], PoolRow>(`SELECT ${POOL_COLUMNS} FROM titles WHERE imdb_id IN (${batch.map(() => "?").join(", ")})`).all(...batch)) {
+        for (const row of db
+          .prepare<string[], PoolRow>(
+            `SELECT ${POOL_COLUMNS} FROM titles WHERE imdb_id IN (${batch.map(() => "?").join(", ")})`,
+          )
+          .all(...batch)) {
           found.set(row.imdbId, row);
         }
       }

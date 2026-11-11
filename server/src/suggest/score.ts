@@ -47,7 +47,8 @@ export function featureWeight(feature: Feature): number {
 
 /** A pool title's features from its stored fields. */
 export function featuresOf(title: { genres: string; directors: string; writers: string }): Feature[] {
-  const list = (prefix: string, value: string) => (value === "" ? [] : value.split(",").map((part) => `${prefix}:${part}`));
+  const list = (prefix: string, value: string) =>
+    value === "" ? [] : value.split(",").map((part) => `${prefix}:${part}`);
   return [...new Set([...list("g", title.genres), ...list("d", title.directors), ...list("w", title.writers)])];
 }
 
@@ -107,7 +108,11 @@ export function share(rated: RatedTitle, candidate: { features: readonly Feature
   let total = 0;
   for (const [feature, part] of spread(candidate.features)) {
     const their = theirs.get(feature);
-    if (their !== undefined) total += ((RATING_WEIGHTS[rated.rating] * their) / Math.sqrt(profile.counts.get(feature)!)) * featureWeight(feature) * part;
+    if (their !== undefined)
+      total +=
+        ((RATING_WEIGHTS[rated.rating] * their) / Math.sqrt(profile.counts.get(feature)!)) *
+        featureWeight(feature) *
+        part;
   }
   return total;
 }
@@ -154,7 +159,8 @@ export function rank(candidates: readonly Candidate[], rated: readonly RatedTitl
       }
     }
     // A hair under, for the rounding in the square roots.
-    if (best && bestShare >= MIN_LIKED_SHARE - 1e-9) ranked.push({ imdbId: candidate.imdbId, score, reason: { imdbId: best.imdbId, title: best.title } });
+    if (best && bestShare >= MIN_LIKED_SHARE - 1e-9)
+      ranked.push({ imdbId: candidate.imdbId, score, reason: { imdbId: best.imdbId, title: best.title } });
     if (ranked.length === limit) break;
   }
   return ranked;

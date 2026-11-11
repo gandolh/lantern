@@ -16,7 +16,11 @@ beforeEach(async () => {
     dbPath: ":memory:",
     publicOrigin: TEST_ORIGIN,
     now: () => clock,
-    omdb: createOmdbClient({ apiKey: "k", fetch: fakeFetch(() => json(fixture("omdb-found"))), queue: immediateQueue() }),
+    omdb: createOmdbClient({
+      apiKey: "k",
+      fetch: fakeFetch(() => json(fixture("omdb-found"))),
+      queue: immediateQueue(),
+    }),
   });
   cookie = await signIn(app);
   seedPool(app.db, [
@@ -32,9 +36,15 @@ afterEach(async () => {
 
 const setState = async (id: string, state: string) => {
   clock += 1000;
-  await app.inject({ method: "PUT", url: `/lantern-api/v1/titles/${id}/state`, headers: { cookie, origin: TEST_ORIGIN }, payload: { state } });
+  await app.inject({
+    method: "PUT",
+    url: `/lantern-api/v1/titles/${id}/state`,
+    headers: { cookie, origin: TEST_ORIGIN },
+    payload: { state },
+  });
 };
-const list = async (path: string) => (await app.inject({ url: `/lantern-api/v1/lists/${path}`, headers: { cookie } })).json<ListResponse>();
+const list = async (path: string) =>
+  (await app.inject({ url: `/lantern-api/v1/lists/${path}`, headers: { cookie } })).json<ListResponse>();
 const names = (answer: ListResponse) => answer.rows.map((row) => row.title.title);
 
 describe("the lists", () => {
@@ -48,7 +58,12 @@ describe("the lists", () => {
   it("show the watchlist newest first, with the pool's facts and counts per state", async () => {
     const answer = await list("watchlist");
     expect(names(answer)).toEqual(["Series Two", "Film One"]);
-    expect(answer.rows[0]).toMatchObject({ state: "want_to_watch", inPool: true, poster: false, title: { kind: "series" } });
+    expect(answer.rows[0]).toMatchObject({
+      state: "want_to_watch",
+      inPool: true,
+      poster: false,
+      title: { kind: "series" },
+    });
     expect(answer.counts).toMatchObject({ want_to_watch: 2, good: 1, awful: 1, amazing: 0 });
   });
 
@@ -69,11 +84,17 @@ describe("the lists", () => {
     await app.records.get("tt1375666");
     const rows = (await list("ratings")).rows;
     expect(rows[0]).toMatchObject({ inPool: false, title: { imdbId: "tt9999999", title: "tt9999999", votes: 0 } });
-    expect(rows[1]).toMatchObject({ inPool: false, poster: true, title: { title: "Inception", year: 2010, rating: 8.8 } });
+    expect(rows[1]).toMatchObject({
+      inPool: false,
+      poster: true,
+      title: { title: "Inception", year: 2010, rating: 8.8 },
+    });
   });
 
   it("refuse an unknown list or a bad query", async () => {
     expect((await app.inject({ url: "/lantern-api/v1/lists/favourites", headers: { cookie } })).statusCode).toBe(404);
-    expect((await app.inject({ url: "/lantern-api/v1/lists/ratings?rating=great", headers: { cookie } })).statusCode).toBe(400);
+    expect(
+      (await app.inject({ url: "/lantern-api/v1/lists/ratings?rating=great", headers: { cookie } })).statusCode,
+    ).toBe(400);
   });
 });

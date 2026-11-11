@@ -12,7 +12,11 @@ let omdbFetch: FakeFetch;
 
 beforeEach(async () => {
   omdbFetch = fakeFetch(() => json(fixture("omdb-found")));
-  app = await buildApp({ dbPath: ":memory:", publicOrigin: TEST_ORIGIN, omdb: createOmdbClient({ apiKey: "k", fetch: omdbFetch, queue: immediateQueue() }) });
+  app = await buildApp({
+    dbPath: ":memory:",
+    publicOrigin: TEST_ORIGIN,
+    omdb: createOmdbClient({ apiKey: "k", fetch: omdbFetch, queue: immediateQueue() }),
+  });
   cookie = await signIn(app);
   seedPool(app.db, [
     { imdbId: "tt0000001", title: "One", votes: 100 },
@@ -26,7 +30,8 @@ afterEach(async () => {
   await app.close();
 });
 
-const deal = async (query = "") => (await app.inject({ url: `/lantern-api/v1/cards${query}`, headers: { cookie } })).json<CardsResponse>().cards;
+const deal = async (query = "") =>
+  (await app.inject({ url: `/lantern-api/v1/cards${query}`, headers: { cookie } })).json<CardsResponse>().cards;
 const ids = (cards: CardsResponse["cards"]) => cards.map((card) => card.title.imdbId);
 const write = (method: "PUT" | "POST", url: string, payload?: object) =>
   app.inject({ method, url: `/lantern-api/v1/titles/${url}`, headers: { cookie, origin: TEST_ORIGIN }, payload });
@@ -58,7 +63,9 @@ describe("the deck", () => {
 
   it("refuses a bad query", async () => {
     for (const query of ["?count=0", "?count=21", "?kind=tv", "?exclude=603"]) {
-      expect((await app.inject({ url: `/lantern-api/v1/cards${query}`, headers: { cookie } })).statusCode, query).toBe(400);
+      expect((await app.inject({ url: `/lantern-api/v1/cards${query}`, headers: { cookie } })).statusCode, query).toBe(
+        400,
+      );
     }
   });
 });

@@ -40,9 +40,20 @@ describe("readOmdb", () => {
   it("reads a series' years and seasons", () => {
     const reading = readOmdb(fixture("omdb-series"), "tt0944947");
     if (reading.outcome !== "found") throw new Error("expected a record");
-    expect(reading.record).toMatchObject({ year: 2011, endYear: 2019, ongoing: false, seasons: 8, type: "series", directors: [] });
+    expect(reading.record).toMatchObject({
+      year: 2011,
+      endYear: 2019,
+      ongoing: false,
+      seasons: 8,
+      type: "series",
+      directors: [],
+    });
     expect(reading.record.writers).toEqual(["David Benioff", "D.B. Weiss"]);
-    expect(reading.record.scores).toEqual({ imdb: { rating: 9.2, votes: 2_400_000 }, rottenTomatoes: null, metacritic: null });
+    expect(reading.record.scores).toEqual({
+      imdb: { rating: 9.2, votes: 2_400_000 },
+      rottenTomatoes: null,
+      metacritic: null,
+    });
   });
 
   it("reads N/A as none, an open-ended series, writers' notes, and drops a poster on another host", () => {
@@ -73,19 +84,28 @@ describe("readOmdb", () => {
 
 describe("names", () => {
   it("splits, strips notes and repeats", () => {
-    expect(names("Jonathan Nolan (screenplay), Christopher Nolan (story), Jonathan Nolan")).toEqual(["Jonathan Nolan", "Christopher Nolan"]);
+    expect(names("Jonathan Nolan (screenplay), Christopher Nolan (story), Jonathan Nolan")).toEqual([
+      "Jonathan Nolan",
+      "Christopher Nolan",
+    ]);
     expect(names("N/A")).toEqual([]);
   });
 });
 
 describe("the OMDb client", () => {
   it("asks by IMDb id for the full plot, with the key as apikey, and hands back a 401's body", async () => {
-    const fetch = fakeFetch((url) => (url.searchParams.get("i") === "tt1375666" ? json(fixture("omdb-found")) : json({ Response: "False", Error: "Invalid API key!" }, 401)));
+    const fetch = fakeFetch((url) =>
+      url.searchParams.get("i") === "tt1375666"
+        ? json(fixture("omdb-found"))
+        : json({ Response: "False", Error: "Invalid API key!" }, 401),
+    );
     const omdb = createOmdbClient({ apiKey: KEY, fetch, queue: immediateQueue() });
     expect(readOmdb(await omdb.byImdbId("tt1375666"), "tt1375666").outcome).toBe("found");
     expect(fetch.calls[0]!.url.searchParams.get("apikey")).toBe(KEY);
     expect(fetch.calls[0]!.url.searchParams.get("plot")).toBe("full");
-    await expect(omdb.byImdbId("tt0000002").then((answer) => readOmdb(answer, "tt0000002"))).rejects.toThrow(/Invalid API key/);
+    await expect(omdb.byImdbId("tt0000002").then((answer) => readOmdb(answer, "tt0000002"))).rejects.toThrow(
+      /Invalid API key/,
+    );
   });
 
   it("refuses without a key, before any request", async () => {
@@ -97,7 +117,11 @@ describe("the OMDb client", () => {
   });
 
   it("never puts the key in an error", async () => {
-    const omdb = createOmdbClient({ apiKey: KEY, fetch: fakeFetch(() => Promise.reject(new TypeError("fetch failed"))), queue: immediateQueue() });
+    const omdb = createOmdbClient({
+      apiKey: KEY,
+      fetch: fakeFetch(() => Promise.reject(new TypeError("fetch failed"))),
+      queue: immediateQueue(),
+    });
     const error = await omdb.byImdbId("tt1375666").catch((caught: unknown) => caught);
     expect((error as SourceError).failure).toBe("network");
     expect(String(error)).not.toContain(KEY);

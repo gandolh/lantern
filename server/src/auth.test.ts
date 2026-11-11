@@ -25,7 +25,11 @@ afterEach(async () => {
 /** Seed the owner and sign in; the session cookie, ready for a `cookie` header. */
 async function signIn(): Promise<string> {
   await seedUser(app.accounts, { username: "owner", password: PASSWORD });
-  const res = await app.inject({ method: "POST", url: "/lantern-api/auth/login", payload: { username: "owner", password: PASSWORD } });
+  const res = await app.inject({
+    method: "POST",
+    url: "/lantern-api/auth/login",
+    payload: { username: "owner", password: PASSWORD },
+  });
   expect(res.statusCode).toBe(200);
   const header = res.headers["set-cookie"];
   const lines = header === undefined ? [] : Array.isArray(header) ? header : [header];
@@ -60,7 +64,11 @@ describe("the guard", () => {
 
   it("refuses a wrong password", async () => {
     await seedUser(app.accounts, { username: "owner", password: PASSWORD });
-    const res = await app.inject({ method: "POST", url: "/lantern-api/auth/login", payload: { username: "owner", password: "wrong-password" } });
+    const res = await app.inject({
+      method: "POST",
+      url: "/lantern-api/auth/login",
+      payload: { username: "owner", password: "wrong-password" },
+    });
     expect(res.statusCode).toBe(401);
     expect(res.headers["set-cookie"] ?? "").not.toContain(`${SESSION_COOKIE}=`);
   });
@@ -68,23 +76,38 @@ describe("the guard", () => {
   it("refuses a write from another site, but not from this one or from a script", async () => {
     const cookie = await signIn();
     const url = "/lantern-api/v1/nothing-here";
-    const other = await app.inject({ method: "POST", url, headers: { cookie, origin: "https://elsewhere.example" }, payload: {} });
+    const other = await app.inject({
+      method: "POST",
+      url,
+      headers: { cookie, origin: "https://elsewhere.example" },
+      payload: {},
+    });
     expect(other.statusCode).toBe(403);
     expect(other.json<ErrorBody>().code).toBe("cross_site");
     const crossFetch = await app.inject({ method: "DELETE", url, headers: { cookie, "sec-fetch-site": "cross-site" } });
     expect(crossFetch.statusCode).toBe(403);
-    expect((await app.inject({ method: "POST", url, headers: { cookie, origin: ORIGIN }, payload: {} })).statusCode).toBe(404);
+    expect(
+      (await app.inject({ method: "POST", url, headers: { cookie, origin: ORIGIN }, payload: {} })).statusCode,
+    ).toBe(404);
     expect((await app.inject({ method: "POST", url, headers: { cookie }, payload: {} })).statusCode).toBe(404);
   });
 
   it("has no rename and no sign-up", async () => {
     const cookie = await signIn();
-    const rename = await app.inject({ method: "POST", url: "/lantern-api/auth/username", headers: { cookie }, payload: { username: "someone" } });
+    const rename = await app.inject({
+      method: "POST",
+      url: "/lantern-api/auth/username",
+      headers: { cookie },
+      payload: { username: "someone" },
+    });
     expect(rename.statusCode).toBe(404);
     const payload = { username: "x", password: PASSWORD };
     // Signed out, the guard refuses it before the router can say it doesn't exist.
     expect((await app.inject({ method: "POST", url: "/lantern-api/auth/register", payload })).statusCode).toBe(401);
-    expect((await app.inject({ method: "POST", url: "/lantern-api/auth/register", headers: { cookie }, payload })).statusCode).toBe(404);
+    expect(
+      (await app.inject({ method: "POST", url: "/lantern-api/auth/register", headers: { cookie }, payload }))
+        .statusCode,
+    ).toBe(404);
   });
 
   it("says Ward is off when it isn't set up", async () => {
@@ -107,7 +130,12 @@ describe("the seed", () => {
     try {
       const run = () =>
         spawnSync(process.execPath, ["--import", "tsx", fileURLToPath(new URL("./seed.ts", import.meta.url))], {
-          env: { ...process.env, LANTERN_DB: join(scratch, "seed.sqlite"), SEED_USERNAME: "owner", SEED_PASSWORD: PASSWORD },
+          env: {
+            ...process.env,
+            LANTERN_DB: join(scratch, "seed.sqlite"),
+            SEED_USERNAME: "owner",
+            SEED_PASSWORD: PASSWORD,
+          },
           encoding: "utf8",
           stdio: ["ignore", "pipe", "pipe"],
         });

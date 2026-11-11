@@ -29,7 +29,8 @@ export type PosterResult = { ok: true; type: string; bytes: Buffer } | { ok: fal
 /** Fetch one poster, from an allowed host only, at most `MAX_POSTER_BYTES` and `POSTER_TIMEOUT_MS`. */
 export async function fetchPoster(fetch: FetchLike, url: string, timeoutMs = POSTER_TIMEOUT_MS): Promise<PosterResult> {
   const target = new URL(url);
-  if (target.protocol !== "https:" || !POSTER_HOSTS.has(target.hostname)) return { ok: false, status: 404, reason: "not an allowed poster host" };
+  if (target.protocol !== "https:" || !POSTER_HOSTS.has(target.hostname))
+    return { ok: false, status: 404, reason: "not an allowed poster host" };
   let response: Response;
   try {
     // No redirects: an answer from anywhere but the allowed host is not taken.
@@ -42,7 +43,8 @@ export async function fetchPoster(fetch: FetchLike, url: string, timeoutMs = POS
   const type = (response.headers.get("content-type") ?? "").split(";")[0]!.trim().toLowerCase();
   if (!TYPES.has(type)) return { ok: false, status: 502, reason: "the poster host sent something that isn't an image" };
   const declared = Number(response.headers.get("content-length"));
-  if (Number.isFinite(declared) && declared > MAX_POSTER_BYTES) return { ok: false, status: 502, reason: "the poster is too large" };
+  if (Number.isFinite(declared) && declared > MAX_POSTER_BYTES)
+    return { ok: false, status: 502, reason: "the poster is too large" };
   if (!response.body) return { ok: false, status: 502, reason: "the poster is empty" };
   const chunks: Buffer[] = [];
   let total = 0;

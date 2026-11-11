@@ -40,7 +40,13 @@ const titles = (results: SearchResponse["results"]) => results.map((item) => ite
 
 describe("search", () => {
   it("puts the exact title first, then titles starting with it, then the rest, most-voted first", async () => {
-    expect(titles(await search("q=alien"))).toEqual(["Alien", "Aliens", "Alien: Romulus", "Cowboys & Aliens", "Resident Alien"]);
+    expect(titles(await search("q=alien"))).toEqual([
+      "Alien",
+      "Aliens",
+      "Alien: Romulus",
+      "Cowboys & Aliens",
+      "Resident Alien",
+    ]);
   });
 
   it("ignores case, accents and punctuation, and needs every word", async () => {
@@ -53,11 +59,18 @@ describe("search", () => {
 
   it("filters by kind", async () => {
     expect(titles(await search("q=alien&kind=series"))).toEqual(["Resident Alien"]);
-    expect((await app.inject({ url: "/lantern-api/v1/search?q=alien&kind=tv", headers: { cookie } })).statusCode).toBe(400);
+    expect((await app.inject({ url: "/lantern-api/v1/search?q=alien&kind=tv", headers: { cookie } })).statusCode).toBe(
+      400,
+    );
   });
 
   it("says each title's state and whether a poster is kept, without asking OMDb", async () => {
-    await app.inject({ method: "PUT", url: "/lantern-api/v1/titles/tt1375666/state", headers: { cookie, origin: TEST_ORIGIN }, payload: { state: "amazing" } });
+    await app.inject({
+      method: "PUT",
+      url: "/lantern-api/v1/titles/tt1375666/state",
+      headers: { cookie, origin: TEST_ORIGIN },
+      payload: { state: "amazing" },
+    });
     expect((await search("q=inception"))[0]).toMatchObject({ state: "amazing", poster: false });
     await app.records.get("tt1375666");
     expect((await search("q=inception"))[0]!.poster).toBe(true);
@@ -71,7 +84,11 @@ describe("search", () => {
 describe("a title from the pool", () => {
   it("answers its facts and state, or 404", async () => {
     const res = await app.inject({ url: "/lantern-api/v1/titles/tt0000005", headers: { cookie } });
-    expect(res.json<TitleItem>()).toMatchObject({ title: { imdbId: "tt0000005", kind: "series", title: "Resident Alien", genres: ["Drama"] }, state: null, poster: false });
+    expect(res.json<TitleItem>()).toMatchObject({
+      title: { imdbId: "tt0000005", kind: "series", title: "Resident Alien", genres: ["Drama"] },
+      state: null,
+      poster: false,
+    });
     expect((await app.inject({ url: "/lantern-api/v1/titles/tt9999999", headers: { cookie } })).statusCode).toBe(404);
     expect((await app.inject({ url: "/lantern-api/v1/titles/603", headers: { cookie } })).statusCode).toBe(400);
   });
@@ -83,7 +100,11 @@ describe("a title's OMDb record", () => {
   it("asks OMDb once, then answers from what it kept, without the poster's URL", async () => {
     const first = await record("tt1375666");
     expect(first.statusCode).toBe(200);
-    expect(first.json<RecordResponse>().record).toMatchObject({ title: "Inception", hasPoster: true, scores: { rottenTomatoes: 87 } });
+    expect(first.json<RecordResponse>().record).toMatchObject({
+      title: "Inception",
+      hasPoster: true,
+      scores: { rottenTomatoes: 87 },
+    });
     expect(first.body).not.toContain("media-amazon");
     await record("tt1375666");
     expect(omdbFetch.calls).toHaveLength(1);
@@ -107,7 +128,10 @@ describe("without an OMDb key", () => {
   it("answers 503 no_key", async () => {
     const keyless = await buildApp({ dbPath: ":memory:", publicOrigin: TEST_ORIGIN });
     const keylessCookie = await signIn(keyless);
-    const res = await keyless.inject({ url: "/lantern-api/v1/titles/tt1375666/record", headers: { cookie: keylessCookie } });
+    const res = await keyless.inject({
+      url: "/lantern-api/v1/titles/tt1375666/record",
+      headers: { cookie: keylessCookie },
+    });
     expect(res.statusCode).toBe(503);
     expect(res.json().code).toBe("no_key");
     await keyless.close();

@@ -71,17 +71,25 @@ describe("the poster proxy", () => {
   it("refuses a bad id or size, what isn't an image, and what is too large", async () => {
     const { app, cookie } = await start(
       posterHost({
-        [POSTER]: () => new Response(new Uint8Array(MAX_POSTER_BYTES + 1), { headers: { "content-type": "image/jpeg" } }),
+        [POSTER]: () =>
+          new Response(new Uint8Array(MAX_POSTER_BYTES + 1), { headers: { "content-type": "image/jpeg" } }),
       }),
     );
     await app.records.get("tt1375666");
     expect((await app.inject({ url: "/lantern-api/v1/posters/603", headers: { cookie } })).statusCode).toBe(404);
-    expect((await app.inject({ url: "/lantern-api/v1/posters/tt1375666?size=huge", headers: { cookie } })).statusCode).toBe(404);
+    expect(
+      (await app.inject({ url: "/lantern-api/v1/posters/tt1375666?size=huge", headers: { cookie } })).statusCode,
+    ).toBe(404);
     expect((await app.inject({ url: "/lantern-api/v1/posters/tt1375666", headers: { cookie } })).statusCode).toBe(502);
 
-    const page = await start(posterHost({ [POSTER]: () => new Response("<html>", { headers: { "content-type": "text/html" } }) }));
+    const page = await start(
+      posterHost({ [POSTER]: () => new Response("<html>", { headers: { "content-type": "text/html" } }) }),
+    );
     await page.app.records.get("tt1375666");
-    expect((await page.app.inject({ url: "/lantern-api/v1/posters/tt1375666", headers: { cookie: page.cookie } })).statusCode).toBe(502);
+    expect(
+      (await page.app.inject({ url: "/lantern-api/v1/posters/tt1375666", headers: { cookie: page.cookie } }))
+        .statusCode,
+    ).toBe(502);
   });
 
   it("is behind sign-in", async () => {
@@ -110,7 +118,9 @@ describe("sourceFailure", () => {
       failed: new SourceError("refused", "OMDb refused: Request limit reached!"),
       other: new Error("a bug"),
     };
-    server.get<{ Params: { kind: string } }>("/:kind", async (request, reply) => sourceFailure(reply, errors[request.params.kind]));
+    server.get<{ Params: { kind: string } }>("/:kind", async (request, reply) =>
+      sourceFailure(reply, errors[request.params.kind]),
+    );
     const status = async (kind: string) => {
       const res = await server.inject({ url: `/${kind}` });
       return [res.statusCode, res.json().code];

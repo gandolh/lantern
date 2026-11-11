@@ -1,4 +1,12 @@
-import { listResponseSchema, type ListName, type ListResponse, type ListRow, type Rating, type TitleKind, type TitleState } from "@lantern/shared";
+import {
+  listResponseSchema,
+  type ListName,
+  type ListResponse,
+  type ListRow,
+  type Rating,
+  type TitleKind,
+  type TitleState,
+} from "@lantern/shared";
 import { useEffect, useState, type ReactNode } from "react";
 import { request } from "./api";
 import { STATE_LABELS } from "./StatePicker";
@@ -22,16 +30,25 @@ function belongs(choice: ListChoice, state: TitleState | null): boolean {
   if (state === null) return false;
   if (choice.list === "watchlist") return state === "want_to_watch";
   if (choice.list === "not-interested") return state === "not_interested";
-  return choice.rating ? state === choice.rating : state === "awful" || state === "meh" || state === "good" || state === "amazing";
+  return choice.rating
+    ? state === choice.rating
+    : state === "awful" || state === "meh" || state === "good" || state === "amazing";
 }
 
-function fetchList(choice: ListChoice, kind: TitleKind | undefined, cursor: string | undefined, signal?: AbortSignal): Promise<ListResponse> {
+function fetchList(
+  choice: ListChoice,
+  kind: TitleKind | undefined,
+  cursor: string | undefined,
+  signal?: AbortSignal,
+): Promise<ListResponse> {
   const params = new URLSearchParams();
   if (choice.rating) params.set("rating", choice.rating);
   if (kind) params.set("kind", kind);
   if (cursor) params.set("cursor", cursor);
   const query = params.toString();
-  return request("GET", `/v1/lists/${choice.list}${query ? `?${query}` : ""}`, (v) => listResponseSchema.parse(v), { signal });
+  return request("GET", `/v1/lists/${choice.list}${query ? `?${query}` : ""}`, (v) => listResponseSchema.parse(v), {
+    signal,
+  });
 }
 
 /**
@@ -102,7 +119,12 @@ export function TitleList({ choice, empty, tabs }: { choice: ListChoice; empty: 
       {tabs}
       <div className="segmented" role="group" aria-label="Kind">
         {KINDS.map((option) => (
-          <button key={option.label} type="button" aria-pressed={kind === option.value} onClick={() => setKind(option.value)}>
+          <button
+            key={option.label}
+            type="button"
+            aria-pressed={kind === option.value}
+            onClick={() => setKind(option.value)}
+          >
             {option.label}
           </button>
         ))}
@@ -135,7 +157,12 @@ export function TitleList({ choice, empty, tabs }: { choice: ListChoice; empty: 
       {rows.length > 0 && (
         <ul className="title-list" aria-busy={first.status === "loading" || undefined}>
           {rows.map((row) => (
-            <TitleRow key={row.title.imdbId} item={row} note={row.inPool ? undefined : <span className="muted">No longer in Lantern's title list</span>} onChange={(state) => changed(row, state)} />
+            <TitleRow
+              key={row.title.imdbId}
+              item={row}
+              note={row.inPool ? undefined : <span className="muted">No longer in Lantern's title list</span>}
+              onChange={(state) => changed(row, state)}
+            />
           ))}
         </ul>
       )}
@@ -152,7 +179,9 @@ export function TitleList({ choice, empty, tabs }: { choice: ListChoice; empty: 
 
 /** The counts the last answer gave, for the tabs. */
 export function useCounts(choice: ListChoice): ListResponse["counts"] | undefined {
-  const counts = useQuery(`counts:${choice.list}:${choice.rating ?? "all"}`, (signal) => fetchList(choice, undefined, undefined, signal));
+  const counts = useQuery(`counts:${choice.list}:${choice.rating ?? "all"}`, (signal) =>
+    fetchList(choice, undefined, undefined, signal),
+  );
   return counts.data?.counts;
 }
 

@@ -27,7 +27,12 @@
   --top-h: 56px;
   --tab-h: 60px;
   --page-w: 1080px;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
   font-size: 15px;
   line-height: 1.5;
   color: var(--text);
@@ -125,7 +130,9 @@ a {
   height: 14px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 0 4px var(--accent-soft), 0 0 14px 2px color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow:
+    0 0 0 4px var(--accent-soft),
+    0 0 14px 2px color-mix(in srgb, var(--accent) 55%, transparent);
 }
 
 .topnav {
@@ -746,7 +753,9 @@ code {
   user-select: none;
   -webkit-user-select: none;
   cursor: grab;
-  transition: transform 180ms ease-out, opacity 180ms ease-out;
+  transition:
+    transform 180ms ease-out,
+    opacity 180ms ease-out;
 }
 
 .swipe-card.is-dragging {

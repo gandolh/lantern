@@ -6,7 +6,19 @@ import { API_BASE } from "./base";
  * when OMDb's record is kept (no call is made for it). Without one, or when
  * it fails to load, a plain frame with the title's initials stands in.
  */
-export function Poster({ imdbId, title, has, size = "normal", className = "" }: { imdbId: string; title: string; has: boolean; size?: "normal" | "large"; className?: string }) {
+export function Poster({
+  imdbId,
+  title,
+  has,
+  size = "normal",
+  className = "",
+}: {
+  imdbId: string;
+  title: string;
+  has: boolean;
+  size?: "normal" | "large";
+  className?: string;
+}) {
   const [failed, setFailed] = useState(false);
   if (!has || failed) {
     const initials = title

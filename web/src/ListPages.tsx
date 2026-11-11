@@ -32,10 +32,19 @@ type Tab = Rating | "all" | "not-interested";
 export function RatingsPage() {
   usePageTitle("Ratings");
   const [tab, setTab] = useState<Tab>("all");
-  const choice: ListChoice = tab === "not-interested" ? { list: "not-interested" } : { list: "ratings", rating: tab === "all" ? undefined : tab };
+  const choice: ListChoice =
+    tab === "not-interested"
+      ? { list: "not-interested" }
+      : { list: "ratings", rating: tab === "all" ? undefined : tab };
   const counts = useCounts(choice);
   const count = (t: Tab): number | undefined =>
-    !counts ? undefined : t === "all" ? RATINGS.reduce((sum, r) => sum + counts[r], 0) : t === "not-interested" ? counts.not_interested : counts[t];
+    !counts
+      ? undefined
+      : t === "all"
+        ? RATINGS.reduce((sum, r) => sum + counts[r], 0)
+        : t === "not-interested"
+          ? counts.not_interested
+          : counts[t];
   const tabs: { value: Tab; label: string }[] = [
     { value: "all", label: "All" },
     ...RATINGS.map((rating) => ({ value: rating as Tab, label: STATE_LABELS[rating] })),
@@ -50,7 +59,13 @@ export function RatingsPage() {
         tabs={
           <div className="tabs" role="tablist" aria-label="Which ratings">
             {tabs.map((option) => (
-              <button key={option.value} type="button" role="tab" aria-selected={tab === option.value} onClick={() => setTab(option.value)}>
+              <button
+                key={option.value}
+                type="button"
+                role="tab"
+                aria-selected={tab === option.value}
+                onClick={() => setTab(option.value)}
+              >
                 {option.label}
                 {count(option.value) !== undefined && <span className="tab-count">{count(option.value)}</span>}
               </button>
@@ -64,7 +79,8 @@ export function RatingsPage() {
             <>
               <p>No ratings {tab === "all" ? "yet" : `marked ${STATE_LABELS[tab].toLowerCase()}`}.</p>
               <p>
-                <Link to={{ page: "rate" }}>Rate some cards</Link> or <Link to={{ page: "search", query: "" }}>search for a title</Link>.
+                <Link to={{ page: "rate" }}>Rate some cards</Link> or{" "}
+                <Link to={{ page: "search", query: "" }}>search for a title</Link>.
               </p>
             </>
           )

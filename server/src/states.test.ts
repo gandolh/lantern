@@ -20,9 +20,12 @@ afterEach(async () => {
 const tt = (n: number) => `tt${String(n).padStart(7, "0")}`;
 const call = (options: InjectOptions, as = cookie) =>
   app.inject({ ...options, headers: { cookie: as, origin: TEST_ORIGIN, ...options.headers } });
-const setState = (id: string, state: string, as?: string) => call({ method: "PUT", url: `/lantern-api/v1/titles/${id}/state`, payload: { state } }, as);
-const getState = async (id: string, as?: string) => (await call({ url: `/lantern-api/v1/titles/${id}/state` }, as)).json<TitleStateResponse>().row;
-const list = async (query = "", as?: string) => (await call({ url: `/lantern-api/v1/states${query}` }, as)).json<StatesResponse>();
+const setState = (id: string, state: string, as?: string) =>
+  call({ method: "PUT", url: `/lantern-api/v1/titles/${id}/state`, payload: { state } }, as);
+const getState = async (id: string, as?: string) =>
+  (await call({ url: `/lantern-api/v1/titles/${id}/state` }, as)).json<TitleStateResponse>().row;
+const list = async (query = "", as?: string) =>
+  (await call({ url: `/lantern-api/v1/states${query}` }, as)).json<StatesResponse>();
 
 /** The only user's id, read straight from the library's table. */
 function firstUserId(): string {
@@ -38,8 +41,12 @@ describe("a title's state", () => {
     clock += 1000;
     await setState("tt1375666", "amazing");
     expect(await getState("tt1375666")).toEqual({ imdbId: "tt1375666", state: "amazing", updatedAt: clock });
-    expect((await call({ method: "DELETE", url: "/lantern-api/v1/titles/tt1375666/state" })).json()).toEqual({ cleared: true });
-    expect((await call({ method: "DELETE", url: "/lantern-api/v1/titles/tt1375666/state" })).json()).toEqual({ cleared: false });
+    expect((await call({ method: "DELETE", url: "/lantern-api/v1/titles/tt1375666/state" })).json()).toEqual({
+      cleared: true,
+    });
+    expect((await call({ method: "DELETE", url: "/lantern-api/v1/titles/tt1375666/state" })).json()).toEqual({
+      cleared: false,
+    });
     expect(await getState("tt1375666")).toBeNull();
   });
 
@@ -62,21 +69,29 @@ describe("a title's state", () => {
       expect(res.statusCode, `${id}/${state}`).toBe(400);
       expect(res.json<ErrorBody>().message.startsWith(field)).toBe(true);
     }
-    const extra = await call({ method: "PUT", url: "/lantern-api/v1/titles/tt1375666/state", payload: { state: "good", note: "x" } });
+    const extra = await call({
+      method: "PUT",
+      url: "/lantern-api/v1/titles/tt1375666/state",
+      payload: { state: "good", note: "x" },
+    });
     expect(extra.statusCode).toBe(400);
   });
 });
 
 describe("skips", () => {
   it("are kept apart from states, and a state drops one", async () => {
-    expect((await call({ method: "POST", url: `/lantern-api/v1/titles/${tt(11)}/skip` })).json()).toEqual({ skipped: true });
+    expect((await call({ method: "POST", url: `/lantern-api/v1/titles/${tt(11)}/skip` })).json()).toEqual({
+      skipped: true,
+    });
     await call({ method: "POST", url: `/lantern-api/v1/titles/${tt(12)}/skip` });
     const skippedNow = () => [...app.states.skipped(firstUserId())].sort();
     expect(skippedNow()).toEqual([tt(11), tt(12)]);
     expect((await list()).rows).toHaveLength(0);
     await setState(tt(11), "good");
     expect(skippedNow()).toEqual([tt(12)]);
-    expect((await call({ method: "DELETE", url: `/lantern-api/v1/titles/${tt(12)}/skip` })).json()).toEqual({ skipped: false });
+    expect((await call({ method: "DELETE", url: `/lantern-api/v1/titles/${tt(12)}/skip` })).json()).toEqual({
+      skipped: false,
+    });
     expect(skippedNow()).toEqual([]);
   });
 });
@@ -130,8 +145,14 @@ describe("the list", () => {
   it("finds the states of many titles at once", async () => {
     await setState(tt(1), "good");
     await setState(tt(2), "not_interested");
-    expect(Object.fromEntries(app.states.statesOf(firstUserId(), [tt(1), tt(2), tt(3)]))).toEqual({ [tt(1)]: "good", [tt(2)]: "not_interested" });
-    expect(Object.fromEntries(app.states.allStated(firstUserId()))).toEqual({ [tt(1)]: "good", [tt(2)]: "not_interested" });
+    expect(Object.fromEntries(app.states.statesOf(firstUserId(), [tt(1), tt(2), tt(3)]))).toEqual({
+      [tt(1)]: "good",
+      [tt(2)]: "not_interested",
+    });
+    expect(Object.fromEntries(app.states.allStated(firstUserId()))).toEqual({
+      [tt(1)]: "good",
+      [tt(2)]: "not_interested",
+    });
   });
 });
 
@@ -146,9 +167,18 @@ describe("users and guards", () => {
   });
 
   it("refuses a signed-out request and a cross-site write", async () => {
-    const signedOut = await app.inject({ method: "PUT", url: "/lantern-api/v1/titles/tt1375666/state", payload: { state: "good" } });
+    const signedOut = await app.inject({
+      method: "PUT",
+      url: "/lantern-api/v1/titles/tt1375666/state",
+      payload: { state: "good" },
+    });
     expect(signedOut.statusCode).toBe(401);
-    const crossSite = await call({ method: "PUT", url: "/lantern-api/v1/titles/tt1375666/state", payload: { state: "good" }, headers: { origin: "https://elsewhere.example" } });
+    const crossSite = await call({
+      method: "PUT",
+      url: "/lantern-api/v1/titles/tt1375666/state",
+      payload: { state: "good" },
+      headers: { origin: "https://elsewhere.example" },
+    });
     expect(crossSite.statusCode).toBe(403);
     expect(await getState("tt1375666")).toBeNull();
   });

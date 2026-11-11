@@ -1,4 +1,11 @@
-import { listQuerySchema, LISTS, type ListName, type ListResponse, type PoolTitle, type StateFilter } from "@lantern/shared";
+import {
+  listQuerySchema,
+  LISTS,
+  type ListName,
+  type ListResponse,
+  type PoolTitle,
+  type StateFilter,
+} from "@lantern/shared";
 import type { FastifyInstance } from "fastify";
 import { toPoolTitle, type Pool } from "../pool/pool.js";
 import { fail, parse } from "../reply.js";
@@ -33,14 +40,19 @@ function fromRecord(imdbId: string, record: StoredRecord | null | undefined): Po
  * and, for a title the latest import dropped, OMDb's kept record. Never asks
  * OMDb.
  */
-export function registerListRoutes(app: FastifyInstance, deps: { states: StatesStore; pool: Pool; records: Records }): void {
+export function registerListRoutes(
+  app: FastifyInstance,
+  deps: { states: StatesStore; pool: Pool; records: Records },
+): void {
   app.get<{ Params: { list: string } }>("/v1/lists/:list", async (request, reply) => {
     const list = request.params.list as ListName;
-    if (!LISTS.includes(list)) return fail(reply, 404, { code: "not_found", message: `no list ${request.params.list}` });
+    if (!LISTS.includes(list))
+      return fail(reply, 404, { code: "not_found", message: `no list ${request.params.list}` });
     const query = parse(listQuerySchema, request.query, reply);
     if (!query) return reply;
     const userId = userIdOf(request);
-    const state: StateFilter = list === "watchlist" ? "want_to_watch" : list === "not-interested" ? "not_interested" : (query.rating ?? "rated");
+    const state: StateFilter =
+      list === "watchlist" ? "want_to_watch" : list === "not-interested" ? "not_interested" : (query.rating ?? "rated");
     const page = deps.states.list(userId, { state, kind: query.kind, limit: PAGE, cursor: query.cursor });
     const ids = page.rows.map((row) => row.imdbId);
     const pooled = deps.pool.getMany(ids);

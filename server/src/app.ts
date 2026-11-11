@@ -252,7 +252,8 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   if (webBase !== "/") app.get("/", async (_request, reply) => reply.redirect(webBase));
   app.setNotFoundHandler((request, reply) => {
     const path = pathOf(request.url);
-    if (serving && request.method === "GET" && webBase !== "/" && path === webBase.slice(0, -1)) return reply.redirect(webBase);
+    if (serving && request.method === "GET" && webBase !== "/" && path === webBase.slice(0, -1))
+      return reply.redirect(webBase);
     if (serving && (request.method === "GET" || request.method === "HEAD") && path.startsWith(webBase)) {
       return reply.sendFile("index.html");
     }
@@ -261,4 +262,3 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
 
   return app;
 }
-

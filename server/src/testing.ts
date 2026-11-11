@@ -14,7 +14,11 @@ export const TEST_PASSWORD = "p".repeat(12);
 
 export async function signIn(app: FastifyInstance, username = "owner"): Promise<string> {
   await seedUser(app.accounts, { username, password: TEST_PASSWORD });
-  const res = await app.inject({ method: "POST", url: "/lantern-api/auth/login", payload: { username, password: TEST_PASSWORD } });
+  const res = await app.inject({
+    method: "POST",
+    url: "/lantern-api/auth/login",
+    payload: { username, password: TEST_PASSWORD },
+  });
   if (res.statusCode !== 200) throw new Error(`sign-in as ${username} answered ${res.statusCode}`);
   const header = res.headers["set-cookie"];
   const lines = header === undefined ? [] : Array.isArray(header) ? header : [header];

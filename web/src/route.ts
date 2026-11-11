@@ -107,7 +107,8 @@ export function useRoute(): Route {
  * browser.
  */
 export function followLink(event: MouseEvent<HTMLAnchorElement>): void {
-  if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+    return;
   const href = event.currentTarget.getAttribute("href");
   if (href === null || event.currentTarget.target === "_blank") return;
   event.preventDefault();

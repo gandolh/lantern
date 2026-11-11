@@ -40,7 +40,9 @@ async function main(): Promise<void> {
 
   const db = openDatabase(dbPath);
   try {
-    console.log(`Importing IMDb's titles with ${minVotes} votes or more into ${dbPath}, from ${from ?? "datasets.imdbws.com"}.`);
+    console.log(
+      `Importing IMDb's titles with ${minVotes} votes or more into ${dbPath}, from ${from ?? "datasets.imdbws.com"}.`,
+    );
     const report = await importPool({
       db,
       datasets: from === undefined ? httpDatasets() : localDatasets(resolve(from)),
@@ -49,15 +51,24 @@ async function main(): Promise<void> {
     });
     let size = "";
     try {
-      const row = db.prepare("SELECT sum(pgsize) AS bytes FROM dbstat WHERE name IN ('titles', 'titles_by_votes', 'titles_by_kind')").get() as { bytes: number | null };
+      const row = db
+        .prepare(
+          "SELECT sum(pgsize) AS bytes FROM dbstat WHERE name IN ('titles', 'titles_by_votes', 'titles_by_kind')",
+        )
+        .get() as { bytes: number | null };
       if (row.bytes) size = `; the pool takes ${(row.bytes / 1024 / 1024).toFixed(1)} MiB in the database`;
     } catch {
       // dbstat isn't compiled into every SQLite; the size is a nicety.
     }
     const peakMiB = (process.resourceUsage().maxRSS / 1024).toFixed(0);
-    console.log(`Done in ${(report.tookMs / 1000).toFixed(1)} s: ${report.movies} films and ${report.series} series${size}; peak memory ${peakMiB} MiB.`);
+    console.log(
+      `Done in ${(report.tookMs / 1000).toFixed(1)} s: ${report.movies} films and ${report.series} series${size}; peak memory ${peakMiB} MiB.`,
+    );
     console.log("Titles of the kept types at each threshold:");
-    for (const count of report.atThreshold) console.log(`  ${String(count.minVotes).padStart(5)} votes or more: ${count.movies} films, ${count.series} series`);
+    for (const count of report.atThreshold)
+      console.log(
+        `  ${String(count.minVotes).padStart(5)} votes or more: ${count.movies} films, ${count.series} series`,
+      );
   } finally {
     db.close();
   }

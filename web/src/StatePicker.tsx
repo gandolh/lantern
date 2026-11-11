@@ -63,7 +63,11 @@ export function StatePicker({
   );
 
   return (
-    <div className={`state-picker${compact ? " state-picker-compact" : ""}`} role="group" aria-label={`Your verdict on ${title}`}>
+    <div
+      className={`state-picker${compact ? " state-picker-compact" : ""}`}
+      role="group"
+      aria-label={`Your verdict on ${title}`}
+    >
       <div className="state-ratings">{RATINGS.map((rating) => button(rating))}</div>
       <div className="state-others">
         {button("want_to_watch")}

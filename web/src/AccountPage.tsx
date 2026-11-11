@@ -66,7 +66,12 @@ export function AccountPage() {
           Sign out
         </button>
         {viaWard && (
-          <button type="button" className="button" disabled={wardSignOut.pending} onClick={() => void wardSignOut.signOut()}>
+          <button
+            type="button"
+            className="button"
+            disabled={wardSignOut.pending}
+            onClick={() => void wardSignOut.signOut()}
+          >
             Sign out of Ward too
           </button>
         )}
@@ -80,14 +85,17 @@ const NUMBER = new Intl.NumberFormat("en-GB");
 
 /** How many titles the pool holds and when they were imported, with IMDb's credit. */
 function PoolSection() {
-  const pool = useQuery<PoolInfo>("pool", (signal) => request("GET", "/v1/pool", (v) => poolInfoSchema.parse(v), { signal }));
+  const pool = useQuery<PoolInfo>("pool", (signal) =>
+    request("GET", "/v1/pool", (v) => poolInfoSchema.parse(v), { signal }),
+  );
   return (
     <section className="account-section" aria-labelledby="pool-heading">
       <h2 id="pool-heading">Titles</h2>
       {pool.status === "error" && <p className="auth-error">Couldn't read the title list. {pool.error.message}</p>}
       {pool.data && pool.data.titles === 0 && (
         <p>
-          No titles yet. Run <code>npm run titles:import -w @lantern/server</code> on the server to load IMDb's films and series.
+          No titles yet. Run <code>npm run titles:import -w @lantern/server</code> on the server to load IMDb's films
+          and series.
         </p>
       )}
       {pool.data && pool.data.titles > 0 && (

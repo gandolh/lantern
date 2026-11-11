@@ -23,8 +23,14 @@ afterEach(async () => {
 });
 
 const setState = (id: string, state: string) =>
-  app.inject({ method: "PUT", url: `/lantern-api/v1/titles/${id}/state`, headers: { cookie, origin: TEST_ORIGIN }, payload: { state } });
-const suggest = async (query = "") => (await app.inject({ url: `/lantern-api/v1/suggestions${query}`, headers: { cookie } })).json<SuggestionsResponse>();
+  app.inject({
+    method: "PUT",
+    url: `/lantern-api/v1/titles/${id}/state`,
+    headers: { cookie, origin: TEST_ORIGIN },
+    payload: { state },
+  });
+const suggest = async (query = "") =>
+  (await app.inject({ url: `/lantern-api/v1/suggestions${query}`, headers: { cookie } })).json<SuggestionsResponse>();
 
 describe("GET /v1/suggestions", () => {
   it("is empty until something is liked", async () => {
@@ -52,7 +58,9 @@ describe("GET /v1/suggestions", () => {
     await setState("tt0000001", "good");
     expect((await suggest()).suggestions).toHaveLength(3);
     app.db.prepare("DELETE FROM titles WHERE imdb_id = 'tt0000002'").run();
-    app.db.prepare("INSERT INTO pool_imports (imported_at, min_votes, movies, series, took_ms) VALUES (1, 1000, 1, 1, 1)").run();
+    app.db
+      .prepare("INSERT INTO pool_imports (imported_at, min_votes, movies, series, took_ms) VALUES (1, 1000, 1, 1, 1)")
+      .run();
     expect((await suggest()).suggestions.map((s) => s.title.imdbId)).not.toContain("tt0000002");
   });
 });

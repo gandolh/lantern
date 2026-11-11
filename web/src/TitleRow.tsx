@@ -33,7 +33,14 @@ export function TitleRow({
           </p>
         )}
         {note && <p className="title-row-note">{note}</p>}
-        <StatePicker key={title.imdbId} imdbId={title.imdbId} state={item.state} title={title.title} compact onChange={onChange} />
+        <StatePicker
+          key={title.imdbId}
+          imdbId={title.imdbId}
+          state={item.state}
+          title={title.title}
+          compact
+          onChange={onChange}
+        />
       </div>
     </li>
   );

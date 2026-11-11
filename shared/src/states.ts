@@ -53,7 +53,9 @@ export type StateFilter = z.infer<typeof stateFilterSchema>;
 export const MAX_STATES_PAGE = 200;
 
 /** A page's cursor: the `next` of the page before. */
-export const cursorSchema = z.string().regex(/^\d+\.tt\d{7,10}$/, { message: "cursor must be the next value of the page before" });
+export const cursorSchema = z
+  .string()
+  .regex(/^\d+\.tt\d{7,10}$/, { message: "cursor must be the next value of the page before" });
 
 /** `GET /v1/states`: newest first. */
 export const statesQuerySchema = z.strictObject({
@@ -72,6 +74,8 @@ export type StatesResponse = z.infer<typeof statesResponseSchema>;
 
 /** `GET /v1/states/counts`: how many titles are in each state. */
 export const stateCountsResponseSchema = z.object({
-  counts: z.object(Object.fromEntries(TITLE_STATES.map((state) => [state, z.number().int()])) as Record<TitleState, z.ZodNumber>),
+  counts: z.object(
+    Object.fromEntries(TITLE_STATES.map((state) => [state, z.number().int()])) as Record<TitleState, z.ZodNumber>,
+  ),
 });
 export type StateCountsResponse = z.infer<typeof stateCountsResponseSchema>;

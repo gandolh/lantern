@@ -50,8 +50,12 @@ const app = await buildApp({
 });
 app.log.info(`database: ${dbPath}`);
 // Whether the key is set; never its value.
-app.log.info(config.omdbApiKey === undefined ? "OMDB_API_KEY is not set: no posters, plots or scores" : "OMDb key: set");
-app.log.info(config.ward ? "Sign in with Ward is on" : "WARD_OIDC_ISSUER is not set: local accounts only, no Sign in with Ward");
+app.log.info(
+  config.omdbApiKey === undefined ? "OMDB_API_KEY is not set: no posters, plots or scores" : "OMDb key: set",
+);
+app.log.info(
+  config.ward ? "Sign in with Ward is on" : "WARD_OIDC_ISSUER is not set: local accounts only, no Sign in with Ward",
+);
 
 for (const signal of ["SIGINT", "SIGTERM"] as const) {
   process.once(signal, () => {

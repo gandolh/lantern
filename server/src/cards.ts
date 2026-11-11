@@ -9,7 +9,11 @@ import { POOL_COLUMNS, type PoolRow } from "./pool/pool.js";
  * votes index, skipping marked titles, so it stays quick however many are
  * marked.
  */
-export function dealCards(db: Db, userId: string, options: { kind?: TitleKind; count: number; exclude?: readonly string[] }): PoolRow[] {
+export function dealCards(
+  db: Db,
+  userId: string,
+  options: { kind?: TitleKind; count: number; exclude?: readonly string[] },
+): PoolRow[] {
   const where = [
     "NOT EXISTS (SELECT 1 FROM title_states s WHERE s.user_id = ? AND s.imdb_id = t.imdb_id)",
     "NOT EXISTS (SELECT 1 FROM card_skips k WHERE k.user_id = ? AND k.imdb_id = t.imdb_id)",
@@ -25,6 +29,8 @@ export function dealCards(db: Db, userId: string, options: { kind?: TitleKind; c
     params.push(...exclude);
   }
   return db
-    .prepare<(string | number)[], PoolRow>(`SELECT ${POOL_COLUMNS} FROM titles t WHERE ${where.join(" AND ")} ORDER BY t.votes DESC LIMIT ?`)
+    .prepare<(string | number)[], PoolRow>(
+      `SELECT ${POOL_COLUMNS} FROM titles t WHERE ${where.join(" AND ")} ORDER BY t.votes DESC LIMIT ?`,
+    )
     .all(...params, options.count);
 }
