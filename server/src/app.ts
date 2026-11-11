@@ -1,12 +1,13 @@
 import { existsSync } from "node:fs";
-import type { ErrorBody, HealthResponse } from "@lantern/shared";
+import type { HealthResponse } from "@lantern/shared";
 import fastifyStatic from "@fastify/static";
-import Fastify, { type FastifyInstance, type FastifyRequest, type FastifyServerOptions } from "fastify";
-import { createWardClient, wardAuth, type Accounts, type WardClientOptions } from "../vendor/ward/ward-auth.js";
-import { openAccounts, USER_ROLE } from "./accounts.js";
-import { AUTH_ROUTE_PREFIX, DEV_ORIGIN } from "./config.js";
+import Fastify, { type FastifyInstance, type FastifyServerOptions } from "fastify";
+import type { Accounts, WardClientOptions } from "../vendor/ward/ward-auth.js";
+import { DEV_ORIGIN } from "./config.js";
 import { openDatabase, type Db } from "./db.js";
-import { fail } from "./reply.js";
+import { authPlugin, pathOf } from "./plugins/auth/index.js";
+import { openAccounts } from "./plugins/auth/accounts.js";
+import { BODY_LIMIT, errorsPlugin, fail } from "./plugins/errors.js";
 import { createPool, type Pool } from "./pool/pool.js";
 import { registerCardRoutes } from "./routes/cards.js";
 import { registerListRoutes } from "./routes/lists.js";
@@ -43,12 +44,6 @@ export const API_PREFIX = "/lantern-api";
 /** Where the built page is served, unless `LANTERN_BASE` moves it. */
 export const PAGE_PATH = "/lantern/";
 
-/** The session cookie's name. Unique in the estate: every app shares one origin. */
-export const SESSION_COOKIE = "lantern_session";
-
-/** The largest request body accepted: every write is a few fields. */
-export const BODY_LIMIT = 64 * 1024;
-
 /** A URL without a leading API prefix, when `/`, `?` or the end follows it; any other URL as it is. */
 export function stripApiPrefix(url: string, prefix: string = API_PREFIX): string {
   if (!url.startsWith(prefix)) return url;
@@ -59,41 +54,18 @@ export function stripApiPrefix(url: string, prefix: string = API_PREFIX): string
   return url;
 }
 
-/** A path is `prefix` or under it. */
-export function isUnder(path: string, prefix: string): boolean {
-  return path === prefix || path.startsWith(`${prefix}/`);
-}
-
-export function pathOf(url: string): string {
-  return url.split("?")[0] ?? url;
-}
-
-/**
- * Whether a browser said the request came from this origin. Absent headers
- * pass (a script or curl sends neither); a browser that sent them and named
- * another site does not. On top of the cookie's `SameSite=Lax`, for writes.
- */
-export function sameOrigin(request: FastifyRequest, publicOrigin: string): boolean {
-  const fetchSite = request.headers["sec-fetch-site"];
-  if (typeof fetchSite === "string" && fetchSite !== "" && fetchSite !== "same-origin") return false;
-  const origin = request.headers.origin;
-  if (typeof origin === "string" && origin !== "") {
-    try {
-      return new URL(origin).origin === publicOrigin;
-    } catch {
-      return false;
-    }
-  }
-  return true;
-}
-
-const WRITES = new Set(["POST", "PUT", "PATCH", "DELETE"]);
-
-const UNAUTHORIZED = "sign in to Lantern first";
-
 export interface AppOptions {
-  /** A file path, or `:memory:` for tests. */
-  dbPath: string;
+  /** A file path, or `:memory:` for tests. Ignored when `db` is given. */
+  dbPath?: string;
+  /**
+   * Prebuilt dependencies, each defaulting to what `buildApp` builds from `dbPath` and the options below.
+   * `buildTestApp` passes them so a test holds the same handles the routes use.
+   */
+  db?: Db;
+  accounts?: Accounts;
+  states?: StatesStore;
+  records?: Records;
+  pool?: Pool;
   /** The built page, served at `webBase`; skipped when the directory does not exist. */
   webDist?: string;
   /** The page's origin as the browser sees it. Default `http://localhost:5180`, the Vite dev server. */
@@ -119,23 +91,31 @@ export interface AppOptions {
   server?: Pick<FastifyServerOptions, "connectionTimeout" | "requestTimeout" | "keepAliveTimeout" | "trustProxy">;
 }
 
-declare module "fastify" {
-  interface FastifyInstance {
-    /** The database, for the tests. */
-    db: Db;
-    /** The local accounts, for the seed's tests. */
-    accounts: Accounts;
-    /** The states store, for the tests. */
-    states: StatesStore;
-    /** OMDb's records, for the tests. */
-    records: Records;
-    /** The title pool, for the tests. */
-    pool: Pool;
-  }
+/** The stores one app works on, built from its database and options. */
+export interface Stores {
+  accounts: Accounts;
+  states: StatesStore;
+  records: Records;
+  pool: Pool;
+}
+
+export function createStores(db: Db, options: AppOptions): Stores {
+  return {
+    accounts: options.accounts ?? openAccounts(db),
+    states: options.states ?? createStatesStore(db, options.now),
+    records:
+      options.records ??
+      createRecords({
+        omdb: options.omdb ?? createOmdbClient({ apiKey: options.omdbApiKey }),
+        cache: createRecordCache(db, options.now),
+      }),
+    pool: options.pool ?? createPool(db),
+  };
 }
 
 export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
-  const db = openDatabase(options.dbPath);
+  const db = options.db ?? openDatabase(options.dbPath ?? ":memory:");
+  const { accounts, states, records, pool } = createStores(db, options);
   const apiPrefix = options.apiPrefix ?? API_PREFIX;
   const webBase = options.webBase ?? PAGE_PATH;
   const publicOrigin = options.publicOrigin ?? DEV_ORIGIN;
@@ -145,103 +125,26 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
     bodyLimit: BODY_LIMIT,
     rewriteUrl: (request) => stripApiPrefix(request.url ?? "/", apiPrefix),
   });
-  app.decorate("db", db);
   app.addHook("onClose", async () => {
     db.close();
   });
 
-  // Fastify's own 4xx (bad JSON, a body too large) in the contract's shape.
-  // A JSON parse error's message can quote the body, so it is never passed on.
-  app.setErrorHandler((error: Error & { statusCode?: number; code?: string }, request, reply) => {
-    const status = error.statusCode ?? 500;
-    if (status >= 500) {
-      request.log.error({ err: { name: error.name, code: error.code } }, "unhandled error");
-      return fail(reply, 500, { code: "internal", message: "Lantern hit an error; see its log" });
-    }
-    const message =
-      error.code === "FST_ERR_CTP_INVALID_JSON_BODY" || error.name === "SyntaxError"
-        ? "the body is not valid JSON"
-        : error.code === "FST_ERR_CTP_BODY_TOO_LARGE"
-          ? `the body is larger than ${BODY_LIMIT} bytes`
-          : error.code === "FST_ERR_CTP_INVALID_MEDIA_TYPE"
-            ? "send the body as application/json"
-            : "the request is not valid";
-    return fail(reply, status, { code: "invalid_request", message });
-  });
-
-  // The session guard, first, so every route after it is behind it.
-  const accounts = openAccounts(db);
-  app.decorate("accounts", accounts);
-  // Checks the settings and imports the key now; talks to Ward only on first use, so Lantern starts while Ward is down.
-  const ward = options.ward && (await createWardClient(options.ward));
-  await app.register(wardAuth, {
+  // Registered in this order: the error handler; the session guard, so every route after it is behind it;
+  // then the features.
+  await app.register(errorsPlugin);
+  await app.register(authPlugin, {
     accounts,
-    cookieName: SESSION_COOKIE,
-    // The API prefix as the browser sees it: every request that needs the session is under it.
-    cookiePath: apiPrefix,
+    ward: options.ward,
     publicOrigin,
-    routePrefix: AUTH_ROUTE_PREFIX,
-    publicRoutes: ["GET /v1/health"],
-    // The page offers no rename, and the seed matches accounts by name.
-    allowRename: false,
-    isPublic: (request) => {
-      const path = pathOf(request.url);
-      // Every API route needs a session; the plugin's own list decides under /auth.
-      if (isUnder(path, "/v1") || isUnder(path, AUTH_ROUTE_PREFIX)) return false;
-      // The page's files, the redirect to them and a 404: the login page has to load.
-      return true;
-    },
+    apiPrefix,
+    webBase,
     trustedProxies: options.trustedProxies ?? [],
-    ...(ward && {
-      ward: {
-        client: ward,
-        loginPath: `${webBase}login`,
-        settingsPath: `${webBase}account`,
-        afterSignInPath: webBase,
-        roleFor: () => USER_ROLE,
-      },
-    }),
-  });
-
-  // The guard answers `{ error: "unauthorized" }`; under `/v1` the contract's
-  // error shape is `{ code, message }`. The sign-in routes keep the plugin's
-  // shape for its hooks.
-  app.addHook("onSend", async (request, reply, payload) => {
-    if (reply.statusCode !== 401 || typeof payload !== "string" || !isUnder(pathOf(request.url), "/v1")) return payload;
-    let body: unknown;
-    try {
-      body = JSON.parse(payload);
-    } catch {
-      return payload;
-    }
-    if (typeof body !== "object" || body === null || !("error" in body) || "code" in body) return payload;
-    const refused: ErrorBody = { code: "unauthorized", message: UNAUTHORIZED };
-    return JSON.stringify(refused);
-  });
-
-  // Writes refuse a browser that says it came from another site. Runs after
-  // the guard, so a signed-out write is a 401 first.
-  app.addHook("onRequest", async (request, reply) => {
-    if (!WRITES.has(request.method) || !isUnder(pathOf(request.url), "/v1")) return;
-    if (sameOrigin(request, publicOrigin)) return;
-    return fail(reply, 403, { code: "cross_site", message: "open Lantern from its own address" });
   });
 
   app.get("/v1/health", async (): Promise<HealthResponse> => ({ ok: true }));
 
-  const states = createStatesStore(db, options.now);
-  app.decorate("states", states);
   registerStateRoutes(app, states);
-
-  const records = createRecords({
-    omdb: options.omdb ?? createOmdbClient({ apiKey: options.omdbApiKey }),
-    cache: createRecordCache(db, options.now),
-  });
-  app.decorate("records", records);
   registerSourceRoutes(app, records, options.posterFetch ?? globalThis.fetch);
-
-  const pool = createPool(db);
-  app.decorate("pool", pool);
   registerPoolRoutes(app, pool);
   registerTitleRoutes(app, { pool, states, records });
   registerCardRoutes(app, { db, records });

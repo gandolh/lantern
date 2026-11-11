@@ -8,12 +8,12 @@ import {
 } from "@lantern/shared";
 import type { FastifyInstance } from "fastify";
 import { toPoolTitle, type Pool, type PoolRow } from "../pool/pool.js";
-import { fail, parse } from "../reply.js";
+import { fail, parse } from "../plugins/errors.js";
 import { forPage } from "../sources/omdb.js";
 import type { Records } from "../sources/records.js";
 import type { StatesStore } from "../states.js";
 import { sourceFailure } from "./sources.js";
-import { userIdOf } from "./states.js";
+import { currentUserId } from "../plugins/auth/index.js";
 
 /**
  * Titles from the pool, with this user's state and whether a poster is kept,
@@ -46,7 +46,7 @@ export function registerTitleRoutes(
     const query = parse(searchQuerySchema, request.query, reply);
     if (!query) return reply;
     const rows = pool.search(query.q, { kind: query.kind, limit: MAX_SEARCH_RESULTS });
-    const body: SearchResponse = { results: items(userIdOf(request), rows) };
+    const body: SearchResponse = { results: items(currentUserId(request), rows) };
     return body;
   });
 
@@ -55,7 +55,7 @@ export function registerTitleRoutes(
     if (!params) return reply;
     const row = pool.get(params.id);
     if (!row) return fail(reply, 404, { code: "not_found", message: "this title isn't in Lantern's title list" });
-    const [item] = items(userIdOf(request), [row]);
+    const [item] = items(currentUserId(request), [row]);
     return item;
   });
 

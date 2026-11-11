@@ -1,17 +1,18 @@
 import type { ErrorBody, StateCountsResponse, StateRow, StatesResponse, TitleStateResponse } from "@lantern/shared";
 import type { FastifyInstance, InjectOptions } from "fastify";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { buildApp } from "./app.js";
-import { signIn, TEST_ORIGIN } from "./testing.js";
+import { signIn, TEST_ORIGIN, buildTestApp, type TestApp } from "./testing.js";
 
 let app: FastifyInstance;
+let t: TestApp;
 let clock: number;
 let cookie: string;
 
 beforeEach(async () => {
   clock = Date.UTC(2026, 10, 4, 12);
-  app = await buildApp({ dbPath: ":memory:", publicOrigin: TEST_ORIGIN, now: () => clock });
-  cookie = await signIn(app);
+  t = await buildTestApp({ now: () => clock });
+  app = t.app;
+  cookie = await signIn(t);
 });
 afterEach(async () => {
   await app.close();
@@ -29,7 +30,7 @@ const list = async (query = "", as?: string) =>
 
 /** The only user's id, read straight from the library's table. */
 function firstUserId(): string {
-  return (app.db.prepare("SELECT id FROM auth_users LIMIT 1").get() as { id: string }).id;
+  return (t.db.prepare("SELECT id FROM auth_users LIMIT 1").get() as { id: string }).id;
 }
 
 describe("a title's state", () => {
@@ -84,7 +85,7 @@ describe("skips", () => {
       skipped: true,
     });
     await call({ method: "POST", url: `/lantern-api/v1/titles/${tt(12)}/skip` });
-    const skippedNow = () => [...app.states.skipped(firstUserId())].sort();
+    const skippedNow = () => [...t.states.skipped(firstUserId())].sort();
     expect(skippedNow()).toEqual([tt(11), tt(12)]);
     expect((await list()).rows).toHaveLength(0);
     await setState(tt(11), "good");
@@ -145,11 +146,11 @@ describe("the list", () => {
   it("finds the states of many titles at once", async () => {
     await setState(tt(1), "good");
     await setState(tt(2), "not_interested");
-    expect(Object.fromEntries(app.states.statesOf(firstUserId(), [tt(1), tt(2), tt(3)]))).toEqual({
+    expect(Object.fromEntries(t.states.statesOf(firstUserId(), [tt(1), tt(2), tt(3)]))).toEqual({
       [tt(1)]: "good",
       [tt(2)]: "not_interested",
     });
-    expect(Object.fromEntries(app.states.allStated(firstUserId()))).toEqual({
+    expect(Object.fromEntries(t.states.allStated(firstUserId()))).toEqual({
       [tt(1)]: "good",
       [tt(2)]: "not_interested",
     });
@@ -158,7 +159,7 @@ describe("the list", () => {
 
 describe("users and guards", () => {
   it("never shows one user's rows to another", async () => {
-    const other = await signIn(app, "guest");
+    const other = await signIn(t, "guest");
     await setState("tt1375666", "amazing");
     expect(await getState("tt1375666", other)).toBeNull();
     expect((await list("", other)).rows).toEqual([]);

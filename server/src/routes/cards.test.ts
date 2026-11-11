@@ -1,24 +1,23 @@
 import type { CardsResponse } from "@lantern/shared";
 import type { FastifyInstance } from "fastify";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { buildApp } from "../app.js";
 import { createOmdbClient } from "../sources/omdb.js";
 import { fakeFetch, fixture, immediateQueue, json, type FakeFetch } from "../sources/testing.js";
-import { seedPool, signIn, TEST_ORIGIN } from "../testing.js";
+import { seedPool, signIn, TEST_ORIGIN, buildTestApp, type TestApp } from "../testing.js";
 
 let app: FastifyInstance;
+let t: TestApp;
 let cookie: string;
 let omdbFetch: FakeFetch;
 
 beforeEach(async () => {
   omdbFetch = fakeFetch(() => json(fixture("omdb-found")));
-  app = await buildApp({
-    dbPath: ":memory:",
-    publicOrigin: TEST_ORIGIN,
+  t = await buildTestApp({
     omdb: createOmdbClient({ apiKey: "k", fetch: omdbFetch, queue: immediateQueue() }),
   });
-  cookie = await signIn(app);
-  seedPool(app.db, [
+  app = t.app;
+  cookie = await signIn(t);
+  seedPool(t.db, [
     { imdbId: "tt0000001", title: "One", votes: 100 },
     { imdbId: "tt0000002", title: "Two", votes: 500, kind: "series" },
     { imdbId: "tt0000003", title: "Three", votes: 300 },
@@ -56,7 +55,7 @@ describe("the deck", () => {
   it("carries OMDb's record only when it is kept, and never asks for one", async () => {
     expect((await deal("?count=1"))[0]).toMatchObject({ record: null, poster: false });
     expect(omdbFetch.calls).toHaveLength(0);
-    await app.records.get("tt1375666");
+    await t.records.get("tt1375666");
     expect((await deal("?count=1"))[0]).toMatchObject({ record: { title: "Inception" }, poster: true });
     expect(omdbFetch.calls).toHaveLength(1);
   });

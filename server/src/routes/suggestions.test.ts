@@ -1,16 +1,17 @@
 import type { SuggestionsResponse } from "@lantern/shared";
 import type { FastifyInstance } from "fastify";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { buildApp } from "../app.js";
-import { seedPool, signIn, TEST_ORIGIN } from "../testing.js";
+import { seedPool, signIn, TEST_ORIGIN, buildTestApp, type TestApp } from "../testing.js";
 
 let app: FastifyInstance;
+let t: TestApp;
 let cookie: string;
 
 beforeEach(async () => {
-  app = await buildApp({ dbPath: ":memory:", publicOrigin: TEST_ORIGIN });
-  cookie = await signIn(app);
-  seedPool(app.db, [
+  t = await buildTestApp();
+  app = t.app;
+  cookie = await signIn(t);
+  seedPool(t.db, [
     { imdbId: "tt0000001", title: "Liked", genres: "Sci-Fi,Thriller", directors: "nm0000001", writers: "nm0000001" },
     { imdbId: "tt0000002", title: "Same Director", genres: "Drama", directors: "nm0000001", votes: 500_000 },
     { imdbId: "tt0000003", title: "Same Director Series", kind: "series", genres: "Drama", writers: "nm0000001" },
@@ -57,8 +58,8 @@ describe("GET /v1/suggestions", () => {
   it("sees a re-import: the pool's features are read again", async () => {
     await setState("tt0000001", "good");
     expect((await suggest()).suggestions).toHaveLength(3);
-    app.db.prepare("DELETE FROM titles WHERE imdb_id = 'tt0000002'").run();
-    app.db
+    t.db.prepare("DELETE FROM titles WHERE imdb_id = 'tt0000002'").run();
+    t.db
       .prepare("INSERT INTO pool_imports (imported_at, min_votes, movies, series, took_ms) VALUES (1, 1000, 1, 1, 1)")
       .run();
     expect((await suggest()).suggestions.map((s) => s.title.imdbId)).not.toContain("tt0000002");

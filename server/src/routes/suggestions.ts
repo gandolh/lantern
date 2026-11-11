@@ -1,10 +1,10 @@
 import { suggestionsQuerySchema, type SuggestionsResponse } from "@lantern/shared";
 import type { FastifyInstance } from "fastify";
 import { toPoolTitle, type Pool } from "../pool/pool.js";
-import { parse } from "../reply.js";
+import { parse } from "../plugins/errors.js";
 import type { Records } from "../sources/records.js";
 import type { Suggester } from "../suggest/suggest.js";
-import { userIdOf } from "./states.js";
+import { currentUserId } from "../plugins/auth/index.js";
 
 const DEFAULT_SUGGESTIONS = 30;
 
@@ -18,7 +18,7 @@ export function registerSuggestionRoutes(
   app.get("/v1/suggestions", async (request, reply) => {
     const query = parse(suggestionsQuerySchema, request.query, reply);
     if (!query) return reply;
-    const { ranked, rated, liked } = deps.suggester.suggest(userIdOf(request), {
+    const { ranked, rated, liked } = deps.suggester.suggest(currentUserId(request), {
       kind: query.kind,
       limit: query.limit ?? DEFAULT_SUGGESTIONS,
     });

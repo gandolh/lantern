@@ -1,12 +1,12 @@
 import type { RecordResponse, SearchResponse, TitleItem } from "@lantern/shared";
 import type { FastifyInstance } from "fastify";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { buildApp } from "../app.js";
 import { createOmdbClient } from "../sources/omdb.js";
 import { fakeFetch, fixture, immediateQueue, json, type FakeFetch } from "../sources/testing.js";
-import { seedPool, signIn, TEST_ORIGIN } from "../testing.js";
+import { seedPool, signIn, TEST_ORIGIN, buildTestApp, type TestApp } from "../testing.js";
 
 let app: FastifyInstance;
+let t: TestApp;
 let cookie: string;
 let omdbFetch: FakeFetch;
 let omdbAnswer: () => Response;
@@ -14,13 +14,12 @@ let omdbAnswer: () => Response;
 beforeEach(async () => {
   omdbAnswer = () => json(fixture("omdb-found"));
   omdbFetch = fakeFetch(() => omdbAnswer());
-  app = await buildApp({
-    dbPath: ":memory:",
-    publicOrigin: TEST_ORIGIN,
+  t = await buildTestApp({
     omdb: createOmdbClient({ apiKey: "omdb-test-key", fetch: omdbFetch, queue: immediateQueue() }),
   });
-  cookie = await signIn(app);
-  seedPool(app.db, [
+  app = t.app;
+  cookie = await signIn(t);
+  seedPool(t.db, [
     { imdbId: "tt0000001", title: "Alien", votes: 900_000 },
     { imdbId: "tt0000002", title: "Aliens", votes: 750_000 },
     { imdbId: "tt0000003", title: "Alien: Romulus", votes: 150_000 },
@@ -72,7 +71,7 @@ describe("search", () => {
       payload: { state: "amazing" },
     });
     expect((await search("q=inception"))[0]).toMatchObject({ state: "amazing", poster: false });
-    await app.records.get("tt1375666");
+    await t.records.get("tt1375666");
     expect((await search("q=inception"))[0]!.poster).toBe(true);
   });
 
@@ -126,14 +125,14 @@ describe("a title's OMDb record", () => {
 
 describe("without an OMDb key", () => {
   it("answers 503 no_key", async () => {
-    const keyless = await buildApp({ dbPath: ":memory:", publicOrigin: TEST_ORIGIN });
+    const keyless = await buildTestApp();
     const keylessCookie = await signIn(keyless);
-    const res = await keyless.inject({
+    const res = await keyless.app.inject({
       url: "/lantern-api/v1/titles/tt1375666/record",
       headers: { cookie: keylessCookie },
     });
     expect(res.statusCode).toBe(503);
     expect(res.json().code).toBe("no_key");
-    await keyless.close();
+    await keyless.app.close();
   });
 });

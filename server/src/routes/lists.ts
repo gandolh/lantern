@@ -8,11 +8,11 @@ import {
 } from "@lantern/shared";
 import type { FastifyInstance } from "fastify";
 import { toPoolTitle, type Pool } from "../pool/pool.js";
-import { fail, parse } from "../reply.js";
+import { fail, parse } from "../plugins/errors.js";
 import type { StoredRecord } from "../sources/omdb.js";
 import type { Records } from "../sources/records.js";
 import type { StatesStore } from "../states.js";
-import { userIdOf } from "./states.js";
+import { currentUserId } from "../plugins/auth/index.js";
 
 const PAGE = 50;
 
@@ -50,7 +50,7 @@ export function registerListRoutes(
       return fail(reply, 404, { code: "not_found", message: `no list ${request.params.list}` });
     const query = parse(listQuerySchema, request.query, reply);
     if (!query) return reply;
-    const userId = userIdOf(request);
+    const userId = currentUserId(request);
     const state: StateFilter =
       list === "watchlist" ? "want_to_watch" : list === "not-interested" ? "not_interested" : (query.rating ?? "rated");
     const page = deps.states.list(userId, { state, kind: query.kind, limit: PAGE, cursor: query.cursor });

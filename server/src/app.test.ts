@@ -4,7 +4,8 @@ import { join } from "node:path";
 import { errorBodySchema, healthResponseSchema } from "@lantern/shared";
 import type { FastifyInstance } from "fastify";
 import { afterEach, describe, expect, it } from "vitest";
-import { buildApp, stripApiPrefix } from "./app.js";
+import { stripApiPrefix } from "./app.js";
+import { buildTestApp } from "./testing.js";
 
 let app: FastifyInstance | undefined;
 let scratch: string | undefined;
@@ -28,7 +29,7 @@ describe("stripApiPrefix", () => {
 
 describe("the API", () => {
   it("answers health bare and under the API prefix", async () => {
-    app = await buildApp({ dbPath: ":memory:" });
+    app = (await buildTestApp()).app;
     for (const url of ["/v1/health", "/lantern-api/v1/health"]) {
       const res = await app.inject({ method: "GET", url });
       expect(res.statusCode).toBe(200);
@@ -37,7 +38,7 @@ describe("the API", () => {
   });
 
   it("answers an unknown route outside /v1 with the contract's error shape", async () => {
-    app = await buildApp({ dbPath: ":memory:" });
+    app = (await buildTestApp()).app;
     const res = await app.inject({ method: "GET", url: "/lantern-api/nothing" });
     expect(res.statusCode).toBe(404);
     expect(errorBodySchema.parse(res.json()).code).toBe("not_found");
@@ -48,7 +49,7 @@ describe("the API", () => {
     mkdirSync(join(scratch, "assets"));
     writeFileSync(join(scratch, "index.html"), "<!doctype html><title>Lantern</title>");
     writeFileSync(join(scratch, "assets", "app.js"), "console.log(1)");
-    app = await buildApp({ dbPath: ":memory:", webDist: scratch });
+    app = (await buildTestApp({ webDist: scratch })).app;
 
     expect((await app.inject({ method: "GET", url: "/" })).headers.location).toBe("/lantern/");
     expect((await app.inject({ method: "GET", url: "/lantern" })).headers.location).toBe("/lantern/");

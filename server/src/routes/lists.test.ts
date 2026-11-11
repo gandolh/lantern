@@ -1,20 +1,18 @@
 import type { ListResponse } from "@lantern/shared";
 import type { FastifyInstance } from "fastify";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { buildApp } from "../app.js";
 import { createOmdbClient } from "../sources/omdb.js";
 import { fakeFetch, fixture, immediateQueue, json } from "../sources/testing.js";
-import { seedPool, signIn, TEST_ORIGIN } from "../testing.js";
+import { seedPool, signIn, TEST_ORIGIN, buildTestApp, type TestApp } from "../testing.js";
 
 let app: FastifyInstance;
+let t: TestApp;
 let cookie: string;
 let clock: number;
 
 beforeEach(async () => {
   clock = Date.UTC(2026, 10, 4, 12);
-  app = await buildApp({
-    dbPath: ":memory:",
-    publicOrigin: TEST_ORIGIN,
+  t = await buildTestApp({
     now: () => clock,
     omdb: createOmdbClient({
       apiKey: "k",
@@ -22,8 +20,9 @@ beforeEach(async () => {
       queue: immediateQueue(),
     }),
   });
-  cookie = await signIn(app);
-  seedPool(app.db, [
+  app = t.app;
+  cookie = await signIn(t);
+  seedPool(t.db, [
     { imdbId: "tt0000001", title: "Film One" },
     { imdbId: "tt0000002", title: "Series Two", kind: "series" },
     { imdbId: "tt0000003", title: "Film Three" },
@@ -81,7 +80,7 @@ describe("the lists", () => {
   it("show a title the pool dropped from OMDb's kept record, or by its id", async () => {
     await setState("tt1375666", "amazing");
     await setState("tt9999999", "meh");
-    await app.records.get("tt1375666");
+    await t.records.get("tt1375666");
     const rows = (await list("ratings")).rows;
     expect(rows[0]).toMatchObject({ inPool: false, title: { imdbId: "tt9999999", title: "tt9999999", votes: 0 } });
     expect(rows[1]).toMatchObject({

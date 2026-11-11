@@ -1,7 +1,8 @@
 import type { FastifyInstance } from "fastify";
-import { seedUser } from "./accounts.js";
-import { SESSION_COOKIE } from "./app.js";
-import type { Db } from "./db.js";
+import { buildApp, createStores, type AppOptions, type Stores } from "./app.js";
+import { openDatabase, type Db } from "./db.js";
+import { seedUser } from "./plugins/auth/accounts.js";
+import { SESSION_COOKIE } from "./plugins/auth/index.js";
 import { normaliseTitle } from "./pool/normalise.js";
 
 /**
@@ -12,8 +13,30 @@ import { normaliseTitle } from "./pool/normalise.js";
 export const TEST_ORIGIN = "http://localhost:5180";
 export const TEST_PASSWORD = "p".repeat(12);
 
-export async function signIn(app: FastifyInstance, username = "owner"): Promise<string> {
-  await seedUser(app.accounts, { username, password: TEST_PASSWORD });
+/** A test's app and the handles its routes use: the database and the stores. */
+export interface TestApp extends Stores {
+  app: FastifyInstance;
+  db: Db;
+}
+
+/**
+ * The whole app on a fresh `:memory:` database, with its stores built here and passed in, so a test
+ * reads and writes through the same handles the routes use. The page's origin is `TEST_ORIGIN`
+ * unless `options` says otherwise. Close `app` after the test.
+ */
+export async function buildTestApp(options: Omit<AppOptions, "db" | "dbPath"> = {}): Promise<TestApp> {
+  const db = openDatabase(":memory:");
+  const full: AppOptions = { publicOrigin: TEST_ORIGIN, ...options, db };
+  const stores = createStores(db, full);
+  const app = await buildApp({ ...full, ...stores });
+  return { app, db, ...stores };
+}
+
+export async function signIn(
+  { app, accounts }: Pick<TestApp, "app" | "accounts">,
+  username = "owner",
+): Promise<string> {
+  await seedUser(accounts, { username, password: TEST_PASSWORD });
   const res = await app.inject({
     method: "POST",
     url: "/lantern-api/auth/login",

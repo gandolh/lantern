@@ -1,15 +1,15 @@
 import Fastify from "fastify";
 import type { FastifyInstance } from "fastify";
 import { afterEach, describe, expect, it } from "vitest";
-import { buildApp } from "../app.js";
 import { NoKeyError, SourceError } from "../sources/http.js";
 import { createOmdbClient } from "../sources/omdb.js";
 import { MAX_POSTER_BYTES, POSTER_CACHE_CONTROL, posterUrlFor } from "../sources/posters.js";
 import { fakeFetch, fixture, immediateQueue, json, type FakeFetch } from "../sources/testing.js";
-import { signIn, TEST_ORIGIN } from "../testing.js";
+import { signIn, buildTestApp, type TestApp } from "../testing.js";
 import { sourceFailure } from "./sources.js";
 
 let app: FastifyInstance | undefined;
+let t: TestApp;
 afterEach(async () => {
   await app?.close();
   app = undefined;
@@ -29,13 +29,12 @@ function posterHost(answers: Record<string, () => Response> = {}): FakeFetch {
 
 async function start(posterFetch: FakeFetch, omdbAnswer: unknown = fixture("omdb-found")) {
   const omdbFetch = fakeFetch(() => json(omdbAnswer));
-  app = await buildApp({
-    dbPath: ":memory:",
-    publicOrigin: TEST_ORIGIN,
+  t = await buildTestApp({
     posterFetch,
     omdb: createOmdbClient({ apiKey: "omdb-test-key", fetch: omdbFetch, queue: immediateQueue() }),
   });
-  return { app, cookie: await signIn(app), omdbFetch };
+  app = t.app;
+  return { app, t, cookie: await signIn(t), omdbFetch };
 }
 
 describe("the poster proxy", () => {
@@ -45,7 +44,7 @@ describe("the poster proxy", () => {
     expect((await app.inject({ url: "/lantern-api/v1/posters/tt1375666", headers: { cookie } })).statusCode).toBe(404);
     expect(omdbFetch.calls).toHaveLength(0);
 
-    await app.records.get("tt1375666");
+    await t.records.get("tt1375666");
     const res = await app.inject({ url: "/lantern-api/v1/posters/tt1375666", headers: { cookie } });
     expect(res.statusCode).toBe(200);
     expect(res.headers["content-type"]).toBe("image/jpeg");
@@ -58,7 +57,7 @@ describe("the poster proxy", () => {
   it("asks for the large size, and falls back to OMDb's own", async () => {
     const fetch = posterHost();
     const { app, cookie } = await start(fetch);
-    await app.records.get("tt1375666");
+    await t.records.get("tt1375666");
     const res = await app.inject({ url: "/lantern-api/v1/posters/tt1375666?size=large", headers: { cookie } });
     expect(res.statusCode).toBe(200);
     expect(fetch.calls.map((call) => call.url.pathname)).toEqual([POSTER.replace("_SX300", "_SX760"), POSTER]);
@@ -75,7 +74,7 @@ describe("the poster proxy", () => {
           new Response(new Uint8Array(MAX_POSTER_BYTES + 1), { headers: { "content-type": "image/jpeg" } }),
       }),
     );
-    await app.records.get("tt1375666");
+    await t.records.get("tt1375666");
     expect((await app.inject({ url: "/lantern-api/v1/posters/603", headers: { cookie } })).statusCode).toBe(404);
     expect(
       (await app.inject({ url: "/lantern-api/v1/posters/tt1375666?size=huge", headers: { cookie } })).statusCode,
@@ -85,7 +84,7 @@ describe("the poster proxy", () => {
     const page = await start(
       posterHost({ [POSTER]: () => new Response("<html>", { headers: { "content-type": "text/html" } }) }),
     );
-    await page.app.records.get("tt1375666");
+    await page.t.records.get("tt1375666");
     expect(
       (await page.app.inject({ url: "/lantern-api/v1/posters/tt1375666", headers: { cookie: page.cookie } }))
         .statusCode,
@@ -95,7 +94,7 @@ describe("the poster proxy", () => {
   it("is behind sign-in", async () => {
     const fetch = posterHost();
     const { app } = await start(fetch);
-    await app.records.get("tt1375666");
+    await t.records.get("tt1375666");
     expect((await app.inject({ url: "/lantern-api/v1/posters/tt1375666" })).statusCode).toBe(401);
     expect(fetch.calls).toHaveLength(0);
   });

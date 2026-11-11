@@ -6,17 +6,20 @@ import { fileURLToPath } from "node:url";
 import type { ErrorBody } from "@lantern/shared";
 import type { FastifyInstance } from "fastify";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { openDatabase } from "../../db.js";
+import { buildTestApp, type TestApp } from "../../testing.js";
 import { openAccounts, seedUser } from "./accounts.js";
-import { buildApp, SESSION_COOKIE } from "./app.js";
-import { openDatabase } from "./db.js";
+import { SESSION_COOKIE } from "./index.js";
 
 const ORIGIN = "http://localhost:5180";
 const PASSWORD = "p".repeat(12);
 
 let app: FastifyInstance;
+let t: TestApp;
 
 beforeEach(async () => {
-  app = await buildApp({ dbPath: ":memory:", publicOrigin: ORIGIN });
+  t = await buildTestApp({ publicOrigin: ORIGIN });
+  app = t.app;
 });
 afterEach(async () => {
   await app.close();
@@ -24,7 +27,7 @@ afterEach(async () => {
 
 /** Seed the owner and sign in; the session cookie, ready for a `cookie` header. */
 async function signIn(): Promise<string> {
-  await seedUser(app.accounts, { username: "owner", password: PASSWORD });
+  await seedUser(t.accounts, { username: "owner", password: PASSWORD });
   const res = await app.inject({
     method: "POST",
     url: "/lantern-api/auth/login",
@@ -63,7 +66,7 @@ describe("the guard", () => {
   });
 
   it("refuses a wrong password", async () => {
-    await seedUser(app.accounts, { username: "owner", password: PASSWORD });
+    await seedUser(t.accounts, { username: "owner", password: PASSWORD });
     const res = await app.inject({
       method: "POST",
       url: "/lantern-api/auth/login",
@@ -129,7 +132,7 @@ describe("the seed", () => {
     const scratch = mkdtempSync(join(tmpdir(), "lantern-seed-"));
     try {
       const run = () =>
-        spawnSync(process.execPath, ["--import", "tsx", fileURLToPath(new URL("./seed.ts", import.meta.url))], {
+        spawnSync(process.execPath, ["--import", "tsx", fileURLToPath(new URL("../../seed.ts", import.meta.url))], {
           env: {
             ...process.env,
             LANTERN_DB: join(scratch, "seed.sqlite"),

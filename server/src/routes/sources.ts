@@ -1,6 +1,6 @@
 import { imdbIdSchema, POSTER_SIZES, type PosterSize, type SourcesResponse } from "@lantern/shared";
 import type { FastifyInstance, FastifyReply } from "fastify";
-import { fail } from "../reply.js";
+import { fail } from "../plugins/errors.js";
 import { NoKeyError, SourceError, type FetchLike } from "../sources/http.js";
 import { fetchPoster, POSTER_CACHE_CONTROL, posterUrlFor } from "../sources/posters.js";
 import type { Records } from "../sources/records.js";

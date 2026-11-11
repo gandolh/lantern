@@ -1,5 +1,5 @@
-import { createAccounts, createSqliteStore, seedUsers, type Accounts } from "../vendor/ward/ward-auth.js";
-import type { Db } from "./db.js";
+import { createAccounts, createSqliteStore, seedUsers, type Accounts } from "../../../vendor/ward/ward-auth.js";
+import type { Db } from "../../db.js";
 
 /**
  * Lantern's local accounts, on the vendored ward-auth library. Lantern is the
