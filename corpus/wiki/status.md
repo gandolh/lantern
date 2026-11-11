@@ -48,6 +48,9 @@ on the shared machine. 104 tests; typecheck and lint clean. The owner pushes.
   `node server/dist/pool/cli.js`) streams IMDb's files into `titles`; 65,732 titles at 1,000
   votes on 2026-11-04 ([titles.md](titles.md)). IMDb's credit line in the footer and on the
   account page.
+- **Base UI** (2026-11-11). The kind filter, the state picker and the ratings tabs are Base UI
+  wrappers under `web/src/components/ui/`; `/rate` keeps its keys ([web-app.md](web-app.md)). Styling
+  still plain CSS.
 - **Research** (2026-10-28 to 2026-11-04, done). taste.io and the stack in
   [research.md](research.md); TMDB and OMDb, their endpoints and terms, in
   [sources.md](sources.md). No real call made yet.
@@ -56,16 +59,14 @@ on the shared machine. 104 tests; typecheck and lint clean. The owner pushes.
 
 - **House style** (2026-11-11). Prettier at 120, the house ESLint config, `npm run check` and
   `check:fast`, the root `CLAUDE.md` and `.claude/rules/` ([decisions.md](decisions.md)). 104 tests.
-  `check-base-ui` and `check-structure` run `--warn-only` until briefs 17 and 18.
+  `check-base-ui` (one finding left, rule 5, the stylesheet's place) and `check-structure` run `--warn-only` until briefs 17 and 18. 122 tests since brief 16.
 
 ## Open briefs
 
-Four, written 2026-11-10 for the owner's calls of 2026-11-09 (Base UI 1.9.0 everywhere, whole apps
+Three, written 2026-11-10 for the owner's calls of 2026-11-09 (Base UI 1.9.0 everywhere, whole apps
 on Tailwind v4, the researched conventions enforced) and revised the same day to the owner's grilling
 answers; the last is the redesign. They run in order:
 
-- **16** Base UI by the conventions: `@base-ui/react` is declared and unused, so this is an
-  adoption (the kind filter, the state picker, the ratings tabs). No bump brief: 1.9.0 is pinned.
 - **17** the web app to Tailwind, on the small tools family's token names, with a Light / Dark / System switch.
 - **18** the server in the code structure (`features/`, the zod type provider, `server.ts`).
 - **19** a redesign with Hallmark, approved on the estate board before any code changes.

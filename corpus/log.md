@@ -237,3 +237,13 @@ ESLint config (16 source `!`, 3 needless casts and 1 open-union switch fixed; 12
 `process.env` reads left as warnings), `check`, `check:fast`, `check:conventions` (knip,
 dependency-cruiser strict with no violation, the two checkers `--warn-only`), `pretest`, the root
 `CLAUDE.md` and `.claude/rules/`. `check` 31 s, `check:fast` 5.6 s warm. Details in the brief's outcome note.
+
+## [2026-11-11] brief | 16: Base UI by the conventions
+
+The kind filter (one `KindFilter` over a `RadioGroup` wrapper, four copies gone), the state picker (a
+guarded `ToggleGroup`, one Tab stop per picker) and the ratings tabs (`Tabs`, arrows choose) moved onto
+Base UI wrappers in `web/src/components/ui/`. The `/rate` key guard lives in `web/src/keys.ts` and skips
+radio groups and tab strips. `@base-ui/react` is now imported, so knip's expected-unused entry is gone.
+jsdom and Testing Library added for the wrapper, picker and guard tests; 122 tests. Screenshots before and
+after matched pixel for pixel at both widths, light and dark. `check-base-ui` reads one finding (rule 5,
+the stylesheet's place), brief 17's. Details in the brief's outcome note and [web-app](wiki/web-app.md).

@@ -148,3 +148,15 @@ need it. For the same reason `tsconfig.base.json` holds the house flags itself: 
 only that file before `tsc -b server`. Markdown stays out of Prettier. Rejected: width 150, which
 fits Lantern's wide lines but splits the estate in two; a vitest alias in place of `pretest`, which
 would test source the server never ships.
+
+## Base UI for the filter, the picker and the tabs, hand-built where it has no part
+_2026-11-11_. Lantern declared `@base-ui/react` and used none of it; three kinds of hand-built button
+rows (the kind filter in four copies, the state picker, the ratings tabs) had no keyboard model beyond
+Tab. They moved onto Base UI wrappers in `web/src/components/ui/`: the filter a `RadioGroup` (nothing
+is saved, so arrows choose), the picker a `ToggleGroup` whose arrow keys only move focus (a choice is a
+write), the ratings tabs `Tabs` with `activateOnFocus`. The swipe card, the rating actions, the undo
+notice and the text inputs stay hand-built or native. Rejected: a `ToggleGroup` for the filter (the
+estate's rule gives a filter arrows that choose), a Base UI toast for the undo notice (it would time out
+on a list people scroll), and keeping the `/rate` filter as plain buttons to spare the key handler.
+The key guard skips radio groups and tab strips but not a plain `role=group`, because the rating buttons
+sit in one. See [web-app.md](web-app.md).
