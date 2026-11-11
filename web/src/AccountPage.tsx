@@ -2,7 +2,9 @@ import { poolInfoSchema, type PoolInfo } from "@lantern/shared";
 import { useEffect } from "react";
 import { useLogout, useSession, useWardLink, useWardResult, useWardSignOut } from "../vendor/ward/ward-auth-react.js";
 import { request } from "./api";
+import { Button } from "./components/ui/Button";
 import { ImdbCredit } from "./Credits";
+import { DETAIL, FACTS, NOTICE, PAGE_TITLE, TERM } from "./looks";
 import { accountMessage } from "./messages";
 import { useQuery } from "./useQuery";
 
@@ -28,52 +30,49 @@ export function AccountPage() {
   const failure = link.error ?? result.error ?? logout.error ?? wardSignOut.error;
 
   return (
-    <section className="page account">
-      <h1 className="page-title">Account</h1>
-      <dl className="facts">
-        <dt>Signed in as</dt>
-        <dd>{user.username}</dd>
-        <dt>Signed in with</dt>
-        <dd>{viaWard ? "Ward" : "your Lantern password"}</dd>
+    <section>
+      <h1 className={PAGE_TITLE}>Account</h1>
+      <dl className={FACTS}>
+        <dt className={TERM}>Signed in as</dt>
+        <dd className={DETAIL}>{user.username}</dd>
+        <dt className={TERM}>Signed in with</dt>
+        <dd className={DETAIL}>{viaWard ? "Ward" : "your Lantern password"}</dd>
         {ward.enabled && (
           <>
-            <dt>Ward</dt>
-            <dd>{ward.linked || link.linked || result.result === "linked" ? "Linked" : "Not linked"}</dd>
+            <dt className={TERM}>Ward</dt>
+            <dd className={DETAIL}>
+              {ward.linked || link.linked || result.result === "linked" ? "Linked" : "Not linked"}
+            </dd>
           </>
         )}
       </dl>
 
       {result.result === "linked" && (
-        <p className="notice" role="status">
+        <p className={NOTICE} role="status">
           Ward is linked. You can sign in with it from now on.
         </p>
       )}
       {failure && (
-        <p className="auth-error" role="alert">
+        <p className="text-danger" role="alert">
           {accountMessage(failure)}
         </p>
       )}
 
       <PoolSection />
 
-      <div className="actions">
+      <div className="mt-5 flex flex-wrap gap-2.5">
         {ward.enabled && !ward.linked && !link.linked && (
-          <button type="button" className="button" disabled={link.pending} onClick={() => void link.link()}>
+          <Button disabled={link.pending} onClick={() => void link.link()}>
             {link.pending ? "Opening Ward…" : "Link Ward"}
-          </button>
+          </Button>
         )}
-        <button type="button" className="button" disabled={logout.pending} onClick={() => void logout.logout()}>
+        <Button disabled={logout.pending} onClick={() => void logout.logout()}>
           Sign out
-        </button>
+        </Button>
         {viaWard && (
-          <button
-            type="button"
-            className="button"
-            disabled={wardSignOut.pending}
-            onClick={() => void wardSignOut.signOut()}
-          >
+          <Button disabled={wardSignOut.pending} onClick={() => void wardSignOut.signOut()}>
             Sign out of Ward too
-          </button>
+          </Button>
         )}
       </div>
     </section>
@@ -89,13 +88,18 @@ function PoolSection() {
     request("GET", "/v1/pool", (v) => poolInfoSchema.parse(v), { signal }),
   );
   return (
-    <section className="account-section" aria-labelledby="pool-heading">
-      <h2 id="pool-heading">Titles</h2>
-      {pool.status === "error" && <p className="auth-error">Couldn't read the title list. {pool.error.message}</p>}
+    <section className="mt-7 border-t border-line pt-5" aria-labelledby="pool-heading">
+      <h2 id="pool-heading" className="mb-2 text-heading font-bold">
+        Titles
+      </h2>
+      {pool.status === "error" && <p className="text-danger">Couldn't read the title list. {pool.error.message}</p>}
       {pool.data && pool.data.titles === 0 && (
         <p>
-          No titles yet. Run <code>npm run titles:import -w @lantern/server</code> on the server to load IMDb's films
-          and series.
+          No titles yet. Run{" "}
+          <code className="rounded-xs bg-surface-sunk px-[5px] py-px font-mono text-code">
+            npm run titles:import -w @lantern/server
+          </code>{" "}
+          on the server to load IMDb's films and series.
         </p>
       )}
       {pool.data && pool.data.titles > 0 && (
@@ -105,7 +109,7 @@ function PoolSection() {
           {pool.data.importedAt !== null && <>, imported {DATE.format(pool.data.importedAt)}</>}.
         </p>
       )}
-      <p className="muted">
+      <p className="text-ink-muted">
         <ImdbCredit />
       </p>
     </section>

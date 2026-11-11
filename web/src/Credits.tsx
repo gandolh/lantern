@@ -7,9 +7,9 @@ import { IMDB_CREDIT } from "@lantern/shared";
 export function ImdbCredit() {
   const [before, after] = IMDB_CREDIT.split("https://www.imdb.com");
   return (
-    <span className="credit">
+    <span>
       {before}
-      <a href="https://www.imdb.com" rel="noreferrer" target="_blank">
+      <a className="text-inherit" href="https://www.imdb.com" rel="noreferrer" target="_blank">
         https://www.imdb.com
       </a>
       {after}
