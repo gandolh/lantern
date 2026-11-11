@@ -115,6 +115,8 @@ export interface AppOptions {
   /** The clock, in epoch milliseconds, for tests. */
   now?: () => number;
   logger?: FastifyServerOptions["logger"];
+  /** The process's own Fastify settings: timeouts and `trustProxy`. Only the entry sets them. */
+  server?: Pick<FastifyServerOptions, "connectionTimeout" | "requestTimeout" | "keepAliveTimeout" | "trustProxy">;
 }
 
 declare module "fastify" {
@@ -138,6 +140,7 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   const webBase = options.webBase ?? PAGE_PATH;
   const publicOrigin = options.publicOrigin ?? DEV_ORIGIN;
   const app = Fastify({
+    ...options.server,
     logger: options.logger ?? false,
     bodyLimit: BODY_LIMIT,
     rewriteUrl: (request) => stripApiPrefix(request.url ?? "/", apiPrefix),

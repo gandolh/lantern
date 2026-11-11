@@ -1,5 +1,5 @@
 import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { loadConfig, loadEnvFile, resolveDbPath } from "../config.js";
 import { openDatabase } from "../db.js";
 import { httpDatasets, localDatasets } from "./files.js";
 import { DEFAULT_MIN_VOTES, importPool } from "./import.js";
@@ -18,12 +18,7 @@ import { DEFAULT_MIN_VOTES, importPool } from "./import.js";
  * personal, non-commercial use only.
  */
 
-const REPO_ROOT = fileURLToPath(new URL("../../../", import.meta.url));
-try {
-  process.loadEnvFile(`${REPO_ROOT}.env`);
-} catch (err) {
-  if ((err as NodeJS.ErrnoException).code !== "ENOENT") throw err;
-}
+loadEnvFile();
 
 function option(name: string): string | undefined {
   const at = process.argv.indexOf(name);
@@ -35,8 +30,7 @@ async function main(): Promise<void> {
   const minVotes = minVotesArg === undefined ? DEFAULT_MIN_VOTES : Number(minVotesArg);
   if (!Number.isInteger(minVotes) || minVotes < 1) throw new Error("--min-votes must be a whole number, 1 or more");
   const from = option("--from");
-  const configured = process.env.LANTERN_DB?.trim();
-  const dbPath = configured ? resolve(configured) : resolve(REPO_ROOT, "data/lantern.sqlite");
+  const dbPath = resolveDbPath(loadConfig());
 
   const db = openDatabase(dbPath);
   try {

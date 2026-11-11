@@ -1,3 +1,5 @@
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { z } from "zod";
 import { wardClientOptionsFromEnv, type WardClientOptions } from "../vendor/ward/ward-auth.js";
 
@@ -9,6 +11,47 @@ export const WARD_CALLBACK_PATH = `${AUTH_ROUTE_PREFIX}/ward/callback`;
 
 /** The Vite dev server, where the page runs in development. */
 export const DEV_ORIGIN = "http://localhost:5180";
+
+/**
+ * The repo root, with a trailing slash. Resolved from this file, so every entry
+ * (the server, the CLIs) finds the same `.env` and `data/` however deep it sits;
+ * `src/` (tsx) and `dist/` (built) are at the same depth under `server/`.
+ */
+export function repoRoot(): string {
+  return fileURLToPath(new URL("../../", import.meta.url));
+}
+
+/**
+ * Load the repo's `.env` into the environment: it fills what the environment
+ * leaves unset. True when the file was read, false when there is none.
+ */
+export function loadEnvFile(path: string = `${repoRoot()}.env`): boolean {
+  try {
+    process.loadEnvFile(path);
+    return true;
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code !== "ENOENT") throw err;
+    return false;
+  }
+}
+
+/** The database file: `LANTERN_DB`, else `data/lantern.sqlite` under the repo root. `:memory:` stays as it is. */
+export function resolveDbPath(config: Pick<Config, "dbPath">): string {
+  if (config.dbPath === ":memory:") return config.dbPath;
+  return config.dbPath ? resolve(config.dbPath) : resolve(repoRoot(), "data/lantern.sqlite");
+}
+
+/** What the seed command was given in the environment; each is undefined when unset, and the command asks for it. */
+export interface SeedConfig {
+  username: string | undefined;
+  /** A secret: never log it. */
+  password: string | undefined;
+}
+
+/** `SEED_USERNAME` and `SEED_PASSWORD`. The password is taken as given, spaces and all. */
+export function loadSeedConfig(env: NodeJS.ProcessEnv = process.env): SeedConfig {
+  return { username: env.SEED_USERNAME?.trim() || undefined, password: env.SEED_PASSWORD || undefined };
+}
 
 /** The server's settings, read once at startup from the environment (and the repo's `.env`). */
 export interface Config {
@@ -115,7 +158,7 @@ function trustedProxies(value: string | undefined): string[] {
 }
 
 /** The settings from `env`, or a `ConfigError` naming every variable that is wrong. */
-export function loadConfig(env: NodeJS.ProcessEnv): Config {
+export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   const problems: string[] = [];
   const parsed = envSchema.safeParse(env);
   if (!parsed.success) problems.push(...parsed.error.issues.map(describeIssue));

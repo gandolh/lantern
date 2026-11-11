@@ -4,20 +4,25 @@
   "description": "The Lantern API (Fastify + SQLite); it also serves the built page.",
   "private": true,
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/server.js",
   "scripts": {
     "build": "tsc -b",
-    "dev": "tsx watch src/index.ts",
-    "start": "node dist/index.js",
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
     "seed": "tsx src/seed.ts",
     "sources:check": "tsx src/sources/check.ts",
     "titles:import": "tsx src/pool/cli.ts"
   },
   "dependencies": {
     "@fastify/static": "10.1.5",
+    "@fastify/swagger": "9.9.3",
+    "@fastify/type-provider-zod": "1.0.3",
     "@lantern/shared": "0.1.0",
     "better-sqlite3": "13.0.3",
+    "close-with-grace": "2.5.0",
     "fastify": "5.12.7",
+    "fastify-plugin": "6.0.1",
+    "openapi-types": "12.1.3",
     "zod": "4.6.7"
   },
   "devDependencies": {

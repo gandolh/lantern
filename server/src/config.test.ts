@@ -1,5 +1,8 @@
-import { describe, expect, it } from "vitest";
-import { ConfigError, DEV_ORIGIN, loadConfig } from "./config.js";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
+import { afterEach, describe, expect, it } from "vitest";
+import { ConfigError, DEV_ORIGIN, loadConfig, loadEnvFile, loadSeedConfig, repoRoot, resolveDbPath } from "./config.js";
 
 describe("loadConfig", () => {
   it("has defaults for local development", () => {
@@ -111,5 +114,49 @@ describe("the Ward settings", () => {
       WARD_OIDC_REDIRECT_URI: "https://example.com/lantern-api/auth/ward/callback",
     });
     expect(config.ward?.clientId).toBe("lantern");
+  });
+});
+
+describe("repoRoot", () => {
+  it("is the repo: its package.json is lantern's, beside the lockfile", () => {
+    const root = repoRoot();
+    expect((JSON.parse(readFileSync(join(root, "package.json"), "utf8")) as { name: string }).name).toBe("lantern");
+    expect(readFileSync(join(root, "package-lock.json"), "utf8")).toContain('"name": "lantern"');
+  });
+});
+
+describe("resolveDbPath", () => {
+  it("is LANTERN_DB, else data/lantern.sqlite under the repo root, and keeps :memory:", () => {
+    expect(resolveDbPath(loadConfig({ LANTERN_DB: "/tmp/x.sqlite" }))).toBe("/tmp/x.sqlite");
+    expect(resolveDbPath(loadConfig({}))).toBe(resolve(repoRoot(), "data/lantern.sqlite"));
+    expect(resolveDbPath(loadConfig({ LANTERN_DB: ":memory:" }))).toBe(":memory:");
+  });
+});
+
+describe("loadSeedConfig", () => {
+  it("reads the two seed variables, trimming the name and keeping the password as given", () => {
+    expect(loadSeedConfig({ SEED_USERNAME: " owner ", SEED_PASSWORD: " a b " })).toEqual({
+      username: "owner",
+      password: " a b ",
+    });
+    expect(loadSeedConfig({})).toEqual({ username: undefined, password: undefined });
+  });
+});
+
+describe("loadEnvFile", () => {
+  let scratch: string | undefined;
+  afterEach(() => {
+    if (scratch) rmSync(scratch, { recursive: true, force: true });
+    scratch = undefined;
+    delete process.env.LANTERN_TEST_ENV_FILE;
+  });
+
+  it("reads a .env into the environment, and says so when there is none", () => {
+    scratch = mkdtempSync(join(tmpdir(), "lantern-env-"));
+    const file = join(scratch, ".env");
+    writeFileSync(file, "LANTERN_TEST_ENV_FILE=from-file\n");
+    expect(loadEnvFile(file)).toBe(true);
+    expect(process.env.LANTERN_TEST_ENV_FILE).toBe("from-file");
+    expect(loadEnvFile(join(scratch, "missing.env"))).toBe(false);
   });
 });

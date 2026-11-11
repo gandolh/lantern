@@ -1,8 +1,7 @@
-import { resolve } from "node:path";
 import { createInterface } from "node:readline/promises";
 import { Writable } from "node:stream";
-import { fileURLToPath } from "node:url";
 import { openAccounts, seedUser } from "./accounts.js";
+import { loadConfig, loadEnvFile, loadSeedConfig, resolveDbPath } from "./config.js";
 import { openDatabase } from "./db.js";
 
 /**
@@ -21,14 +20,7 @@ import { openDatabase } from "./db.js";
  * again. The database is `LANTERN_DB`'s, as for the server.
  */
 
-/** `src/` (tsx) and `dist/` (built) sit at the same depth, so this resolves the same from both. */
-const REPO_ROOT = fileURLToPath(new URL("../../", import.meta.url));
-
-try {
-  process.loadEnvFile(`${REPO_ROOT}.env`);
-} catch (err) {
-  if ((err as NodeJS.ErrnoException).code !== "ENOENT") throw err;
-}
+loadEnvFile();
 
 /**
  * The answer to `question`, with what is typed hidden when `secret`: readline
@@ -57,15 +49,15 @@ async function ask(question: string, secret = false): Promise<string> {
 }
 
 async function main(): Promise<void> {
-  const username = process.env.SEED_USERNAME?.trim() || (await ask("Username: "));
-  const password = process.env.SEED_PASSWORD || (await ask("Password: ", true));
+  const seed = loadSeedConfig();
+  const username = seed.username ?? (await ask("Username: "));
+  const password = seed.password ?? (await ask("Password: ", true));
   if (username === "" || password === "") {
     throw new Error("Set SEED_USERNAME and SEED_PASSWORD in the environment, or run this in a terminal to be asked.");
   }
 
-  // The same rule as `index.ts`: LANTERN_DB, else the repo's data/lantern.sqlite.
-  const configured = process.env.LANTERN_DB?.trim();
-  const db = openDatabase(configured ? resolve(configured) : resolve(REPO_ROOT, "data/lantern.sqlite"));
+  // The same rule as the server: LANTERN_DB, else the repo's data/lantern.sqlite.
+  const db = openDatabase(resolveDbPath(loadConfig()));
   try {
     const created = await seedUser(openAccounts(db), { username, password });
     console.log(created ? `Created ${username}.` : `${username} already exists; left as it was.`);

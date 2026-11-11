@@ -15,15 +15,8 @@ export default [
     server: "server/src",
     // Allowed to print: the server entry logs before its logger exists, and the seed, the title
     // import and the source check talk to the person running them.
-    console: ["server/src/index.ts", "server/src/seed.ts", "server/src/sources/check.ts", "server/src/pool/cli.ts"],
+    console: ["server/src/server.ts", "server/src/seed.ts", "server/src/sources/check.ts", "server/src/pool/cli.ts"],
     tests: ["**/*.test.{ts,tsx}", "server/src/testing.ts", "server/src/sources/testing.ts"],
     ignores: ["data/**"],
   }),
-  {
-    // A warning for now (2026-11-11): these files still read the environment themselves. When the
-    // server takes its settings from config.ts, this block goes and the rule is an error again.
-    name: "lantern/process-env-warns",
-    files: ["server/src/index.ts", "server/src/seed.ts", "server/src/sources/check.ts", "server/src/pool/cli.ts"],
-    rules: { "n/no-process-env": "warn" },
-  },
 ];

@@ -1,7 +1,6 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { ConfigError, loadConfig } from "../config.js";
+import { ConfigError, loadConfig, loadEnvFile, repoRoot } from "../config.js";
 import { createOmdbClient, forPage, readOmdb } from "./omdb.js";
 import { record } from "./read.js";
 
@@ -18,22 +17,17 @@ import { record } from "./read.js";
  * by hand. The key comes from `.env` like the server's.
  */
 
-const REPO_ROOT = fileURLToPath(new URL("../../../", import.meta.url));
-try {
-  process.loadEnvFile(`${REPO_ROOT}.env`);
-} catch (err) {
-  if ((err as NodeJS.ErrnoException).code !== "ENOENT") throw err;
-}
+loadEnvFile();
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const saveAt = args.indexOf("--save");
   const saveDir = saveAt > -1 ? resolve(args[saveAt + 1] ?? "") : undefined;
-  if (saveDir !== undefined && saveDir.startsWith(resolve(REPO_ROOT)))
+  if (saveDir !== undefined && saveDir.startsWith(resolve(repoRoot())))
     throw new Error("--save must point outside the repository");
   const imdbId = args.find((arg, i) => /^tt\d{7,10}$/.test(arg) && args[i - 1] !== "--save") ?? "tt1375666";
 
-  const config = loadConfig(process.env);
+  const config = loadConfig();
   if (config.omdbApiKey === undefined) throw new Error("Set OMDB_API_KEY in .env first.");
   const answer = await createOmdbClient({ apiKey: config.omdbApiKey }).byImdbId(imdbId);
   if (saveDir !== undefined) {
