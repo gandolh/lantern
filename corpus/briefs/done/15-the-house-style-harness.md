@@ -248,3 +248,81 @@ One commit per step, straight on `main`, each with `npm run typecheck`, `npm tes
 - The reformat changes `web/src/styles.css` by 4 lines; brief 17 deletes the file.
 - The skills library's brief 27 owns the vendored copy and `house-style:sync`; a rule that looks wrong for Lantern is reported there, not patched here.
 - If brief 18 renames `server/src/index.ts` to `server.ts`, the CLI list in `eslint.config.js` changes with it.
+
+## Outcome
+
+Built on 2026-11-11 on `main`, committed and not pushed, with house-style 1.0.0 (library tag
+`house-style-v1.0.0`, commit `ddd917f`). Commits, in order: `b596d5e` vendor and pins plus `pretest`,
+`e5b224b` Prettier config and scripts, `e93d750` `style: format with Prettier`, `6404ed9` the blame
+ignore file, `9055714` the tsconfig flags and the five fields, `7ca6a30` the typed-rule fixes,
+`a54fef1` the house ESLint config, `ecc75a4` the gate, `44a4002` the root `CLAUDE.md` and rules, then
+this closeout.
+
+**Counts, measured in the checkout step by step.**
+
+- Prettier at 120: 52 files, 199 old lines, 856 new (the brief's scratch figure was 201 lines in 50
+  files; this one counts `infrastructure/docker-compose.yml`, `web/src/styles.css` and its own
+  rewraps). `server/src/suggest/suggest.ts` needed two `--write` passes to settle: the first leaves it
+  failing `--check`.
+- tsc: `verbatimModuleSyntax` 0, `erasableSyntaxOnly` 5 (fixed as declared fields).
+- ESLint, house config, before the fixes: `no-non-null-assertion` 16 in source and 13 in test files
+  (`server/src/testing.ts:23` counts as a test file, so 12 in `*.test.ts` plus it),
+  `no-unnecessary-type-assertion` 3, `switch-exhaustiveness-check` 1, `n/no-process-env` 6, every other
+  rule 0, including `@vitest/eslint-plugin` recommended. After: 0 errors, 18 warnings: the 12 test `!`
+  and the 6 `process.env` reads (`index.ts:31`, `pool/cli.ts:38`, `seed.ts:60, 61, 67`,
+  `sources/check.ts:36`). The `testing.ts` `!` was fixed too (`?? line`), which the brief left as a
+  warning; it changes nothing at run time.
+- knip: 0 unused files and dependencies (`@base-ui/react` listed as expected unused under
+  `workspaces.web.ignoreDependencies` in `knip.config.js`), 33 unused exports and 3 types as warnings.
+- dependency-cruiser: 0 violations in 102 modules, strict from the start, no rule lowered.
+- `check-base-ui --warn-only`: 1 warning (rule 5, `web/src/styles.css`). `check-structure --warn-only`: 39
+  (rule 1 x1, rule 3 x6, rule 6 x32). Both exit 0.
+- The fixes: `server/src/app.ts` `pathOf`, `db.ts` migrations loop (iterates the remaining migrations),
+  `pool/files.ts` (a `?? ""` and a dropped `as unknown as` cast), `pool/import.ts` (early `continue` on a
+  missing id or type), `sources/posters.ts`, `states.ts` (`last` checked), `suggest/score.ts` (`?? 1` on
+  counts that were always set), `suggest/suggest.ts` and `ListPages.tsx` (needless casts),
+  `Poster.tsx`, `route.ts` (a `default: break` and a `second !== undefined` check).
+
+**The reformat.** The esbuild bundle compare (every tracked `.ts`, `.tsx`, `.js`, `.mjs`, `.css` and
+`.json` outside `vendor/`, JSON parsed) found three differences, all JSX text split with `{" "}`:
+`web/src/ListPages.tsx`, `SuggestionsPage.tsx` (`" or "` becomes `" or"`, `" "`) and `TitlePage.tsx`
+(a sentence ending in a space). They render the same. `git diff -w` is not empty, for the reason
+Wicket's note gives.
+
+**Timings** (warm): `check:fast` 5.6 s with nothing changed and 8.5 s with one web file changed; `check`
+in full 31 s (30.9 s); `eslint .` 17.5 s.
+
+**Checks run:** `npm run check` (exit 0, 104 tests), `npx prettier --check .` (0),
+`npm run house-style:sync -- --check` (0), `npm test` with `shared/dist` removed (pass: 18 files, 104
+tests), `npm run typecheck` and `npm run build` after the flags (0), `bash corpus/lint.sh` (clean, 8
+existing warnings). A deliberate `enum`, a `!` in `server/src/app.ts`, a `console.log` there, `// TODO`
+and an `export default` in a non-config file each failed `npm run lint` (exit 1); a `!` in a `*.test.ts`
+passed (0). All reverted. The plugin's hooks by hand with Claude Code's event JSON: the formatter hook
+formatted a messy new file; the Stop hook exited 2 with `TS2322` after a saved type error and 0 once
+removed.
+
+**Checks skipped:** `docker build` (not run on this machine); the compile it does, `tsc -b`, passes in
+`npm run typecheck`. The live-session hook check waits for the plugin update.
+
+**Deviations:**
+
+- `tsconfig.base.json` keeps the house flags itself instead of extending the vendored one: the image's
+  `deps` stage copies only that file.
+- knip is `knip.config.js` (spreading the preset), not `knip.json`; brief 16's line says so.
+- dependency-cruiser is in `check:conventions` and `.dependency-cruiser.cjs` exists now, by the
+  controller's ruling; brief 18's lines say so. No rule needed lowering.
+- `n/no-process-env` warns on the four CLI files only, so a new reader elsewhere is an error.
+- `allowDefaultProject` is not needed: the package lints tool configs untyped.
+- `web.md` and `server.md` carry no Base UI wrapper or structure lines yet; briefs 16 to 18 add them.
+- The brief's "10 of 18 files fail without `pretest`" was not re-measured; the fix is confirmed (all 18
+  pass after removing `shared/dist`).
+
+**For house-style:**
+
+1. `prettier.config.js` / Prettier 3.9.10: `server/src/suggest/suggest.ts` is not idempotent. One
+   `--write` leaves `--check` failing; a second settles it. It formats a long generic `db.prepare<...>`
+   call and an inline method type. Worth a note in the adoption reference's reformat step: run
+   `format` until `format:check` passes.
+2. `check:conventions` calls `knip` with a `workspaces: { web: ... }` key for an ignored dependency;
+   the README sample shows only the `"."` workspace. A line for per-workspace `ignoreDependencies`
+   would help repos that declare a dependency before using it.

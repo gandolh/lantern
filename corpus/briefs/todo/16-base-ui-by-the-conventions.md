@@ -105,7 +105,7 @@ Decided on 2026-11-10 unless marked as a default.
 - The existing CSS rules for markup this brief changes (`.segmented`, `.tabs`, `.state-picker`, `.state-button`). Rename or move a rule to the new part; don't restyle. Brief 17 turns them into utilities.
 - `web/package.json` and `package-lock.json`, only for the test dependencies (`jsdom`, Testing Library, pinned) in decision 6.
 - New tests next to the wrappers: `web/src/components/ui/ui.test.tsx` (static markup), `web/src/components/ui/ToggleGroup.test.tsx` (jsdom), and `web/src/StatePicker.test.tsx`.
-- `knip.json`: remove the expected-unused line brief 15 added for `@base-ui/react`.
+- `knip.json`: remove the expected-unused line brief 15 added for `@base-ui/react`. (2026-11-11, brief 15: it landed in `knip.config.js` as `workspaces.web.ignoreDependencies`, not `knip.json`; remove it there.)
 - `scripts/conventions.json`, only if the checker flags the undo notice or `SwipeCard`.
 - `.claude/rules/web.md`: the Base UI lines.
 - Corpus: a new wiki page `corpus/wiki/web-app.md` (what each widget is made of, the `/rate` key rule, where Base UI stops), [wiki/decisions.md](../../wiki/decisions.md), [wiki/status.md](../../wiki/status.md), [log.md](../../log.md), then `bash corpus/lint.sh --index`.

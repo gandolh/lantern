@@ -1,6 +1,6 @@
 ---
 summary: Locked calls for Lantern, settled by the owner on 2026-11-04, each with what was rejected and why. One user and no social features; on the VPS with Ward and local accounts, no sign-up, /lantern/ and /lantern-api/ on ports 5180 and 8810, no background work; films and series, a series rated once per show; four steps plus not interested and want to watch as states; English only; no where-to-stream; rating cards that stay after the start. Revisited the same day - TMDB dropped (its entries kept, marked superseded): OMDb for details, posters and scores plus IMDb's non-commercial files as the title pool, imported by hand; titles keyed by IMDb id; suggestions rank the pool by a plain taste profile of genres, directors and writers, with a reason and no match %; on the cards, swipes are for the titles not seen (right want to watch, left not interested, up skip) and ratings are taps. Read before proposing to change any of these.
-updated: 2026-11-04
+updated: 2026-11-11
 ---
 
 # Decisions
@@ -137,3 +137,14 @@ cards deal the best-known titles, so a quick "not seen, want it / not for me / n
 deserves a gesture, while a rating is a choice among four that a swipe can't carry. Rejected:
 taste.io's right for love (it collapses four steps into one), and swiping to rate good or meh
 (two of four ratings on a gesture, the other two hidden).
+
+## The house style, formatted and checked
+_2026-11-11_. Lantern adopts the estate's quality harness: Prettier at width 120 (one commit
+reformatted 52 files, 199 old lines), the house ESLint config with six typed rules through
+`projectService`, `verbatimModuleSyntax` and `erasableSyntaxOnly`, and `npm run check` as the gate.
+The configs are a vendored copy of the skills library's `house-style` folder, refreshed by
+`npm run house-style:sync`, because the image's `npm ci` runs without git and a git dependency would
+need it. For the same reason `tsconfig.base.json` holds the house flags itself: the image copies
+only that file before `tsc -b server`. Markdown stays out of Prettier. Rejected: width 150, which
+fits Lantern's wide lines but splits the estate in two; a vitest alias in place of `pretest`, which
+would test source the server never ships.

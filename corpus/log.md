@@ -228,3 +228,12 @@ response schemas with a `conventions.json` entry, the CLIs sit beside their feat
 decorators go (`buildTestApp`, plugin options), the start command is Lantern's own (Q1), and the
 26 s record route keeps its `connectionTimeout` of 45 s. Brief 19 is new: a redesign with Hallmark
 on the estate board. Work happens on `main`, with no PRs. Nothing was changed outside `corpus/`.
+
+## [2026-11-11] brief | 15: the house style and the quality harness
+
+Adopted house-style 1.0.0 (vendored, `npm run house-style:sync`), Prettier at 120 (52 files, 856 lines
+in, 199 out, in one commit), the two tsconfig flags (5 parameter properties became fields), the house
+ESLint config (16 source `!`, 3 needless casts and 1 open-union switch fixed; 12 test `!` and 6
+`process.env` reads left as warnings), `check`, `check:fast`, `check:conventions` (knip,
+dependency-cruiser strict with no violation, the two checkers `--warn-only`), `pretest`, the root
+`CLAUDE.md` and `.claude/rules/`. `check` 31 s, `check:fast` 5.6 s warm. Details in the brief's outcome note.

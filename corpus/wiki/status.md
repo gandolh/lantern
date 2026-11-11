@@ -1,6 +1,6 @@
 ---
-summary: Where Lantern stands, per area, as of 2026-11-04. The first version is built (briefs 01-14), on OMDb plus IMDb's files after the owner dropped TMDB the same day; not deployed. Each area as built, the checks, the todo (bump @fastify/static), and the owner's next steps in order (push, Ward registration, two secrets, the vps-deploy stack, the title import, the account).
-updated: 2026-11-10
+summary: Where Lantern stands, per area, as of 2026-11-11. The first version is built (briefs 01-14), on OMDb plus IMDb's files after the owner dropped TMDB the same day; not deployed. Each area as built, the house-style harness (2026-11-11), the checks, the todo (bump @fastify/static), and the owner's next steps in order (push, Ward registration, two secrets, the vps-deploy stack, the title import, the account).
+updated: 2026-11-11
 ---
 
 # Status
@@ -52,14 +52,18 @@ on the shared machine. 104 tests; typecheck and lint clean. The owner pushes.
   [research.md](research.md); TMDB and OMDb, their endpoints and terms, in
   [sources.md](sources.md). No real call made yet.
 
+## Quality harness
+
+- **House style** (2026-11-11). Prettier at 120, the house ESLint config, `npm run check` and
+  `check:fast`, the root `CLAUDE.md` and `.claude/rules/` ([decisions.md](decisions.md)). 104 tests.
+  `check-base-ui` and `check-structure` run `--warn-only` until briefs 17 and 18.
+
 ## Open briefs
 
-Five. Four were written 2026-11-10 for the owner's calls of 2026-11-09 (Base UI 1.9.0 everywhere, whole apps
+Four, written 2026-11-10 for the owner's calls of 2026-11-09 (Base UI 1.9.0 everywhere, whole apps
 on Tailwind v4, the researched conventions enforced) and revised the same day to the owner's grilling
-answers; the fifth is the redesign. They run in order, 15 first:
+answers; the last is the redesign. They run in order:
 
-- **15** the house style and the quality harness (Prettier, tsconfig flags, typed lint, `check`,
-  a `pretest` that builds `shared`, `.claude/rules/`, a root `CLAUDE.md`).
 - **16** Base UI by the conventions: `@base-ui/react` is declared and unused, so this is an
   adoption (the kind filter, the state picker, the ratings tabs). No bump brief: 1.9.0 is pinned.
 - **17** the web app to Tailwind, on the small tools family's token names, with a Light / Dark / System switch.

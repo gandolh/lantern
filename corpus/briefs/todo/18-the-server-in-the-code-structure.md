@@ -205,8 +205,8 @@ Decided on 2026-11-10 unless marked as a default.
 - `server/package.json` (scripts, `main`, the new dependencies pinned) and `package-lock.json`.
 - `shared/src/**`: only if a schema needs `.describe` or a status schema added, with its test. Input schemas don't change.
 - `infrastructure/Dockerfile`: the `CMD` line.
-- The root `package.json`: `start`, and `check:conventions` (dependency-cruiser added, `check-structure`'s `--warn-only` dropped).
-- `.dependency-cruiser.cjs` (new, from the skill's preset) and `knip.json` (the entries).
+- The root `package.json`: `start`, and `check:conventions` (dependency-cruiser added, `check-structure`'s `--warn-only` dropped). (2026-11-11, brief 15: dependency-cruiser landed there already, strict with no rule lowered; this brief keeps its cross-feature check and drops `check-structure`'s `--warn-only`.)
+- `.dependency-cruiser.cjs` (from the skill's preset; it exists since brief 15, 2026-11-11) and `knip.config.js` (the entries).
 - `eslint.config.js`: `no-process-env` (from `eslint-plugin-n`) from warning to error, and the CLI list for the new paths.
 - `scripts/conventions.json`: the poster route (decision 4), and any other exception with its reason.
 - `.claude/rules/server.md`: the structure lines.
@@ -231,7 +231,7 @@ Follow `migrating-a-server.md`. One commit per step, straight on `main`; after e
    - On a scratch `LANTERN_DB`, import the fixtures (`npm run titles:import -w @lantern/server -- --from server/src/pool/fixtures --min-votes 1`), seed a throwaway user, rate and mark a few titles through the API, and **with no `OMDB_API_KEY`**. Save the JSON of every route above, signed in, with fixed query values; for the record route save the 503 body; for a poster save the 404 body.
 2. **`config.ts` and the split.** The new helpers in `config.ts`, and their tests (including the `repoRoot()` one). The four CLIs and the entry use them, and no copy of `REPO_ROOT` is left. `index.ts` becomes `server.ts`, with the entry changes (decision 6), `close-with-grace`, the timeouts and `trustProxy` (decision 7: `connectionTimeout` stays 45_000). `no-process-env` (from `eslint-plugin-n`) now finds nothing: make it an error.
 3. **The error plugin, and `server/src/plugins/auth`.** `server/src/plugins/errors.ts` with `fail()`; the guard, the 401 rewrite, the origin hook and `currentUserId` in `server/src/plugins/auth/index.ts`; `accounts.ts` and `auth.test.ts` beside it. Add `buildTestApp` and the optional prebuilt stores here, and move the tests to it (decision 8); every assertion passes unchanged. Fix the vendor import depth.
-4. **Feature folders.** Use `git mv`, file by file per the map, so history follows. Leaves first: `states`, `pool`, `sources`; then `titles`, `cards`, `suggestions`, `lists`, `health`. Add the `index.ts` files. Update the CLI commands and docs (decision 5). Add `.dependency-cruiser.cjs`, and check that a deliberate import of `server/src/features/states/store.js` from `server/src/features/lists/` fails it and that a leaf importing a dependent fails it.
+4. **Feature folders.** Use `git mv`, file by file per the map, so history follows. Leaves first: `states`, `pool`, `sources`; then `titles`, `cards`, `suggestions`, `lists`, `health`. Add the `index.ts` files. Update the CLI commands and docs (decision 5). (`.dependency-cruiser.cjs` exists since brief 15.) Check that a deliberate import of `server/src/features/states/store.js` from `server/src/features/lists/` fails it and that a leaf importing a dependent fails it.
 5. **The type provider and the schemas, one feature per commit:** health, states, pool, sources, titles, cards, suggestions, lists. Each commit:
    - declares params, querystring, body and the response statuses the handler sends;
    - removes that feature's `parse(...)` calls;
