@@ -72,8 +72,12 @@ needs, and the owner's steps, are in [docs/owner-setup.md](../../docs/owner-setu
 
 Phone first. Below 760px the five sections (Suggestions, Rate, Watchlist, Ratings, Search) are
 a tab bar at the bottom and the top bar holds the brand and the account; from 760px they move
-into the top bar. Colours are tokens in `styles.css`, light or dark as the system says, with one
-amber accent. A title page (`/lantern/movie/:id`, `/lantern/tv/:id`) belongs to no section.
+into the top bar (`wide:`, a named breakpoint of exactly 760px). The look is Tailwind 4 in one
+stylesheet, `web/src/styles/index.css`: the colours are `light-dark()` tokens in `@theme`, light
+or dark by `data-theme` on `<html>` (light on a first visit; the Light / Dark / System switch on
+the account page sets it), with one amber accent. The names are the small-tools family's
+(`page`, `surface`, `ink`, `accent`, `line`, `danger`); the values are Lantern's. A title page
+(`/lantern/title/:id`) belongs to no section. See [web-app.md](web-app.md).
 
 ## No background work
 

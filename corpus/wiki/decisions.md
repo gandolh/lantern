@@ -160,3 +160,17 @@ estate's rule gives a filter arrows that choose), a Base UI toast for the undo n
 on a list people scroll), and keeping the `/rate` filter as plain buttons to spare the key handler.
 The key guard skips radio groups and tab strips but not a plain `role=group`, because the rating buttons
 sit in one. See [web-app.md](web-app.md).
+
+## Tailwind on the family's token names, Lantern's values
+_2026-11-11_. The page's one plain stylesheet (933 lines, 92 classes) became Tailwind 4.3.5 utilities on
+the estate's rule that whole apps move. The token names are the small-tools family's (`page`, `surface`,
+`ink`, `ink-muted`, `line`, `accent`, `danger`, the radii `control`, `card` and `pill`), which Wicket and
+the-board share; the values stay Lantern's warm palette, and Lantern-only tokens take the same namespaces.
+Tailwind's own colour, type, radius, shadow, container and breakpoint scales are cleared, so only these
+names exist. Colours are `light-dark()` pairs and `color-scheme` follows `data-theme` on `<html>`, so the
+Light / Dark / System switch (light on a first visit, kept in `localStorage`) needs no `dark:` class and
+System follows the operating system in CSS. Type is a named scale at the old 15 px root's pixels, with the
+15 px on `body` (`html` keeps the reader's size). Rejected: keeping Lantern's own names (`--bg`, `--text`)
+until the redesign, which would split the family's naming; Tailwind's default scales alongside the tokens,
+which lets an off-palette colour in unseen; and a `[data-theme="dark"]` block redefining every colour, which
+the skill's `light-dark()` makes unnecessary. Revisits the earlier line "dark mode follows the system".
