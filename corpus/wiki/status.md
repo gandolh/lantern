@@ -49,8 +49,11 @@ on the shared machine. 104 tests; typecheck and lint clean. The owner pushes.
   votes on 2026-11-04 ([titles.md](titles.md)). IMDb's credit line in the footer and on the
   account page.
 - **Base UI** (2026-11-11). The kind filter, the state picker and the ratings tabs are Base UI
-  wrappers under `web/src/components/ui/`; `/rate` keeps its keys ([web-app.md](web-app.md)). Styling
-  still plain CSS.
+  wrappers under `web/src/components/ui/`; `/rate` keeps its keys ([web-app.md](web-app.md)).
+- **The look** (2026-11-11). Tailwind 4.3.5 in one stylesheet on the small-tools family's token names
+  with Lantern's values; the Light / Dark / System switch on the account page (light on a first visit);
+  pixel-matched to the plain-CSS page at 1280 and 390 px, light and dark ([web-app.md](web-app.md)).
+  Built, not deployed.
 - **Research** (2026-10-28 to 2026-11-04, done). taste.io and the stack in
   [research.md](research.md); TMDB and OMDb, their endpoints and terms, in
   [sources.md](sources.md). No real call made yet.
@@ -59,15 +62,15 @@ on the shared machine. 104 tests; typecheck and lint clean. The owner pushes.
 
 - **House style** (2026-11-11). Prettier at 120, the house ESLint config, `npm run check` and
   `check:fast`, the root `CLAUDE.md` and `.claude/rules/` ([decisions.md](decisions.md)). 104 tests.
-  `check-base-ui` (one finding left, rule 5, the stylesheet's place) and `check-structure` run `--warn-only` until briefs 17 and 18. 122 tests since brief 16.
+  `check-base-ui` runs strict since brief 17 (0 findings) with ESLint's `better-tailwindcss` rules on;
+  `check-structure` runs `--warn-only` until brief 18. 144 tests since brief 17.
 
 ## Open briefs
 
-Three, written 2026-11-10 for the owner's calls of 2026-11-09 (Base UI 1.9.0 everywhere, whole apps
+Two, written 2026-11-10 for the owner's calls of 2026-11-09 (Base UI 1.9.0 everywhere, whole apps
 on Tailwind v4, the researched conventions enforced) and revised the same day to the owner's grilling
 answers; the last is the redesign. They run in order:
 
-- **17** the web app to Tailwind, on the small tools family's token names, with a Light / Dark / System switch.
 - **18** the server in the code structure (`features/`, the zod type provider, `server.ts`).
 - **19** a redesign with Hallmark, approved on the estate board before any code changes.
 

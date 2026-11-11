@@ -178,3 +178,33 @@ One commit per step, straight on `main`; after each, `npm run check` passes and 
 - Wicket's brief 12 owns the family token list. If a name changes there, change it here mechanically.
 - Brief 19 (the redesign) comes after this brief, changes values and layout on top of it, and must keep the switch working in both themes.
 - The Docker image doesn't build the page (the deploy builds it and Caddy serves it), so the Tailwind packages touch only the `deps` stage's `npm ci`.
+
+## Outcome (2026-11-11)
+
+Built in 8 commits, 0d85252 to 7fe6e65 (local, not pushed), plus the closeout. Board: Ready for deploy; the owner step is `node cli.ts lantern deploy`, run from the vps-deploy checkout.
+
+- **Parity.** One script took 13 states at 1280 and 390 px in light and dark (login, suggestions, watchlist, ratings, not interested, search, title, account, rate, the card dragged right, left and up, the undo notice), full page except `/rate`; the "before" set was taken from the plain-CSS page. Two identical runs of it compared at 0 px. After the conversion every pair matched at 0 px except the account page (the new Look section) and the left and up drags, where the card dealt behind the dragged one is random. The production build (`vite preview`) matched the dev server. Dark is the same pixels as the plain-CSS dark page, so no text became unreadable; the new switch's radio dots got `border-ink-muted` because `border-line` was under 3:1 in dark.
+- **Breakpoint.** At 759 px the tab bar shows, at 760 and 761 the top bar does.
+- **Sizes.** CSS 11.69 kB (3.24 gzip) before, 26.72 kB (6.04 gzip) after; JS 364.02 kB (111.73 gzip) before, 400.62 kB (123.44 gzip) after (tailwind-merge, clsx, the theme store, the switch).
+- **Counts.** 1 inline `style` before and after (the swipe card's computed transform); 0 arbitrary colours in components; 92 classes and 933 lines of CSS gone; `check-base-ui` 0 errors 0 warnings and strict.
+- **Tests.** 144 (was 125): `cn`, the stylesheet through the Tailwind plugin, the theme store, the switch.
+
+### Deviations
+
+- **Dark mode is `light-dark()` tokens with `color-scheme` from `data-theme`** (the base-ui skill's `theme.md`), not a `[data-theme="dark"]` block redefining 17 names. So "System sets `data-theme="dark"`" reads as: `data-theme="system"` plus `color-scheme: light dark`, and the computed colours follow the operating system (tested with `emulateMedia`). `@custom-variant dark` keeps the system branch of the skill, the one `prefers-color-scheme` left in the stylesheet beside the theme script and `theme.ts`.
+- **The `theme-color` meta is one tag**, set by the boot script and by `theme.ts` (also on a System change). `THEME_COLOR`, the script's `colors` and `--color-page` must agree; `theme.test.ts` reads `index.html` and `index.css` to check it.
+- **Layers:** `theme, base, vendor, components, utilities`; the old stylesheet sat in `components` while areas moved, then went. Nothing third-party exists, so `vendor` is empty.
+- **Type scale:** 12 sizes; `0.8rem` and `0.82rem` merged into `note` (12 px). The rest keep their computed pixels.
+- **`grid-cols-[repeat(N,1fr)]`** (an arbitrary value) instead of `grid-cols-N`: Tailwind's is `minmax(0,1fr)`, which changed the picker's button widths. Found by the 390 px screenshots.
+- **Preflight put back in `@layer base`:** `p` margin 1em, and `a` accent colour with underline. Headings, lists and `dl` got classes.
+- **The top bar's safe-area padding** read the left inset for the right side and the right for the left; the utilities use each side's own (no change off a notch).
+- **A `Button` wrapper** (`components/ui/Button.tsx`, Base UI's Button, `default`, `primary` and `link` looks) replaced the `.button` and `.link-button` classes; `looks.ts` holds the repeated class strings; `stateButtonClass` in `StatePicker.tsx` serves the picker and the rating buttons.
+- **The theme control is a `RadioGroup` with the `list` look** on the account page, in a "Look" section.
+- **`vitest.config.ts` and a root devDependency `@tailwindcss/vite` 4.3.5** (knip flagged it unlisted): the plugin and `css.include` let the stylesheet test import `index.css?inline`.
+- **The Playwright acceptance test for the switch was a scratch script,** not committed: the repo has no Playwright and the brief doesn't own `package.json` for it. It checked: first visit with a dark system is light; Dark is on `<html>` at DOMContentLoaded, survives a reload; System follows `emulateMedia` live and moves the bar; Light stays light.
+- **Wicket's brief 12 had not landed,** so the family names are the brief's table, not checked against Wicket's `@theme`.
+- **Not drawn:** the card's leaving state (opacity 0 after a swipe, 120 to 180 ms) is not in the screenshot sets; its classes are `opacity-0` on the same element.
+
+### Handoff for dependents
+
+- **Brief 19 (the redesign):** tokens are in `web/src/styles/index.css`'s `@theme`; a new token's name also goes in `web/src/lib/cn.ts`'s lists. The switch is `web/src/theme.ts` (`THEME_COLOR`, `setTheme`, `useTheme`) and `ThemeSwitch.tsx`; keep the page colour in the three places. Repeated looks: `web/src/looks.ts`, `Button`, `stateButtonClass`. Commands: `npm run check`, `npx vitest run web`.

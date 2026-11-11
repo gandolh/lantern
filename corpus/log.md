@@ -247,3 +247,13 @@ radio groups and tab strips. `@base-ui/react` is now imported, so knip's expecte
 jsdom and Testing Library added for the wrapper, picker and guard tests; 122 tests. Screenshots before and
 after matched pixel for pixel at both widths, light and dark. `check-base-ui` reads one finding (rule 5,
 the stylesheet's place), brief 17's. Details in the brief's outcome note and [web-app](wiki/web-app.md).
+
+## [2026-11-11] brief | 17: the web app to Tailwind, and a theme switch
+
+The page moved from one plain stylesheet to Tailwind 4.3.5 utilities, in one stylesheet
+(`web/src/styles/index.css`), on the family's token names with Lantern's values and a named type scale
+(the 15 px on `body`). Light and dark pixel-matched the old page at 1280 and 390 px; the Light / Dark /
+System switch is on the account page (light first; `data-theme`, a boot script, `localStorage`). New
+`Button` wrapper; `check-base-ui` strict at 0; ESLint `better-tailwindcss` on. Built CSS 11.69 kB (3.24
+gzip) before, 26.72 kB (6.04 gzip) after; JS 364.02 kB (111.73 gzip) before, 400.62 kB (123.44 gzip)
+after. Details in the brief's outcome note and [web-app](wiki/web-app.md).
