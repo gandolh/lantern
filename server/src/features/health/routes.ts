@@ -1,9 +1,9 @@
-import type { HealthResponse } from "@lantern/shared";
-import type { FastifyInstance } from "fastify";
+import { healthResponseSchema } from "@lantern/shared";
+import type { FastifyPluginAsyncZod } from "@fastify/type-provider-zod";
 
 /**
  *   GET /v1/health     open to anyone: the deploy's check
  */
-export function registerHealthRoutes(app: FastifyInstance): void {
-  app.get("/v1/health", async (): Promise<HealthResponse> => ({ ok: true }));
-}
+export const healthRoutes: FastifyPluginAsyncZod = async (app) => {
+  app.get("/v1/health", { schema: { response: { 200: healthResponseSchema } } }, async () => ({ ok: true as const }));
+};

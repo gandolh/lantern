@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import fastifyStatic from "@fastify/static";
+import { serializerCompiler, validatorCompiler } from "@fastify/type-provider-zod";
 import Fastify, { type FastifyInstance, type FastifyServerOptions } from "fastify";
 import type { Accounts, WardClientOptions } from "../vendor/ward/ward-auth.js";
 import { DEV_ORIGIN } from "./config.js";
@@ -8,7 +9,7 @@ import { authPlugin, pathOf } from "./plugins/auth/index.js";
 import { openAccounts } from "./plugins/auth/accounts.js";
 import { BODY_LIMIT, errorsPlugin, fail } from "./plugins/errors.js";
 import { registerCardRoutes } from "./features/cards/index.js";
-import { registerHealthRoutes } from "./features/health/index.js";
+import { healthRoutes } from "./features/health/index.js";
 import { registerListRoutes } from "./features/lists/index.js";
 import { createPool, registerPoolRoutes, type Pool } from "./features/pool/index.js";
 import {
@@ -131,6 +132,10 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
     db.close();
   });
 
+  // The zod compilers go on the root before any plugin, so every route declares its schemas with zod.
+  app.setValidatorCompiler(validatorCompiler);
+  app.setSerializerCompiler(serializerCompiler);
+
   // Registered in this order: the error handler; the session guard, so every route after it is behind it;
   // then the features.
   await app.register(errorsPlugin);
@@ -143,7 +148,7 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
     trustedProxies: options.trustedProxies ?? [],
   });
 
-  registerHealthRoutes(app);
+  await app.register(healthRoutes);
   registerStateRoutes(app, states);
   registerSourceRoutes(app, records, options.posterFetch ?? globalThis.fetch);
   registerPoolRoutes(app, pool);
