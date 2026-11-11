@@ -40,7 +40,7 @@ export async function fetchPoster(fetch: FetchLike, url: string, timeoutMs = POS
   }
   if (response.status === 404) return { ok: false, status: 404, reason: "no such poster" };
   if (!response.ok) return { ok: false, status: 502, reason: `the poster host answered ${response.status}` };
-  const type = (response.headers.get("content-type") ?? "").split(";")[0]!.trim().toLowerCase();
+  const type = (response.headers.get("content-type") ?? "").split(";")[0]?.trim().toLowerCase() ?? "";
   if (!TYPES.has(type)) return { ok: false, status: 502, reason: "the poster host sent something that isn't an image" };
   const declared = Number(response.headers.get("content-length"));
   if (Number.isFinite(declared) && declared > MAX_POSTER_BYTES)

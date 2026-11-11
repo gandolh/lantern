@@ -114,7 +114,8 @@ export function createStatesStore(db: Db, now: () => number = Date.now): StatesS
         )
         .all(...params, limit + 1);
       const page = rows.slice(0, limit);
-      return { rows: page, next: rows.length > limit ? cursorOf(page[page.length - 1]!) : null };
+      const last = page[page.length - 1];
+      return { rows: page, next: rows.length > limit && last !== undefined ? cursorOf(last) : null };
     },
 
     counts(userId) {

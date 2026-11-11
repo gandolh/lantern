@@ -1,4 +1,4 @@
-import { isRating, type Rating, type TitleKind } from "@lantern/shared";
+import { isRating, type TitleKind } from "@lantern/shared";
 import type { Db } from "../db.js";
 import type { StatesStore } from "../states.js";
 import { featuresOf, rank, type Candidate, type Ranked, type RatedTitle } from "./score.js";
@@ -64,7 +64,7 @@ export function createSuggester(db: Db, states: StatesStore): Suggester {
         const title = pool.byId.get(imdbId);
         // A rated title the pool no longer holds has no features to give.
         if (title && isRating(state))
-          rated.push({ imdbId, title: title.title, rating: state as Rating, features: title.features });
+          rated.push({ imdbId, title: title.title, rating: state, features: title.features });
       }
       const candidates = pool.titles.filter(
         (title) => !stated.has(title.imdbId) && (kind === undefined || title.kind === kind),

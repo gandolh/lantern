@@ -47,7 +47,7 @@ export function RatingsPage() {
           : counts[t];
   const tabs: { value: Tab; label: string }[] = [
     { value: "all", label: "All" },
-    ...RATINGS.map((rating) => ({ value: rating as Tab, label: STATE_LABELS[rating] })),
+    ...RATINGS.map((rating) => ({ value: rating, label: STATE_LABELS[rating] })),
     { value: "not-interested", label: "Not interested" },
   ];
 

@@ -2,7 +2,6 @@ import { createReadStream, existsSync } from "node:fs";
 import { join } from "node:path";
 import { Readable } from "node:stream";
 import { StringDecoder } from "node:string_decoder";
-import type { ReadableStream as WebReadableStream } from "node:stream/web";
 import { createGunzip } from "node:zlib";
 import type { FetchLike } from "../sources/http.js";
 
@@ -30,7 +29,7 @@ async function* lines(stream: Readable): AsyncGenerator<string> {
   let rest = "";
   for await (const chunk of stream) {
     const parts = (rest + decoder.write(chunk as Buffer)).split("\n");
-    rest = parts.pop()!;
+    rest = parts.pop() ?? "";
     for (const line of parts) yield line.endsWith("\r") ? line.slice(0, -1) : line;
   }
   rest += decoder.end();
@@ -43,7 +42,7 @@ export function httpDatasets(fetch: FetchLike = globalThis.fetch, base = IMDB_DA
     const url = `${base}/${name}.tsv.gz`;
     const response = await fetch(url);
     if (!response.ok || !response.body) throw new Error(`${url} answered ${response.status}`);
-    const body = Readable.fromWeb(response.body as unknown as WebReadableStream<Uint8Array>);
+    const body = Readable.fromWeb(response.body);
     return lines(body.pipe(createGunzip()));
   };
 }

@@ -69,8 +69,9 @@ export interface Profile {
 /** 1/√k for each feature, k being how many features of its kind the title has. */
 export function spread(features: readonly Feature[]): Map<Feature, number> {
   const perKind = new Map<string, number>();
-  for (const feature of features) perKind.set(feature[0]!, (perKind.get(feature[0]!) ?? 0) + 1);
-  return new Map(features.map((feature) => [feature, 1 / Math.sqrt(perKind.get(feature[0]!)!)]));
+  const kindOf = (feature: Feature) => feature[0] ?? "";
+  for (const feature of features) perKind.set(kindOf(feature), (perKind.get(kindOf(feature)) ?? 0) + 1);
+  return new Map(features.map((feature) => [feature, 1 / Math.sqrt(perKind.get(kindOf(feature)) ?? 1)]));
 }
 
 export function buildProfile(rated: readonly RatedTitle[]): Profile {
@@ -84,7 +85,7 @@ export function buildProfile(rated: readonly RatedTitle[]): Profile {
     }
   }
   const weights = new Map<Feature, number>();
-  for (const [feature, sum] of sums) weights.set(feature, sum / Math.sqrt(counts.get(feature)!));
+  for (const [feature, sum] of sums) weights.set(feature, sum / Math.sqrt(counts.get(feature) ?? 1));
   return { weights, counts };
 }
 
@@ -110,7 +111,7 @@ export function share(rated: RatedTitle, candidate: { features: readonly Feature
     const their = theirs.get(feature);
     if (their !== undefined)
       total +=
-        ((RATING_WEIGHTS[rated.rating] * their) / Math.sqrt(profile.counts.get(feature)!)) *
+        ((RATING_WEIGHTS[rated.rating] * their) / Math.sqrt(profile.counts.get(feature) ?? 1)) *
         featureWeight(feature) *
         part;
   }

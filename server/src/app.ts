@@ -65,7 +65,7 @@ export function isUnder(path: string, prefix: string): boolean {
 }
 
 export function pathOf(url: string): string {
-  return url.split("?")[0]!;
+  return url.split("?")[0] ?? url;
 }
 
 /**

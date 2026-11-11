@@ -139,17 +139,18 @@ export async function importPool({
   const kept = new Map<string, Kept>();
   const atThreshold = REPORT_THRESHOLDS.map((threshold) => ({ minVotes: threshold, movies: 0, series: 0 }));
   for await (const [id, type, title, , isAdult, start, end, runtime, genres] of rows(datasets, "title.basics")) {
-    const rated = id === undefined ? undefined : ratings.get(id);
-    const kind = type === undefined ? undefined : KINDS[type];
+    if (id === undefined || type === undefined) continue;
+    const rated = ratings.get(id);
+    const kind = KINDS[type];
     if (!rated || !kind || isAdult !== "0" || !title) continue;
     for (const count of atThreshold) if (rated.votes >= count.minVotes) count[kind === "movie" ? "movies" : "series"]++;
     if (rated.votes < minVotes) continue;
     const minutes = value(runtime);
-    const imdbId = own(id!);
+    const imdbId = own(id);
     kept.set(imdbId, {
       imdbId,
       kind,
-      imdbType: own(type!),
+      imdbType: own(type),
       title: own(title),
       startYear: year(start),
       endYear: year(end),

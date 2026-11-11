@@ -45,10 +45,12 @@ export function routeOf(pathname: string, search: string, base: string = appBase
         return { page: first };
       case "search":
         return { page: "search", query: new URLSearchParams(search).get("q") ?? "" };
+      default:
+        break;
     }
   }
-  if (parts.length === 2 && first === "title" && /^tt\d{7,10}$/.test(second!)) {
-    return { page: "title", id: second! };
+  if (parts.length === 2 && first === "title" && second !== undefined && /^tt\d{7,10}$/.test(second)) {
+    return { page: "title", id: second };
   }
   return { page: "not-found" };
 }

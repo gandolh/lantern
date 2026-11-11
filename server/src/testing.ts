@@ -24,7 +24,7 @@ export async function signIn(app: FastifyInstance, username = "owner"): Promise<
   const lines = header === undefined ? [] : Array.isArray(header) ? header : [header];
   const line = lines.find((l) => l.startsWith(`${SESSION_COOKIE}=`));
   if (line === undefined) throw new Error("sign-in set no session cookie");
-  return line.split(";")[0]!;
+  return line.split(";")[0] ?? line;
 }
 
 export interface SeedTitle {
