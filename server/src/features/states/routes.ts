@@ -1,18 +1,17 @@
 import {
+  clearStateResponseSchema,
   MAX_STATES_PAGE,
   setStateRequestSchema,
+  skipResponseSchema,
+  stateCountsResponseSchema,
+  stateRowSchema,
   statesQuerySchema,
+  statesResponseSchema,
   titleParamsSchema,
-  type ClearStateResponse,
-  type SkipResponse,
-  type StateCountsResponse,
-  type StateRow,
-  type StatesResponse,
-  type TitleStateResponse,
+  titleStateResponseSchema,
 } from "@lantern/shared";
-import type { FastifyInstance } from "fastify";
+import type { FastifyPluginAsyncZod } from "@fastify/type-provider-zod";
 import { currentUserId } from "../../plugins/auth/index.js";
-import { parse } from "../../plugins/errors.js";
 import type { StatesStore } from "./store.js";
 
 /** How many rows a page holds when the request doesn't say. */
@@ -32,59 +31,57 @@ const DEFAULT_PAGE = 50;
  *
  * `:id` is an IMDb id (`tt0111161`).
  */
-export function registerStateRoutes(app: FastifyInstance, states: StatesStore): void {
-  app.get("/v1/titles/:id/state", async (request, reply) => {
-    const params = parse(titleParamsSchema, request.params, reply);
-    if (!params) return reply;
-    const body: TitleStateResponse = { row: states.get(currentUserId(request), params.id) ?? null };
-    return body;
-  });
+export const stateRoutes: FastifyPluginAsyncZod<{ states: StatesStore }> = async (app, { states }) => {
+  app.get(
+    "/v1/titles/:id/state",
+    { schema: { params: titleParamsSchema, response: { 200: titleStateResponseSchema } } },
+    async (request) => ({ row: states.get(currentUserId(request), request.params.id) ?? null }),
+  );
 
-  app.put("/v1/titles/:id/state", async (request, reply) => {
-    const params = parse(titleParamsSchema, request.params, reply);
-    if (!params) return reply;
-    const body = parse(setStateRequestSchema, request.body, reply);
-    if (!body) return reply;
-    const row: StateRow = states.set(currentUserId(request), params.id, body.state);
-    return row;
-  });
+  app.put(
+    "/v1/titles/:id/state",
+    { schema: { params: titleParamsSchema, body: setStateRequestSchema, response: { 200: stateRowSchema } } },
+    async (request) => states.set(currentUserId(request), request.params.id, request.body.state),
+  );
 
-  app.delete("/v1/titles/:id/state", async (request, reply) => {
-    const params = parse(titleParamsSchema, request.params, reply);
-    if (!params) return reply;
-    const body: ClearStateResponse = { cleared: states.clear(currentUserId(request), params.id) };
-    return body;
-  });
+  app.delete(
+    "/v1/titles/:id/state",
+    { schema: { params: titleParamsSchema, response: { 200: clearStateResponseSchema } } },
+    async (request) => ({ cleared: states.clear(currentUserId(request), request.params.id) }),
+  );
 
-  app.post("/v1/titles/:id/skip", async (request, reply) => {
-    const params = parse(titleParamsSchema, request.params, reply);
-    if (!params) return reply;
-    states.skip(currentUserId(request), params.id);
-    const body: SkipResponse = { skipped: true };
-    return body;
-  });
+  app.post(
+    "/v1/titles/:id/skip",
+    { schema: { params: titleParamsSchema, response: { 200: skipResponseSchema } } },
+    async (request) => {
+      states.skip(currentUserId(request), request.params.id);
+      return { skipped: true };
+    },
+  );
 
-  app.delete("/v1/titles/:id/skip", async (request, reply) => {
-    const params = parse(titleParamsSchema, request.params, reply);
-    if (!params) return reply;
-    states.unskip(currentUserId(request), params.id);
-    const body: SkipResponse = { skipped: false };
-    return body;
-  });
+  app.delete(
+    "/v1/titles/:id/skip",
+    { schema: { params: titleParamsSchema, response: { 200: skipResponseSchema } } },
+    async (request) => {
+      states.unskip(currentUserId(request), request.params.id);
+      return { skipped: false };
+    },
+  );
 
-  app.get("/v1/states", async (request, reply) => {
-    const query = parse(statesQuerySchema, request.query, reply);
-    if (!query) return reply;
-    const body: StatesResponse = states.list(currentUserId(request), {
-      state: query.state,
-      limit: Math.min(query.limit ?? DEFAULT_PAGE, MAX_STATES_PAGE),
-      cursor: query.cursor,
-    });
-    return body;
-  });
+  app.get(
+    "/v1/states",
+    { schema: { querystring: statesQuerySchema, response: { 200: statesResponseSchema } } },
+    async (request) => {
+      const query = request.query;
+      return states.list(currentUserId(request), {
+        state: query.state,
+        limit: Math.min(query.limit ?? DEFAULT_PAGE, MAX_STATES_PAGE),
+        cursor: query.cursor,
+      });
+    },
+  );
 
-  app.get("/v1/states/counts", async (request) => {
-    const body: StateCountsResponse = { counts: states.counts(currentUserId(request)) };
-    return body;
-  });
-}
+  app.get("/v1/states/counts", { schema: { response: { 200: stateCountsResponseSchema } } }, async (request) => ({
+    counts: states.counts(currentUserId(request)),
+  }));
+};

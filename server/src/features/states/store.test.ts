@@ -184,3 +184,54 @@ describe("users and guards", () => {
     expect(await getState("tt1375666")).toBeNull();
   });
 });
+
+describe("the states routes' schemas", () => {
+  it("answers a bad id and an unknown query key with a 400 naming the field, never the value", async () => {
+    const badId = await call({ method: "PUT", url: "/lantern-api/v1/titles/nope/state", payload: { state: "good" } });
+    expect(badId.statusCode).toBe(400);
+    expect(badId.json<ErrorBody>()).toEqual({
+      code: "invalid_request",
+      message: "id: must be an IMDb id such as tt0111161",
+    });
+    const unknownKey = await call({ url: "/lantern-api/v1/states?foo=1" });
+    expect(unknownKey.statusCode).toBe(400);
+    expect(unknownKey.json<ErrorBody>().message).toBe('request: Unrecognized key: "foo"');
+  });
+
+  it("answers an unsigned request to a route with a declared 200 with the guard's 401, not a 500", async () => {
+    const res = await app.inject({ url: "/lantern-api/v1/states" });
+    expect(res.statusCode).toBe(401);
+    expect(res.json<ErrorBody>()).toEqual({ code: "unauthorized", message: "sign in to Lantern first" });
+  });
+
+  it("strips a field the schema does not name, and turns a reply that breaks it into a 500 with no detail", async () => {
+    const real = t.states;
+    const leaky = await buildTestApp({
+      now: () => clock,
+      states: {
+        ...real,
+        get: (_userId, id) => ({ imdbId: id, state: "good", updatedAt: 1, secret: "kept" }) as never,
+      },
+    });
+    const leakyCookie = await signIn(leaky);
+    const stripped = await leaky.app.inject({
+      url: "/lantern-api/v1/titles/tt1375666/state",
+      headers: { cookie: leakyCookie },
+    });
+    expect(stripped.json()).toEqual({ row: { imdbId: "tt1375666", state: "good", updatedAt: 1 } });
+    await leaky.app.close();
+
+    const broken = await buildTestApp({
+      states: { ...real, get: (_userId, id) => ({ imdbId: id, state: "bogus", updatedAt: 1 }) as never },
+    });
+    const brokenCookie = await signIn(broken);
+    const res = await broken.app.inject({
+      url: "/lantern-api/v1/titles/tt1375666/state",
+      headers: { cookie: brokenCookie },
+    });
+    expect(res.statusCode).toBe(500);
+    expect(res.json<ErrorBody>()).toEqual({ code: "internal", message: "Lantern hit an error; see its log" });
+    expect(res.body).not.toContain("bogus");
+    await broken.app.close();
+  });
+});

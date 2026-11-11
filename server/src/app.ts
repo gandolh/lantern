@@ -23,7 +23,7 @@ import {
 } from "./features/sources/index.js";
 
 import { registerTitleRoutes } from "./features/titles/index.js";
-import { createStatesStore, registerStateRoutes, type StatesStore } from "./features/states/index.js";
+import { createStatesStore, stateRoutes, type StatesStore } from "./features/states/index.js";
 import { createSuggester, registerSuggestionRoutes } from "./features/suggestions/index.js";
 
 /**
@@ -149,7 +149,7 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   });
 
   await app.register(healthRoutes);
-  registerStateRoutes(app, states);
+  await app.register(stateRoutes, { states });
   registerSourceRoutes(app, records, options.posterFetch ?? globalThis.fetch);
   registerPoolRoutes(app, pool);
   registerTitleRoutes(app, { pool, states, records });
