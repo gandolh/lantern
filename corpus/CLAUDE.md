@@ -43,11 +43,6 @@ corpus/
   "vps-deploy".
 - The app is independent of the owner's other apps (Shelfmark included): patterns may be copied
   from them, but no shared data or cross-app features unless the owner asks.
-- Never write the production domain, an API key or a password into the repo. Keys are named by
-  their `.env` variable.
-- No CI, no pushes, no deploys: the owner pushes and deploys.
 
-## brief-board
-
-Brief progress goes on brief-board. Run `brief-board guide` before you
-start or resume a brief, and follow it.
+The repo-wide rules (no secrets, no CI, no pushes, no deploys) and the brief-board section are in
+the root [CLAUDE.md](../CLAUDE.md).
