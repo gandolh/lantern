@@ -7,7 +7,7 @@ updated: 2026-11-04
 
 Search, the rating cards and the suggestions all draw from the pool, so they cost no outside
 call ([decisions.md](decisions.md)). The files and their terms are in [sources.md](sources.md).
-Code: [server/src/pool/](../../server/src/pool/import.ts).
+Code: [server/src/features/pool/](../../server/src/features/pool/import.ts).
 
 ## What it keeps
 

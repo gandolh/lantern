@@ -53,7 +53,7 @@ IMDb ids; no real data existed yet, so nothing was converted.
 
 ## The rules
 
-All in [states.ts](../../server/src/states.ts), the only module that runs SQL on `title_states`
+All in [store.ts](../../server/src/features/states/store.ts), the only module that runs SQL on `title_states`
 and `card_skips`:
 
 - A title has at most one state per user: `awful`, `meh`, `good`, `amazing`, `not_interested`
@@ -67,7 +67,7 @@ and `card_skips`:
 ## The routes
 
 Behind sign-in; the writes behind the Origin check ([sign-in.md](sign-in.md)). Code:
-[routes/states.ts](../../server/src/routes/states.ts); contract:
+[routes.ts](../../server/src/features/states/routes.ts); contract:
 [states.ts](../../shared/src/states.ts).
 
 | Route | Answer |

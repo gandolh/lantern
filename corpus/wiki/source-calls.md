@@ -7,7 +7,7 @@ updated: 2026-11-04
 
 What OMDb offers, and its terms, are in [sources.md](sources.md); IMDb's files feed the pool
 ([titles.md](titles.md)), which needs no call at all. This page is how the server asks OMDb.
-Code: [server/src/sources/](../../server/src/sources/records.ts). Every call is the server's;
+Code: [server/src/features/sources/](../../server/src/features/sources/records.ts). Every call is the server's;
 the browser only talks to Lantern ([decisions.md](decisions.md)).
 
 ## The key
@@ -19,7 +19,7 @@ query string, where the key sits.
 
 ## The queue
 
-One queue ([queue.ts](../../server/src/sources/queue.ts)): one request at a time, each at least
+One queue ([queue.ts](../../server/src/features/sources/queue.ts)): one request at a time, each at least
 a second after the last started. Kept records never queue. Two callers asking for the same
 title at once share one request. A `429` waits `Retry-After` (at most 5 s) and retries once.
 Requests time out after 10 s. A free key allows 1,000 calls a day, so OMDb is asked only for a
@@ -27,7 +27,7 @@ title shown in full: the title page and the card on screen.
 
 ## The record
 
-[omdb.ts](../../server/src/sources/omdb.ts) asks `?i=<id>&plot=full` and reads leniently: title,
+[omdb.ts](../../server/src/features/sources/omdb.ts) asks `?i=<id>&plot=full` and reads leniently: title,
 type, years (`2010`; `2011–2019`; `2019–` read as still running), rated, released, runtime in
 minutes, genres, directors, writers (the "(screenplay)" notes dropped), actors, plot, language,
 country, awards, seasons, and the three scores (IMDb rating and votes, Rotten Tomatoes %,
@@ -38,7 +38,7 @@ the daily limit) is a refusal, which throws.
 
 ## The cache
 
-[cache.ts](../../server/src/sources/cache.ts), table `omdb_records` ([data-model.md](data-model.md)):
+[cache.ts](../../server/src/features/sources/cache.ts), table `omdb_records` ([data-model.md](data-model.md)):
 
 | Answer | Kept |
 |---|---|
@@ -58,8 +58,8 @@ the rating cards for the card on screen and the next one.
 ## The poster proxy
 
 `GET /v1/posters/:id?size=normal|large`, behind sign-in
-([routes/sources.ts](../../server/src/routes/sources.ts),
-[posters.ts](../../server/src/sources/posters.ts)). It serves the poster of a title whose OMDb
+([routes.ts](../../server/src/features/sources/routes.ts),
+[posters.ts](../../server/src/features/sources/posters.ts)). It serves the poster of a title whose OMDb
 record is kept, and answers 404 otherwise: **it never asks OMDb**. OMDb's poster URLs end in
 Amazon's image modifiers after `._V1_` (on 2026-11-04 `._V1_QL75_UX380_CR0,0,380,562_.jpg`, 380
 pixels wide); `large` swaps them for `SX760`, the same image 760 wide (checked on a real poster),

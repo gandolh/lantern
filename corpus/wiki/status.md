@@ -60,18 +60,18 @@ on the shared machine. 104 tests; typecheck and lint clean. The owner pushes.
 
 ## Quality harness
 
+- **Server structure** (2026-11-11). `server.ts` listens, `app.ts` builds, `config.ts` alone reads the environment, `plugins/` and `features/<name>/` hold the rest, every route declares its zod schemas through the type provider, and tests build the app with `buildTestApp` ([architecture.md](architecture.md)). The container now starts `node server/dist/server.js`; the import and source-check CLIs sit in their features. Built, not deployed.
 - **House style** (2026-11-11). Prettier at 120, the house ESLint config, `npm run check` and
   `check:fast`, the root `CLAUDE.md` and `.claude/rules/` ([decisions.md](decisions.md)). 104 tests.
   `check-base-ui` runs strict since brief 17 (0 findings) with ESLint's `better-tailwindcss` rules on;
-  `check-structure` runs `--warn-only` until brief 18. 144 tests since brief 17.
+  `check-structure` runs strict since brief 18 (0 findings, two exceptions in `scripts/conventions.json`), with dependency-cruiser in `check:conventions`. 161 tests since brief 18.
 
 ## Open briefs
 
-Two, written 2026-11-10 for the owner's calls of 2026-11-09 (Base UI 1.9.0 everywhere, whole apps
+One, written 2026-11-10 for the owner's calls of 2026-11-09 (Base UI 1.9.0 everywhere, whole apps
 on Tailwind v4, the researched conventions enforced) and revised the same day to the owner's grilling
-answers; the last is the redesign. They run in order:
+answers; it is the redesign:
 
-- **18** the server in the code structure (`features/`, the zod type provider, `server.ts`).
 - **19** a redesign with Hallmark, approved on the estate board before any code changes.
 
 ## Todos

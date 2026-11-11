@@ -1,5 +1,5 @@
 ---
-summary: Locked calls for Lantern, settled by the owner on 2026-11-04, each with what was rejected and why. One user and no social features; on the VPS with Ward and local accounts, no sign-up, /lantern/ and /lantern-api/ on ports 5180 and 8810, no background work; films and series, a series rated once per show; four steps plus not interested and want to watch as states; English only; no where-to-stream; rating cards that stay after the start. Revisited the same day - TMDB dropped (its entries kept, marked superseded): OMDb for details, posters and scores plus IMDb's non-commercial files as the title pool, imported by hand; titles keyed by IMDb id; suggestions rank the pool by a plain taste profile of genres, directors and writers, with a reason and no match %; on the cards, swipes are for the titles not seen (right want to watch, left not interested, up skip) and ratings are taps. Read before proposing to change any of these.
+summary: Locked calls for Lantern, settled by the owner on 2026-11-04, each with what was rejected and why. One user and no social features; on the VPS with Ward and local accounts, no sign-up, /lantern/ and /lantern-api/ on ports 5180 and 8810, no background work; films and series, a series rated once per show; four steps plus not interested and want to watch as states; English only; no where-to-stream; rating cards that stay after the start. Revisited the same day - TMDB dropped (its entries kept, marked superseded): OMDb for details, posters and scores plus IMDb's non-commercial files as the title pool, imported by hand; titles keyed by IMDb id; suggestions rank the pool by a plain taste profile of genres, directors and writers, with a reason and no match %; on the cards, swipes are for the titles not seen (right want to watch, left not interested, up skip) and ratings are taps. Read before proposing to change any of these. The server in the house code structure (features, zod type provider, timeouts).
 updated: 2026-11-11
 ---
 
@@ -174,3 +174,19 @@ System follows the operating system in CSS. Type is a named scale at the old 15 
 until the redesign, which would split the family's naming; Tailwind's default scales alongside the tokens,
 which lets an off-palette colour in unseen; and a `[data-theme="dark"]` block redefining every colour, which
 the skill's `light-dark()` makes unnecessary. Revisits the earlier line "dark mode follows the system".
+
+## The server in the house code structure
+_2026-11-11_. The server moved from a layer split (`routes/`, `pool/`, `sources/`, `suggest/` and a flat
+root) to the estate's code structure: `server.ts` listens and `app.ts` builds, `config.ts` is the one
+reader of the environment, cross-cutting plugins in `plugins/` wrapped in `fastify-plugin`, one folder
+per domain under `features/<name>/` used through its `index.ts`, and a zod schema on every route through
+`@fastify/type-provider-zod`, so a field the schema doesn't name never leaves the server. The error body
+stays Lantern's `{ code, message }`, which the page parses. Tests pass dependencies as plugin options
+(`buildTestApp`), with no decorators as a test seam. Rejected: keeping the layer split, which scatters one
+domain over four folders; `@fastify/autoload`, which hides the registration order that is the
+architecture; TypeBox, because the contract is already zod in `shared/`. Two settings are Lantern's own:
+`connectionTimeout` is 45 s, because it cuts a response still being computed and the record route waits
+in the OMDb queue and on a slow call for about 26 s with no byte sent (a 20 s run completed at 45 s and
+was cut at 10 s); `keepAliveTimeout` is 125 s, above Caddy's two-minute idle keep-alive. A route declares
+only the statuses its own handler sends: a declared 401 would run the session guard's reply through the
+serializer. The poster route sends image bytes, so it has no response schema.

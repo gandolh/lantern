@@ -6,8 +6,8 @@ updated: 2026-11-04
 # Suggestions
 
 What was decided: [decisions.md](decisions.md), "Suggestions rank the pool". Code:
-[score.ts](../../server/src/suggest/score.ts) (pure functions) and
-[suggest.ts](../../server/src/suggest/suggest.ts) (what feeds them).
+[score.ts](../../server/src/features/suggestions/score.ts) (pure functions) and
+[service.ts](../../server/src/features/suggestions/service.ts) (what feeds them).
 `GET /v1/suggestions?kind=&limit=` answers the ranked titles, each with the liked title behind
 it; the home page shows them. No OMDb call: a poster shows only when one is already kept.
 

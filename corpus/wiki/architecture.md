@@ -1,6 +1,6 @@
 ---
 summary: How Lantern is put together, as built from 2026-11-04. Three npm workspaces (the shared zod contract, the Fastify + SQLite server, the React page on Vite), the request path in dev (Vite on 5180 proxying /lantern-api to the API on 8810) and on the VPS (Caddy), the settings and their defaults, where the data lives, the page's router and frame, and the rule that the server works only while answering a request.
-updated: 2026-11-04
+updated: 2026-11-11
 ---
 
 # Architecture
@@ -15,11 +15,27 @@ Vitest (one project at the root, `forks` pool for the native SQLite addon), ESLi
 
 - `shared` (`@lantern/shared`): the API contract as zod schemas. The server builds its answers
   from them and the page parses answers with them.
-- `server` (`@lantern/server`): Fastify 5 on better-sqlite3. `config.ts` reads the settings,
-  `db.ts` opens the file and runs the migrations (`PRAGMA user_version`), `app.ts` builds the
-  routes behind the sign-in guard ([sign-in.md](sign-in.md)), `index.ts` starts it, `seed.ts`
-  makes the local account. ward-auth is vendored in `server/vendor/ward/` and
-  `web/vendor/ward/`.
+- `server` (`@lantern/server`): Fastify 5 on better-sqlite3, in the house code structure
+  ([decisions.md](decisions.md)):
+  - `server.ts` is the only file that listens: settings, `buildApp`, `close-with-grace`, the
+    timeouts and `trustProxy`. `app.ts` builds the app and never listens; it registers, in order, the
+    errors plugin, the zod compilers, `plugins/auth` (the sign-in guard, [sign-in.md](sign-in.md)),
+    then the features by name.
+  - `config.ts` is the only reader of the environment: `loadConfig()`, `loadEnvFile()`,
+    `repoRoot()`, `resolveDbPath()` and the seed's `loadSeedConfig()`.
+  - `db.ts` opens the file and runs the migrations (`PRAGMA user_version`); `seed.ts` makes the
+    local account.
+  - `plugins/` holds the cross-cutting plugins, wrapped in `fastify-plugin`: `errors.ts` (the one
+    error handler and `fail()`) and `auth/` (the guard, the 401 rewrite, the Origin check,
+    `currentUserId`, the accounts).
+  - `features/<name>/` holds one domain each: `states`, `pool`, `sources`, `titles`, `cards`,
+    `suggestions`, `lists`, `health`. A feature is used through its `index.ts`; `routes.ts` is its
+    plugin, `store.ts` its SQL. `states`, `pool` and `sources` are the leaves; nothing imports
+    `titles`, `cards`, `lists` or `suggestions`. dependency-cruiser enforces both.
+  - ward-auth is vendored in `server/vendor/ward/` and `web/vendor/ward/`.
+  - Dependencies: `@fastify/type-provider-zod` 1.0.3 declares `@fastify/swagger` and
+    `openapi-types` as required peers, so both are pinned in `server/package.json` though no API
+    docs are served.
 - `web` (`@lantern/web`): Vite and React 19. `route.ts` is a small hand-written router over
   `history`; `Shell.tsx` is the frame; each section is a page component.
 
@@ -33,8 +49,10 @@ Vitest (one project at the root, `forks` pool for the native SQLite addon), ESLi
 
 The server strips `/lantern-api` itself too, so a request reaches the same route with or without
 it. Every route is under `/v1` and needs a session, except `GET /v1/health` (`{ ok: true }`);
-sign-in is under `/auth`. Errors are
-`{ code, message }`, and a message never quotes the request body.
+sign-in is under `/auth`. Every route declares its zod schemas (params, query string, body and the
+statuses its handler sends), so a bad request is a 400 `invalid_request` naming the field and a
+reply is stripped to its schema. Only the poster route has no response schema (it sends image
+bytes). Errors are `{ code, message }`, and a message never quotes the request body.
 
 ## Settings
 
@@ -50,7 +68,7 @@ its value.
 | `PUBLIC_ORIGIN` | `http://localhost:5180` | the page's origin as the browser sees it |
 | `LANTERN_API_PREFIX` | `/lantern-api` | the API's prefix as the browser sees it |
 | `LANTERN_BASE` | `/lantern/` | the page's base path (the build reads it too) |
-| `AUTH_TRUSTED_PROXIES`, `WARD_OIDC_*`, `SEED_*` | empty | sign-in ([sign-in.md](sign-in.md)) |
+| `AUTH_TRUSTED_PROXIES`, `WARD_OIDC_*`, `SEED_*` | empty | sign-in ([sign-in.md](sign-in.md)); the proxies are also Fastify's `trustProxy`, with loopback |
 | `OMDB_API_KEY` | empty | OMDb's key, a secret ([source-calls.md](source-calls.md)) |
 
 ## Data

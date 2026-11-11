@@ -257,3 +257,20 @@ System switch is on the account page (light first; `data-theme`, a boot script, 
 `Button` wrapper; `check-base-ui` strict at 0; ESLint `better-tailwindcss` on. Built CSS 11.69 kB (3.24
 gzip) before, 26.72 kB (6.04 gzip) after; JS 364.02 kB (111.73 gzip) before, 400.62 kB (123.44 gzip)
 after. Details in the brief's outcome note and [web-app](wiki/web-app.md).
+
+## [2026-11-11] brief | 18: the server in the house code structure
+
+`index.ts` became `server.ts` (`close-with-grace`, `connectionTimeout` 45 s, `requestTimeout` 30 s,
+`keepAliveTimeout` 125 s, `trustProxy` loopback plus `AUTH_TRUSTED_PROXIES`); `config.ts` is the one reader of
+the environment (`repoRoot()`, `loadEnvFile()`, `resolveDbPath()`, `loadSeedConfig()`), four copies of the
+`.env` read are gone and `no-process-env` is an error. The errors and the session guard are `fastify-plugin`
+plugins; eight feature folders under `server/src/features/`, used through their indexes, with the pool import
+and source check CLIs beside their features (`node server/dist/features/pool/cli.js`). Every route declares
+its schemas through the zod type provider (the poster route has no response schema); `parse()` is deleted;
+tests build the app with `buildTestApp` and no decorator is left. `check-structure` went from 39 findings
+(rule 1: 1, rule 3: 6, rule 6: 32) to 0, strict, with two exceptions; dependency-cruiser stays in
+`check:conventions` and fails a deliberate cross-feature import. Before and after JSON of 69 replies on made-up
+titles: byte-identical except the list rows (keys in the schema's order, same JSON), a request with no body
+(the message says "received null" where it said "received undefined"), and an unknown list with an unknown
+query key (400 where it was 404). No field was dropped: nothing leaked. A 20 s record request completed under
+the 45 s timeout and was cut at 10 s. Details in the brief's outcome note and [architecture](wiki/architecture.md).

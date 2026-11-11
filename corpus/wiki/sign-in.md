@@ -7,7 +7,8 @@ updated: 2026-11-04
 
 Like the owner's other apps ([decisions.md](decisions.md)): a local account made by the seed,
 plus "Sign in with Ward", and no register page. Built on the model of Wicket's sign-in. The code:
-[app.ts](../../server/src/app.ts), [accounts.ts](../../server/src/accounts.ts),
+[plugins/auth/](../../server/src/plugins/auth/index.ts) (the guard, the 401 rewrite, the Origin check),
+[accounts.ts](../../server/src/plugins/auth/accounts.ts), [app.ts](../../server/src/app.ts) (registers it first),
 [seed.ts](../../server/src/seed.ts), [AuthGate.tsx](../../web/src/AuthGate.tsx).
 
 ## The library
