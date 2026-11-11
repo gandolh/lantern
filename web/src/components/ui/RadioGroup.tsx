@@ -68,7 +68,7 @@ export function RadioGroup<Value extends string>({
           <label key={option.value} className="flex cursor-pointer items-center gap-2">
             <Radio.Root
               value={option.value}
-              className="grid size-4.5 place-items-center rounded-full border border-line bg-surface data-checked:border-accent"
+              className="grid size-4.5 place-items-center rounded-full border border-ink-muted bg-surface data-checked:border-accent"
             >
               <Radio.Indicator className="size-2.5 rounded-full bg-accent" />
             </Radio.Root>

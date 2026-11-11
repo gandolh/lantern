@@ -50,7 +50,9 @@ describe("styles/index.css", () => {
     for (const body of rootRules()) expect(body).not.toMatch(/(^|;|\s)font-size:/);
   });
 
-  it("names both themes once, in each colour token", () => {
+  it("names both themes once, in each colour token, and picks one from data-theme", () => {
     expect(css).toMatch(/--color-page: light-dark\(#f7f4ef, #14110f\)/);
+    expect(css).toMatch(/:root\[data-theme="dark"\]\s*\{\s*color-scheme: dark/);
+    expect(css).toMatch(/:root\[data-theme="system"\]\s*\{\s*color-scheme: light dark/);
   });
 });

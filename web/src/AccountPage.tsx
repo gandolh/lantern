@@ -6,6 +6,7 @@ import { Button } from "./components/ui/Button";
 import { ImdbCredit } from "./Credits";
 import { DETAIL, FACTS, NOTICE, PAGE_TITLE, SECTION_TITLE, TERM } from "./looks";
 import { accountMessage } from "./messages";
+import { ThemeSwitch } from "./ThemeSwitch";
 import { useQuery } from "./useQuery";
 
 /**
@@ -59,6 +60,13 @@ export function AccountPage() {
       )}
 
       <PoolSection />
+
+      <section className="mt-7 border-t border-line pt-5" aria-labelledby="look-heading">
+        <h2 id="look-heading" className={SECTION_TITLE}>
+          Look
+        </h2>
+        <ThemeSwitch />
+      </section>
 
       <div className="mt-5 flex flex-wrap gap-2.5">
         {ward.enabled && !ward.linked && !link.linked && (
