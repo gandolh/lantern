@@ -1,5 +1,6 @@
 import { RATINGS, type TitleState } from "@lantern/shared";
 import { useState } from "react";
+import { ToggleGroup, ToggleItem } from "./components/ui/ToggleGroup";
 import { saveState } from "./titlesApi";
 
 /** The words for each state. */
@@ -36,9 +37,8 @@ export function StatePicker({
   const [state, setState] = useState<TitleState | null>(initial);
   const [failed, setFailed] = useState(false);
 
-  const choose = (choice: TitleState) => {
+  const choose = (next: TitleState | null) => {
     const before = state;
-    const next = state === choice ? null : choice;
     setState(next);
     setFailed(false);
     saveState(imdbId, next).then(
@@ -50,34 +50,29 @@ export function StatePicker({
     );
   };
 
-  const button = (choice: TitleState, extra = "") => (
-    <button
-      key={choice}
-      type="button"
-      className={`state-button state-${choice} ${extra}`}
-      aria-pressed={state === choice}
-      onClick={() => choose(choice)}
-    >
+  const item = (choice: TitleState) => (
+    <ToggleItem key={choice} value={choice} className={`state-button state-${choice}`}>
       {STATE_LABELS[choice]}
-    </button>
+    </ToggleItem>
   );
 
   return (
-    <div
+    <ToggleGroup<TitleState>
+      label={`Your verdict on ${title}`}
+      value={state}
+      onValueChange={choose}
       className={`state-picker${compact ? " state-picker-compact" : ""}`}
-      role="group"
-      aria-label={`Your verdict on ${title}`}
     >
-      <div className="state-ratings">{RATINGS.map((rating) => button(rating))}</div>
+      <div className="state-ratings">{RATINGS.map(item)}</div>
       <div className="state-others">
-        {button("want_to_watch")}
-        {button("not_interested")}
+        {item("want_to_watch")}
+        {item("not_interested")}
       </div>
       {failed && (
         <p className="state-error" role="alert">
           That didn't save. Try again.
         </p>
       )}
-    </div>
+    </ToggleGroup>
   );
 }
