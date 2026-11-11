@@ -21,18 +21,22 @@ export const SECTIONS: ReadonlyArray<{ route: Route; label: string; icon: () => 
  */
 export function Shell({ current, children }: { current: Page; children: ReactNode }) {
   return (
-    <div className="app">
-      <header className="topbar">
-        <Link to={{ page: "suggestions" }} className="brand" aria-label="Lantern, home">
-          <span className="brand-mark" aria-hidden="true" />
+    <div className="flex min-h-dvh flex-col">
+      <header className="sticky top-0 z-bar flex h-top items-center gap-6 border-b border-line bg-bar pr-[max(16px,env(safe-area-inset-right))] pl-[max(16px,env(safe-area-inset-left))] backdrop-blur-bar">
+        <Link
+          to={{ page: "suggestions" }}
+          className="inline-flex items-center gap-2.5 text-brand font-bold tracking-[0.01em] text-ink no-underline"
+          aria-label="Lantern, home"
+        >
+          <span className="size-3.5 rounded-full bg-accent shadow-brand-mark" aria-hidden="true" />
           Lantern
         </Link>
-        <nav className="topnav" aria-label="Sections">
+        <nav className="hidden gap-1 wide:flex" aria-label="Sections">
           {SECTIONS.map(({ route, label }) => (
             <Link
               key={label}
               to={route}
-              className="topnav-link"
+              className="rounded-pill px-3 py-1.5 font-medium text-ink-muted no-underline hover:bg-surface-sunk hover:text-ink aria-[current=page]:bg-accent-soft aria-[current=page]:text-ink"
               aria-current={route.page === current ? "page" : undefined}
             >
               {label}
@@ -41,28 +45,36 @@ export function Shell({ current, children }: { current: Page; children: ReactNod
         </nav>
         <Link
           to={{ page: "account" }}
-          className="account-link"
+          className="ml-auto inline-flex items-center gap-2 rounded-pill px-2.5 py-1.5 text-ink-muted no-underline hover:bg-surface-sunk hover:text-ink aria-[current=page]:bg-surface-sunk aria-[current=page]:text-ink"
           aria-current={current === "account" ? "page" : undefined}
         >
           <AccountIcon />
-          <span className="account-label">Account</span>
+          <span className="hidden wide:inline">Account</span>
         </Link>
       </header>
 
-      <main className="content" id="content">
+      <main className="mx-auto w-full max-w-page flex-1 px-4 pt-5 pb-8 wide:px-6 wide:pt-7 wide:pb-10" id="content">
         {children}
       </main>
 
-      <footer className="footer">
+      <footer className="mx-auto w-full max-w-page px-4 pb-[calc(var(--height-tab)+16px+env(safe-area-inset-bottom))] text-small text-ink-muted wide:px-6 wide:pb-6">
         <p>Lantern, for rating films and series and finding the next one.</p>
         <p>
           <ImdbCredit />
         </p>
       </footer>
 
-      <nav className="tabbar" aria-label="Sections">
+      <nav
+        className="fixed inset-x-0 bottom-0 z-bar grid h-[calc(var(--height-tab)+env(safe-area-inset-bottom))] grid-cols-5 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] wide:hidden"
+        aria-label="Sections"
+      >
         {SECTIONS.map(({ route, label, icon: Icon }) => (
-          <Link key={label} to={route} className="tab" aria-current={route.page === current ? "page" : undefined}>
+          <Link
+            key={label}
+            to={route}
+            className="flex flex-col items-center justify-center gap-0.5 text-micro font-medium text-ink-muted no-underline [-webkit-tap-highlight-color:transparent] aria-[current=page]:text-accent"
+            aria-current={route.page === current ? "page" : undefined}
+          >
             <Icon />
             <span>{label}</span>
           </Link>
