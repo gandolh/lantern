@@ -19,12 +19,12 @@ export class Unauthorized extends Error {
 /** The API answered with an error: its status, and the contract's `{ code, message }` when it sent one. */
 export class ApiError extends Error {
   override readonly name = "ApiError";
-  constructor(
-    readonly status: number,
-    readonly code: string,
-    message: string,
-  ) {
+  readonly status: number;
+  readonly code: string;
+  constructor(status: number, code: string, message: string) {
     super(message);
+    this.status = status;
+    this.code = code;
   }
 }
 

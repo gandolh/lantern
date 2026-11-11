@@ -9,8 +9,10 @@ export type FetchLike = typeof globalThis.fetch;
 /** The source can't be asked: its key isn't set. Routes answer 503 `no_key`. */
 export class NoKeyError extends Error {
   override readonly name = "NoKeyError";
-  constructor(readonly source: "OMDb") {
+  readonly source: "OMDb";
+  constructor(source: "OMDb") {
     super(`${source} has no key: set OMDB_API_KEY in .env`);
+    this.source = source;
   }
 }
 
@@ -19,12 +21,12 @@ export type SourceFailure = "timeout" | "network" | "rate_limited" | "refused" |
 /** A call to a source failed. The message names the source and the path, never a key. */
 export class SourceError extends Error {
   override readonly name = "SourceError";
-  constructor(
-    readonly failure: SourceFailure,
-    message: string,
-    readonly status?: number,
-  ) {
+  readonly failure: SourceFailure;
+  readonly status?: number;
+  constructor(failure: SourceFailure, message: string, status?: number) {
     super(message);
+    this.failure = failure;
+    this.status = status;
   }
 }
 
