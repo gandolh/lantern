@@ -1,0 +1,152 @@
+/* Lantern's one stylesheet (base-ui rule 5). The layer order comes first: the first @layer statement fixes the order
+   for the whole page. Nothing third-party is imported, so the vendor layer stays empty. */
+@layer theme, base, vendor, components, utilities;
+
+@import "tailwindcss";
+/* What hasn't moved to utilities yet. It sits below them, so a leftover rule never beats a utility. */
+@import "./legacy.css" layer(components);
+
+/* Tailwind scans every file under the web root for class names; the vendored Ward hooks aren't the app's. */
+@source not "../../vendor";
+
+/* dark: follows the theme switch (base-ui rule 14), never the system alone. */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where([data-theme="system"], [data-theme="system"] *) {
+      @slot;
+    }
+  }
+}
+
+/* The names follow the small-tools family (Wicket, the-board, Lantern; decisions Q17 and Q61). A name says a role,
+   never a value.
+   The family's: --color-page, surface, surface-sunk, ink, ink-muted, line, accent, danger, ok; --shadow-card;
+   --height-top; --font-sans; --font-mono; the radii --radius-control, card and pill.
+   Lantern's own: --color-accent-text, accent-soft, accent-hover, awful, meh, good, amazing, poster-bg, on-rating,
+   bar and brand-glow; --height-tab; --container-page, narrow, prose and gate; --radius-xs, sm and hero;
+   --shadow-brand-mark; --blur-bar; --z-index-bar and notice; --breakpoint-wide; --ease-swipe; the type scale. */
+@theme {
+  /* Tailwind's own scales are cleared, so a stray bg-red-500 or text-sm produces nothing. */
+  --color-*: initial;
+  --text-*: initial;
+  --leading-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --container-*: initial;
+  --breakpoint-*: initial;
+  --blur-*: initial;
+  --ease-*: initial;
+  --font-*: initial;
+
+  /* Both themes in one value: light-dark() takes the first for a light page and the second for a dark one, and
+     color-scheme on <html> (the base layer below) picks. No component needs dark:. */
+  --color-page: light-dark(#f7f4ef, #14110f);
+  --color-surface: light-dark(#ffffff, #1f1b18);
+  --color-surface-sunk: light-dark(#efeae2, #0f0d0b);
+  --color-ink: light-dark(#1c1917, #f3eee8);
+  --color-ink-muted: light-dark(#6b6460, #a8a29e);
+  --color-line: light-dark(#e2dbd0, #36302b);
+  --color-accent: light-dark(#b45309, #f59e0b);
+  --color-accent-text: light-dark(#ffffff, #1c1917);
+  --color-accent-soft: light-dark(#fdf0dc, #3a2a12);
+  --color-danger: light-dark(#b42318, #f97066);
+  --color-ok: light-dark(#2f7d4f, #6fcf97);
+  --color-awful: light-dark(#b42318, #f97066);
+  --color-meh: light-dark(#8a6a3a, #d6b98a);
+  --color-good: light-dark(#2f7d4f, #6fcf97);
+  --color-amazing: light-dark(#b45309, #f59e0b);
+  --color-poster-bg: light-dark(#e9e2d6, #2a2420);
+  /* The text on a pressed rating button: white in both themes. */
+  --color-on-rating: #ffffff;
+  /* Three mixes of the tokens above. They stay srgb, as they were: Tailwind's /88 opacity suffix compiles to
+     oklab, which gives a slightly different colour. */
+  --color-bar: color-mix(in srgb, var(--color-page) 88%, transparent);
+  --color-brand-glow: color-mix(in srgb, var(--color-accent) 55%, transparent);
+  --color-accent-hover: color-mix(in srgb, var(--color-accent) 88%, var(--color-ink));
+
+  --shadow-card:
+    0 1px 2px light-dark(rgb(28 25 23 / 0.08), rgb(0 0 0 / 0.5)),
+    0 4px 16px light-dark(rgb(28 25 23 / 0.06), rgb(0 0 0 / 0.35));
+  --shadow-brand-mark: 0 0 0 4px var(--color-accent-soft), 0 0 14px 2px var(--color-brand-glow);
+
+  /* Sizes are px at the old 15 px root's computed values, written in rem against the browser's 16 px, so nothing
+     moves now that the 15 px lives on body. No size carries a line height: each element inherits body's 1.5 unless
+     it takes a leading-* of its own. */
+  --text-micro: 0.675rem;
+  --text-note: 0.75rem;
+  --text-small: 0.796875rem;
+  --text-meta: 0.825rem;
+  --text-input: 1rem;
+  --text-body: 0.9375rem;
+  --text-heading: 1.03125rem;
+  --text-brand: 1.078125rem;
+  --text-card-title: 1.125rem;
+  --text-score: 1.171875rem;
+  --text-page-title: 1.5rem;
+  --text-code: 0.9em;
+  --leading-heading: 1.2;
+  --leading-card: 1.25;
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* Radii, by role. The names are the family's; the values are Lantern's. */
+  --radius-card: 12px;
+  --radius-control: 10px;
+  --radius-pill: 999px;
+  --radius-hero: 16px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+
+  --height-top: 56px;
+  --height-tab: 60px;
+  --container-page: 1080px;
+  --container-narrow: 440px;
+  --container-prose: 70ch;
+  --container-gate: 380px;
+  --blur-bar: 10px;
+  --ease-swipe: ease-out;
+
+  /* The phone and the wide layout meet here: wide: is min-width 760px, exactly. */
+  --breakpoint-wide: 760px;
+
+  /* The bars sit above the page; the undo notice sits above the rows it follows. */
+  --z-index-bar: 10;
+  --z-index-notice: 5;
+}
+
+@layer base {
+  /* Light on a first visit; the theme switch sets data-theme on <html> (base-ui rule 14). Until then the system
+     picks, as it did. */
+  :root {
+    color-scheme: light dark;
+  }
+
+  /* The app's 15 px and its 1.5 line height live on body, so html keeps the reader's own size and rem utilities
+     measure from it (Q44). */
+  body {
+    background-color: var(--color-page);
+    color: var(--color-ink);
+    font-size: var(--text-body);
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+
+  /* Preflight zeroes a paragraph's margin and strips a link's colour and underline; the page leaned on the
+     browser's defaults for both. */
+  p {
+    margin-block: 1em;
+  }
+  a {
+    color: var(--color-accent);
+    text-decoration: underline;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
