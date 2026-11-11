@@ -1,7 +1,6 @@
 import type { ErrorBody } from "@lantern/shared";
 import { hasZodFastifySchemaValidationErrors, isResponseSerializationError } from "@fastify/type-provider-zod";
 import type { FastifyPluginAsync, FastifyReply } from "fastify";
-import type { z } from "zod";
 import fp from "fastify-plugin";
 
 /** The largest request body accepted: every write is a few fields. */
@@ -10,18 +9,6 @@ export const BODY_LIMIT = 64 * 1024;
 /** Answer with the contract's error shape. The one way a handler sends an error body. */
 export function fail(reply: FastifyReply, status: number, body: ErrorBody): FastifyReply {
   return reply.status(status).send(body);
-}
-
-/** Parse with a contract schema, or answer 400 and return undefined. Messages name the field, never its value. */
-export function parse<S extends z.ZodType>(schema: S, value: unknown, reply: FastifyReply): z.output<S> | undefined {
-  const result = schema.safeParse(value);
-  if (result.success) return result.data;
-  const issue = result.error.issues[0];
-  void fail(reply, 400, {
-    code: "invalid_request",
-    message: issue ? `${issue.path.join(".") || "request"}: ${issue.message}` : "invalid request",
-  });
-  return undefined;
 }
 
 /** The first failed field as `path: message`, never the value; `request` when the failure has no path. */

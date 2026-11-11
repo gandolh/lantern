@@ -68,3 +68,13 @@ describe("the deck", () => {
     }
   });
 });
+
+describe("the cards route's schema", () => {
+  it("answers an unknown query key and a count past the limit with a 400 naming the field", async () => {
+    const unknownKey = await app.inject({ url: "/lantern-api/v1/cards?x=1", headers: { cookie } });
+    expect(unknownKey.statusCode).toBe(400);
+    expect(unknownKey.json()).toEqual({ code: "invalid_request", message: 'request: Unrecognized key: "x"' });
+    const tooMany = await app.inject({ url: "/lantern-api/v1/cards?count=999", headers: { cookie } });
+    expect(tooMany.json().message).toBe("count: Too big: expected number to be <=20");
+  });
+});

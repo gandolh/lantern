@@ -8,9 +8,9 @@ import { openDatabase, type Db } from "./db.js";
 import { authPlugin, pathOf } from "./plugins/auth/index.js";
 import { openAccounts } from "./plugins/auth/accounts.js";
 import { BODY_LIMIT, errorsPlugin, fail } from "./plugins/errors.js";
-import { registerCardRoutes } from "./features/cards/index.js";
+import { cardRoutes } from "./features/cards/index.js";
 import { healthRoutes } from "./features/health/index.js";
-import { registerListRoutes } from "./features/lists/index.js";
+import { listRoutes } from "./features/lists/index.js";
 import { createPool, poolRoutes, type Pool } from "./features/pool/index.js";
 import {
   createOmdbClient,
@@ -24,7 +24,7 @@ import {
 
 import { titleRoutes } from "./features/titles/index.js";
 import { createStatesStore, stateRoutes, type StatesStore } from "./features/states/index.js";
-import { createSuggester, registerSuggestionRoutes } from "./features/suggestions/index.js";
+import { createSuggester, suggestionRoutes } from "./features/suggestions/index.js";
 
 /**
  * The Lantern API. Every route is under `/v1` and needs a signed-in session,
@@ -150,12 +150,12 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
 
   await app.register(healthRoutes);
   await app.register(stateRoutes, { states });
-  await app.register(sourceRoutes, { records, posterFetch: options.posterFetch ?? globalThis.fetch });
   await app.register(poolRoutes, { pool });
+  await app.register(sourceRoutes, { records, posterFetch: options.posterFetch ?? globalThis.fetch });
   await app.register(titleRoutes, { pool, states, records });
-  registerCardRoutes(app, { db, records });
-  registerSuggestionRoutes(app, { suggester: createSuggester(db, states), pool, records });
-  registerListRoutes(app, { states, pool, records });
+  await app.register(cardRoutes, { db, records });
+  await app.register(suggestionRoutes, { suggester: createSuggester(db, states), pool, records });
+  await app.register(listRoutes, { states, pool, records });
 
   // The built page at `webBase`; any other path under it is the page too (index.html).
   const webDist = options.webDist;

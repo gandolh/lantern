@@ -1,1 +1,1 @@
-export { registerCardRoutes } from "./routes.js";
+export { cardRoutes } from "./routes.js";

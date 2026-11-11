@@ -97,3 +97,14 @@ describe("the lists", () => {
     ).toBe(400);
   });
 });
+
+describe("the lists route's schema", () => {
+  it("answers an unknown query key with a 400, and an unknown list with a 404 `not_found`", async () => {
+    const unknownKey = await app.inject({ url: "/lantern-api/v1/lists/ratings?x=1", headers: { cookie } });
+    expect(unknownKey.statusCode).toBe(400);
+    expect(unknownKey.json()).toEqual({ code: "invalid_request", message: 'request: Unrecognized key: "x"' });
+    const unknownList = await app.inject({ url: "/lantern-api/v1/lists/nope", headers: { cookie } });
+    expect(unknownList.statusCode).toBe(404);
+    expect(unknownList.json()).toEqual({ code: "not_found", message: "no list nope" });
+  });
+});

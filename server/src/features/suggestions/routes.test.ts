@@ -65,3 +65,14 @@ describe("GET /v1/suggestions", () => {
     expect((await suggest()).suggestions.map((s) => s.title.imdbId)).not.toContain("tt0000002");
   });
 });
+
+describe("the suggestions route's schema", () => {
+  it("answers a limit that is not a number with a 400 naming the field", async () => {
+    const res = await app.inject({ url: "/lantern-api/v1/suggestions?limit=abc", headers: { cookie } });
+    expect(res.statusCode).toBe(400);
+    expect(res.json()).toEqual({
+      code: "invalid_request",
+      message: "limit: Invalid input: expected number, received NaN",
+    });
+  });
+});

@@ -1,9 +1,8 @@
-import { cardsQuerySchema, type CardsResponse } from "@lantern/shared";
-import type { FastifyInstance } from "fastify";
+import { cardsQuerySchema, cardsResponseSchema } from "@lantern/shared";
+import type { FastifyPluginAsyncZod } from "@fastify/type-provider-zod";
 import { dealCards } from "./deal.js";
 import type { Db } from "../../db.js";
 import { toPoolTitle } from "../pool/index.js";
-import { parse } from "../../plugins/errors.js";
 import { forPage } from "../sources/index.js";
 import type { Records } from "../sources/index.js";
 import { currentUserId } from "../../plugins/auth/index.js";
@@ -14,21 +13,23 @@ const DEFAULT_CARDS = 10;
 /**
  *   GET /v1/cards?kind=&count=&exclude=    the next cards; never asks OMDb
  */
-export function registerCardRoutes(app: FastifyInstance, deps: { db: Db; records: Records }): void {
-  app.get("/v1/cards", async (request, reply) => {
-    const query = parse(cardsQuerySchema, request.query, reply);
-    if (!query) return reply;
-    const rows = dealCards(deps.db, currentUserId(request), {
-      kind: query.kind,
-      count: query.count ?? DEFAULT_CARDS,
-      exclude: query.exclude?.split(","),
-    });
-    const body: CardsResponse = {
-      cards: rows.map((row) => {
-        const kept = deps.records.cached(row.imdbId);
-        return { title: toPoolTitle(row), poster: kept?.posterUrl != null, record: kept ? forPage(kept) : null };
-      }),
-    };
-    return body;
-  });
-}
+export const cardRoutes: FastifyPluginAsyncZod<{ db: Db; records: Records }> = async (app, deps) => {
+  app.get(
+    "/v1/cards",
+    { schema: { querystring: cardsQuerySchema, response: { 200: cardsResponseSchema } } },
+    async (request) => {
+      const query = request.query;
+      const rows = dealCards(deps.db, currentUserId(request), {
+        kind: query.kind,
+        count: query.count ?? DEFAULT_CARDS,
+        exclude: query.exclude?.split(","),
+      });
+      return {
+        cards: rows.map((row) => {
+          const kept = deps.records.cached(row.imdbId);
+          return { title: toPoolTitle(row), poster: kept?.posterUrl != null, record: kept ? forPage(kept) : null };
+        }),
+      };
+    },
+  );
+};

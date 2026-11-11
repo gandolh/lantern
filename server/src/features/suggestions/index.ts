@@ -1,2 +1,2 @@
-export { registerSuggestionRoutes } from "./routes.js";
+export { suggestionRoutes } from "./routes.js";
 export { createSuggester } from "./service.js";
