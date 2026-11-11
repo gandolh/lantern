@@ -1,5 +1,6 @@
 import { RATINGS, type Rating } from "@lantern/shared";
 import { useState } from "react";
+import { Tab, Tabs, TabsList } from "./components/ui/Tabs";
 import { Link } from "./Link";
 import { TitleList, useCounts, usePageTitle, type ListChoice } from "./ListPage";
 import { STATE_LABELS } from "./StatePicker";
@@ -54,38 +55,34 @@ export function RatingsPage() {
   return (
     <section className="page">
       <h1 className="page-title">Ratings</h1>
-      <TitleList
-        choice={choice}
-        tabs={
-          <div className="tabs" role="tablist" aria-label="Which ratings">
-            {tabs.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                role="tab"
-                aria-selected={tab === option.value}
-                onClick={() => setTab(option.value)}
-              >
-                {option.label}
-                {count(option.value) !== undefined && <span className="tab-count">{count(option.value)}</span>}
-              </button>
-            ))}
-          </div>
-        }
-        empty={
-          tab === "not-interested" ? (
-            <p>Nothing marked not interested.</p>
-          ) : (
-            <>
-              <p>No ratings {tab === "all" ? "yet" : `marked ${STATE_LABELS[tab].toLowerCase()}`}.</p>
-              <p>
-                <Link to={{ page: "rate" }}>Rate some cards</Link> or{" "}
-                <Link to={{ page: "search", query: "" }}>search for a title</Link>.
-              </p>
-            </>
-          )
-        }
-      />
+      <Tabs value={tab} onValueChange={(value: Tab) => setTab(value)}>
+        <TitleList
+          choice={choice}
+          tabs={
+            <TabsList label="Which ratings" className="tabs">
+              {tabs.map((option) => (
+                <Tab key={option.value} value={option.value}>
+                  {option.label}
+                  {count(option.value) !== undefined && <span className="tab-count">{count(option.value)}</span>}
+                </Tab>
+              ))}
+            </TabsList>
+          }
+          empty={
+            tab === "not-interested" ? (
+              <p>Nothing marked not interested.</p>
+            ) : (
+              <>
+                <p>No ratings {tab === "all" ? "yet" : `marked ${STATE_LABELS[tab].toLowerCase()}`}.</p>
+                <p>
+                  <Link to={{ page: "rate" }}>Rate some cards</Link> or{" "}
+                  <Link to={{ page: "search", query: "" }}>search for a title</Link>.
+                </p>
+              </>
+            )
+          }
+        />
+      </Tabs>
     </section>
   );
 }
