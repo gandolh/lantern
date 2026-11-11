@@ -65,7 +65,7 @@ export function Shell({ current, children }: { current: Page; children: ReactNod
       </footer>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-bar grid h-[calc(var(--height-tab)+env(safe-area-inset-bottom))] grid-cols-5 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] wide:hidden"
+        className="fixed inset-x-0 bottom-0 z-bar grid h-[calc(var(--height-tab)+env(safe-area-inset-bottom))] grid-cols-[repeat(5,1fr)] border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] wide:hidden"
         aria-label="Sections"
       >
         {SECTIONS.map(({ route, label, icon: Icon }) => (

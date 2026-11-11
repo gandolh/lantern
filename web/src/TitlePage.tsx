@@ -31,9 +31,9 @@ export function TitlePage({ id }: { id: string }) {
   const missing = item.status === "error" && item.error instanceof ApiError && item.error.status === 404;
   if (item.status === "error" && !missing) {
     return (
-      <section className="page">
+      <section>
         <h1 className={PAGE_TITLE}>Couldn't load this title</h1>
-        <p className="muted">
+        <p className="text-ink-muted">
           {item.error.message} <Link to={{ page: "search", query: "" }}>Search instead</Link>
         </p>
       </section>
@@ -41,9 +41,9 @@ export function TitlePage({ id }: { id: string }) {
   }
   if (missing && record.status !== "loading" && !found) {
     return (
-      <section className="page">
+      <section>
         <h1 className={PAGE_TITLE}>Not in Lantern's list</h1>
-        <p className="muted">
+        <p className="text-ink-muted">
           This title isn't among the films and series Lantern imported from IMDb.{" "}
           <Link to={{ page: "search", query: "" }}>Search instead</Link>
         </p>
@@ -53,8 +53,8 @@ export function TitlePage({ id }: { id: string }) {
   const pool = item.status === "ok" && item.data.title.imdbId === id ? item.data : undefined;
   if (!pool && !found) {
     return (
-      <section className="page" aria-busy="true">
-        <p className="muted">Loading…</p>
+      <section aria-busy="true">
+        <p className="text-ink-muted">Loading…</p>
       </section>
     );
   }
@@ -248,7 +248,7 @@ function ScoreSection({ scores }: { scores: Scores }) {
       <h2 id="scores-heading" className={SECTION_TITLE}>
         Scores
       </h2>
-      <ul className="m-0 grid list-none grid-cols-3 gap-2 p-0">
+      <ul className="m-0 grid list-none grid-cols-[repeat(3,1fr)] gap-2 p-0">
         {shown.map(([source, value, note]) => (
           <li key={source} className="grid gap-0.5 rounded-control border border-line bg-surface p-2.5">
             <span className="text-score font-bold">{value}</span>

@@ -24,11 +24,12 @@
     "format:check": "prettier --check .",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm run check:conventions && npm test",
     "check:fast": "npm run typecheck && node scripts/check-fast.mjs",
-    "check:conventions": "knip && depcruise server/src web/src shared/src && node vendor/house-style/bin/check-base-ui.mjs --warn-only && node vendor/house-style/bin/check-structure.mjs --warn-only",
+    "check:conventions": "knip && depcruise server/src web/src shared/src && node vendor/house-style/bin/check-base-ui.mjs && node vendor/house-style/bin/check-structure.mjs --warn-only",
     "house-style:sync": "node vendor/house-style/bin/sync.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "@tailwindcss/vite": "4.3.5",
     "@types/node": "24.19.1",
     "@vitest/eslint-plugin": "1.6.28",
     "concurrently": "10.0.5",

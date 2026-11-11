@@ -1,6 +1,17 @@
 import { useRef, useState, type PointerEvent, type ReactNode } from "react";
+import { cn } from "./lib/cn";
 
 export type SwipeDirection = "left" | "right" | "up";
+
+/** The card's own look; the page behind it (`RatePage`) wears it too. */
+export const CARD_LOOK = "relative z-1 overflow-hidden rounded-hero border border-line bg-surface shadow-card";
+
+/** The tag that shows what a swipe will do, one look per direction. */
+const LABEL: Record<SwipeDirection, string> = {
+  right: "left-4 -rotate-8 text-good",
+  left: "right-4 rotate-8 text-awful",
+  up: "left-1/2 -translate-x-1/2 text-ink-muted",
+};
 
 /** How far a card must travel, in pixels, before letting go commits the swipe. */
 const COMMIT_PX = 90;
@@ -63,7 +74,14 @@ export function SwipeCard({
 
   return (
     <div
-      className={`swipe-card${drag ? " is-dragging" : ""}${leaving ? " is-leaving" : ""}`}
+      className={cn(
+        CARD_LOOK,
+        "touch-none select-none",
+        drag
+          ? "cursor-grabbing transition-none"
+          : "cursor-grab motion-safe:transition-[transform,opacity] motion-safe:duration-180 motion-safe:ease-swipe motion-reduce:transition-opacity motion-reduce:duration-120 motion-reduce:ease-linear",
+        leaving && "opacity-0",
+      )}
       style={{ transform }}
       onPointerDown={down}
       onPointerMove={move}
@@ -74,7 +92,13 @@ export function SwipeCard({
       }}
     >
       {showing && (
-        <span className={`swipe-label swipe-label-${showing}`} aria-hidden="true">
+        <span
+          className={cn(
+            "absolute top-4 z-2 rounded-control border-[3px] border-current bg-surface px-3 py-1.5 font-extrabold tracking-[0.02em] uppercase",
+            LABEL[showing],
+          )}
+          aria-hidden="true"
+        >
           {labels[showing]}
         </span>
       )}

@@ -1,10 +1,13 @@
 import { RATINGS, type Card, type OmdbRecord, type TitleKind, type TitleState } from "@lantern/shared";
 import { useCallback, useEffect, useEffectEvent, useRef, useState } from "react";
+import { Button } from "./components/ui/Button";
+import { cn } from "./lib/cn";
+import { PAGE_TITLE } from "./looks";
 import { kindLabel, runtime, votes, years } from "./format";
 import { Link } from "./Link";
 import { Poster } from "./Poster";
-import { STATE_LABELS } from "./StatePicker";
-import { SwipeCard, type SwipeDirection } from "./SwipeCard";
+import { STATE_LABELS, stateButtonClass } from "./StatePicker";
+import { CARD_LOOK, SwipeCard, type SwipeDirection } from "./SwipeCard";
 import { dealCards, getRecord, saveSkip, saveState } from "./titlesApi";
 import { KindFilter } from "./KindFilter";
 import { pageOwnsKey } from "./keys";
@@ -171,34 +174,35 @@ export function RatePage() {
   const record = current ? (current.record ?? records[current.title.imdbId]) : undefined;
 
   return (
-    <section className="page rate-page">
-      <div className="rate-head">
-        <h1 className="page-title">Rate</h1>
-        <button
-          type="button"
-          className="button rate-undo"
-          onClick={undo}
-          disabled={done.length === 0 || leaving !== null}
-        >
+    <section>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className={PAGE_TITLE}>Rate</h1>
+        <Button className="min-h-9" onClick={undo} disabled={done.length === 0 || leaving !== null}>
           Undo
-        </button>
+        </Button>
       </div>
       <KindFilter kind={kind} onChange={chooseKind} />
 
       {loadError !== null && (
-        <p className="auth-error" role="alert">
+        <p className="text-danger" role="alert">
           Couldn't deal cards. {loadError}{" "}
-          <button type="button" className="link-button" onClick={() => setLoadError(null)}>
+          <Button variant="link" onClick={() => setLoadError(null)}>
             Try again
-          </button>
+          </Button>
         </p>
       )}
 
       {current ? (
         <>
-          <div className="card-stage">
+          <div className="relative mx-auto max-w-narrow">
             {next && (
-              <div className="swipe-card card-behind" aria-hidden="true">
+              <div
+                className={cn(
+                  CARD_LOOK,
+                  "pointer-events-none absolute inset-0 z-0 [transform:scale(0.96)_translateY(8px)] opacity-60",
+                )}
+                aria-hidden="true"
+              >
                 <CardFace card={next} record={next.record ?? records[next.title.imdbId]} />
               </div>
             )}
@@ -208,18 +212,22 @@ export function RatePage() {
           </div>
 
           {saveError && (
-            <p className="state-error" role="alert">
+            <p className="m-0 text-meta text-danger" role="alert">
               {saveError}
             </p>
           )}
 
-          <div className="card-actions" role="group" aria-label={`Your verdict on ${current.title.title}`}>
-            <div className="card-ratings">
+          <div
+            className="mx-auto mt-3.5 grid max-w-narrow gap-2"
+            role="group"
+            aria-label={`Your verdict on ${current.title.title}`}
+          >
+            <div className="grid grid-cols-[repeat(4,1fr)] gap-1.5">
               {RATINGS.map((rating, i) => (
                 <button
                   key={rating}
                   type="button"
-                  className={`state-button state-${rating}`}
+                  className={stateButtonClass(rating, "min-h-12")}
                   onClick={() => rate(rating)}
                   aria-keyshortcuts={String(i + 1)}
                 >
@@ -227,34 +235,39 @@ export function RatePage() {
                 </button>
               ))}
             </div>
-            <div className="card-others">
+            <div className="grid grid-cols-[repeat(3,1fr)] gap-1.5">
               <button
                 type="button"
-                className="state-button"
+                className={stateButtonClass(null, "px-1.5 text-small")}
                 onClick={() => swipe("left")}
                 aria-keyshortcuts="ArrowLeft"
               >
                 ← Not interested
               </button>
-              <button type="button" className="state-button" onClick={() => swipe("up")} aria-keyshortcuts="ArrowUp">
+              <button
+                type="button"
+                className={stateButtonClass(null, "px-1.5 text-small")}
+                onClick={() => swipe("up")}
+                aria-keyshortcuts="ArrowUp"
+              >
                 ↑ Skip
               </button>
               <button
                 type="button"
-                className="state-button"
+                className={stateButtonClass(null, "px-1.5 text-small")}
                 onClick={() => swipe("right")}
                 aria-keyshortcuts="ArrowRight"
               >
                 Want to watch →
               </button>
             </div>
-            <p className="muted card-hint">
+            <p className="m-0 text-center text-note text-ink-muted">
               Seen it? Rate it. Not seen it? Swipe right to save it, left if it's not for you, up to skip.
             </p>
           </div>
         </>
       ) : exhausted ? (
-        <div className="empty">
+        <div className="rounded-card border border-dashed border-line p-4">
           <p>
             No more cards{kind ? ` for ${kind === "movie" ? "films" : "series"}` : ""}: every title in Lantern's list
             has a verdict or was skipped.
@@ -266,7 +279,7 @@ export function RatePage() {
         </div>
       ) : (
         loadError === null && (
-          <p className="muted" aria-busy="true">
+          <p className="text-ink-muted" aria-busy="true">
             Dealing…
           </p>
         )
@@ -275,32 +288,36 @@ export function RatePage() {
   );
 }
 
+const PLOT = "mt-2 mb-0 line-clamp-7 text-meta";
+
 /** One card's face: the poster, then the pool's facts, then OMDb's plot when it has come. */
 function CardFace({ card, record }: { card: Card; record: OmdbRecord | null | "error" | undefined }) {
   const { title } = card;
   const kept = record && record !== "error" ? record : null;
   const facts = [years(title), kindLabel(title.kind), runtime(title.runtime)].filter((fact) => fact);
   return (
-    <div className="card-face">
+    <div className="grid grid-cols-[42%_1fr] gap-3 p-3">
       <Poster
         key={`${card.poster || kept?.hasPoster}`}
         imdbId={title.imdbId}
         title={title.title}
         has={card.poster || (kept?.hasPoster ?? false)}
         size="large"
-        className="card-poster"
+        className="pointer-events-none"
       />
-      <div className="card-text">
-        <h2 className="card-title">
-          <Link to={{ page: "title", id: title.imdbId }}>{title.title}</Link>
+      <div className="min-w-0">
+        <h2 className="mb-1 text-card-title leading-card font-bold">
+          <Link className="text-ink no-underline" to={{ page: "title", id: title.imdbId }}>
+            {title.title}
+          </Link>
         </h2>
-        <p className="card-facts">{facts.join(" · ")}</p>
-        <p className="card-facts">
+        <p className="mt-0 mb-1 text-small text-ink-muted">{facts.join(" · ")}</p>
+        <p className="mt-0 mb-1 text-small text-ink-muted">
           {title.genres.join(", ")}
           {title.genres.length > 0 && " · "}IMDb {title.rating.toFixed(1)} ({votes(title.votes)})
         </p>
-        {kept?.plot && <p className="card-plot">{kept.plot}</p>}
-        {record === undefined && <p className="card-plot muted">Loading the plot…</p>}
+        {kept?.plot && <p className={PLOT}>{kept.plot}</p>}
+        {record === undefined && <p className={cn(PLOT, "text-ink-muted")}>Loading the plot…</p>}
       </div>
     </div>
   );

@@ -28,8 +28,8 @@ const PRESSED: Record<TitleState, string> = {
 };
 
 /** A state's button: the page's one look for choosing a state, here and on the rating cards. */
-export function stateButtonClass(choice: TitleState, extra?: string): string {
-  return cn(STATE_BUTTON, PRESSED[choice], extra);
+export function stateButtonClass(choice: TitleState | null, extra?: string): string {
+  return cn(STATE_BUTTON, choice && PRESSED[choice], extra);
 }
 
 /**
@@ -86,7 +86,7 @@ export function StatePicker({
       onValueChange={choose}
       className="mt-2.5 grid gap-2"
     >
-      <div className="grid grid-cols-4 gap-1.5">{RATINGS.map(item)}</div>
+      <div className="grid grid-cols-[repeat(4,1fr)] gap-1.5">{RATINGS.map(item)}</div>
       <div className="flex flex-wrap gap-1.5">
         {item("want_to_watch")}
         {item("not_interested")}

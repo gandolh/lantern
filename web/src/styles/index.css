@@ -3,8 +3,6 @@
 @layer theme, base, vendor, components, utilities;
 
 @import "tailwindcss";
-/* What hasn't moved to utilities yet. It sits below them, so a leftover rule never beats a utility. */
-@import "./legacy.css" layer(components);
 
 /* Tailwind scans every file under the web root for class names; the vendored Ward hooks aren't the app's. */
 @source not "../../vendor";
