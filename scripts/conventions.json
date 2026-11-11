@@ -2,5 +2,14 @@
   "$schema": "../vendor/house-style/conventions.schema.json",
   "web": ["web/src"],
   "server": ["server/src"],
-  "shared": ["shared/src"]
+  "shared": ["shared/src"],
+  "exceptions": [
+    {
+      "check": "structure",
+      "rule": 6,
+      "path": "server/src/features/sources/routes.ts",
+      "match": "imdbIdSchema.safeParse",
+      "reason": "GET /v1/posters/:id sends image bytes with the upstream's content type and status, so it declares no response schema (binary replies are exempt), and it keeps its plain-string params: a bad id or size is a 404 not_found, where a schema would make it a 400."
+    }
+  ]
 }

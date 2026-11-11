@@ -16,7 +16,7 @@ import {
   createOmdbClient,
   createRecordCache,
   createRecords,
-  registerSourceRoutes,
+  sourceRoutes,
   type FetchLike,
   type OmdbClient,
   type Records,
@@ -150,7 +150,7 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
 
   await app.register(healthRoutes);
   await app.register(stateRoutes, { states });
-  registerSourceRoutes(app, records, options.posterFetch ?? globalThis.fetch);
+  await app.register(sourceRoutes, { records, posterFetch: options.posterFetch ?? globalThis.fetch });
   await app.register(poolRoutes, { pool });
   registerTitleRoutes(app, { pool, states, records });
   registerCardRoutes(app, { db, records });

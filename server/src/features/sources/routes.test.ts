@@ -100,7 +100,7 @@ describe("the poster proxy", () => {
   });
 });
 
-describe("GET /v1/sources", () => {
+describe("the sources route", () => {
   it("says whether the key is set, never its value", async () => {
     const { app, cookie } = await start(posterHost());
     const res = await app.inject({ url: "/lantern-api/v1/sources", headers: { cookie } });
@@ -128,5 +128,20 @@ describe("sourceFailure", () => {
     expect(await status("failed")).toEqual([502, "source_failed"]);
     expect((await server.inject({ url: "/other" })).statusCode).toBe(500);
     await server.close();
+  });
+});
+
+describe("the sources route", () => {
+  it("says whether OMDb has a key, and sends only the fields its schema names", async () => {
+    const base = await buildTestApp();
+    const leaky = await buildTestApp({
+      records: { ...base.records, status: { omdb: true, key: "not-for-clients" } as never },
+    });
+    await base.app.close();
+    const cookie = await signIn(leaky);
+    const res = await leaky.app.inject({ url: "/lantern-api/v1/sources", headers: { cookie } });
+    expect(res.json()).toEqual({ omdb: true });
+    expect(res.body).not.toContain("not-for-clients");
+    await leaky.app.close();
   });
 });

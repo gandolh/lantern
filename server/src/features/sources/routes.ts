@@ -1,5 +1,7 @@
-import { imdbIdSchema, POSTER_SIZES, type PosterSize, type SourcesResponse } from "@lantern/shared";
-import type { FastifyInstance, FastifyReply } from "fastify";
+import { imdbIdSchema, POSTER_SIZES, sourcesResponseSchema, type PosterSize } from "@lantern/shared";
+import type { FastifyPluginAsyncZod } from "@fastify/type-provider-zod";
+import type { FastifyReply } from "fastify";
+import { z } from "zod";
 import { fail } from "../../plugins/errors.js";
 import { NoKeyError, SourceError, type FetchLike } from "./http.js";
 import { fetchPoster, POSTER_CACHE_CONTROL, posterUrlFor } from "./posters.js";
@@ -20,14 +22,22 @@ export function sourceFailure(reply: FastifyReply, error: unknown): FastifyReply
   throw error;
 }
 
+/** The poster route takes plain strings: a bad id or size is a 404 `not_found`, never a 400. */
+const posterParams = z.object({ id: z.string() });
+const posterQuery = z.object({ size: z.string().optional() });
+
 /**
  *   GET /v1/sources                  whether OMDb's key is set
  *   GET /v1/posters/:id?size=        a title's poster, from its kept OMDb record only
  */
-export function registerSourceRoutes(app: FastifyInstance, records: Records, posterFetch: FetchLike): void {
-  app.get("/v1/sources", async (): Promise<SourcesResponse> => records.status);
+export const sourceRoutes: FastifyPluginAsyncZod<{ records: Records; posterFetch: FetchLike }> = async (
+  app,
+  { records, posterFetch },
+) => {
+  app.get("/v1/sources", { schema: { response: { 200: sourcesResponseSchema } } }, async () => records.status);
 
-  app.get<{ Params: { id: string }; Querystring: { size?: string } }>("/v1/posters/:id", async (request, reply) => {
+  // No response schema: the body is image bytes, with the upstream's content type and status.
+  app.get("/v1/posters/:id", { schema: { params: posterParams, querystring: posterQuery } }, async (request, reply) => {
     const id = imdbIdSchema.safeParse(request.params.id);
     const size = request.query.size ?? "normal";
     if (!id.success || !(POSTER_SIZES as readonly string[]).includes(size)) {
@@ -45,4 +55,4 @@ export function registerSourceRoutes(app: FastifyInstance, records: Records, pos
       });
     return reply.header("cache-control", POSTER_CACHE_CONTROL).type(poster.type).send(poster.bytes);
   });
-}
+};
