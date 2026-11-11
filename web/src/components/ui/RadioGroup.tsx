@@ -1,6 +1,7 @@
 import { Radio } from "@base-ui/react/radio";
 import { RadioGroup as BaseRadioGroup } from "@base-ui/react/radio-group";
 import { useId, type ReactNode } from "react";
+import { cn } from "../../lib/cn";
 
 interface RadioOption<Value extends string> {
   value: Value;
@@ -31,9 +32,21 @@ export function RadioGroup<Value extends string>({
   const labelId = useId();
   if (look === "segmented") {
     return (
-      <BaseRadioGroup<Value> aria-label={label} value={value} onValueChange={onValueChange} className="segmented">
+      <BaseRadioGroup<Value>
+        aria-label={label}
+        value={value}
+        onValueChange={onValueChange}
+        className="mb-4 inline-flex rounded-pill bg-surface-sunk p-0.75"
+      >
         {options.map((option) => (
-          <Radio.Root key={option.value} value={option.value} className="segmented-option">
+          <Radio.Root
+            key={option.value}
+            value={option.value}
+            className={cn(
+              "inline-flex min-h-8.5 cursor-pointer items-center rounded-pill border-0 bg-transparent px-3.5 font-semibold text-ink-muted",
+              "data-checked:bg-surface data-checked:text-ink data-checked:shadow-card",
+            )}
+          >
             {option.label}
           </Radio.Root>
         ))}
@@ -41,18 +54,23 @@ export function RadioGroup<Value extends string>({
     );
   }
   return (
-    <div className="radio-list-field">
-      <div id={labelId}>{label}</div>
+    <div className="grid gap-2">
+      <div id={labelId} className="font-semibold">
+        {label}
+      </div>
       <BaseRadioGroup<Value>
         aria-labelledby={labelId}
         value={value}
         onValueChange={onValueChange}
-        className="radio-list"
+        className="grid gap-2"
       >
         {options.map((option) => (
-          <label key={option.value} className="radio-list-option">
-            <Radio.Root value={option.value} className="radio-list-dot">
-              <Radio.Indicator className="radio-list-mark" />
+          <label key={option.value} className="flex cursor-pointer items-center gap-2">
+            <Radio.Root
+              value={option.value}
+              className="grid size-4.5 place-items-center rounded-full border border-line bg-surface data-checked:border-accent"
+            >
+              <Radio.Indicator className="size-2.5 rounded-full bg-accent" />
             </Radio.Root>
             {option.label}
           </label>

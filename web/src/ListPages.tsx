@@ -59,11 +59,13 @@ export function RatingsPage() {
         <TitleList
           choice={choice}
           tabs={
-            <TabsList label="Which ratings" className="tabs">
+            <TabsList label="Which ratings">
               {tabs.map((option) => (
                 <Tab key={option.value} value={option.value}>
                   {option.label}
-                  {count(option.value) !== undefined && <span className="tab-count">{count(option.value)}</span>}
+                  {count(option.value) !== undefined && (
+                    <span className="text-note opacity-75">{count(option.value)}</span>
+                  )}
                 </Tab>
               ))}
             </TabsList>
