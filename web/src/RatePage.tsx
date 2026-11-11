@@ -6,6 +6,8 @@ import { Poster } from "./Poster";
 import { STATE_LABELS } from "./StatePicker";
 import { SwipeCard, type SwipeDirection } from "./SwipeCard";
 import { dealCards, getRecord, saveSkip, saveState } from "./titlesApi";
+import { KindFilter } from "./KindFilter";
+import { pageOwnsKey } from "./keys";
 
 /** What a swipe does. Ratings are a tap: four choices don't fit a gesture. */
 const SWIPES: Record<SwipeDirection, { label: string; action: Action }> = {
@@ -26,12 +28,6 @@ const LOW_WATER = 3;
 /** How long a card takes to leave, in milliseconds (the CSS transition's length). */
 const LEAVE_MS = 180;
 const UNDO_DEPTH = 20;
-
-const KINDS: { value: TitleKind | undefined; label: string }[] = [
-  { value: undefined, label: "All" },
-  { value: "movie", label: "Films" },
-  { value: "series", label: "Series" },
-];
 
 /**
  * The rating cards: the pool's most-voted titles not yet marked, one at a
@@ -156,8 +152,7 @@ export function RatePage() {
   // Keys on a desktop: 1-4 rate, arrows for the swipes, Z undoes.
   const onKey = useEffectEvent((event: KeyboardEvent) => {
     if (event.metaKey || event.ctrlKey || event.altKey) return;
-    const target = event.target as HTMLElement;
-    if (target.closest("input, textarea, select, [contenteditable=true]")) return;
+    if (!(event.target instanceof Element) || !pageOwnsKey(event.target)) return;
     const rating = { "1": "awful", "2": "meh", "3": "good", "4": "amazing" }[event.key] as TitleState | undefined;
     if (rating) rate(rating);
     else if (event.key === "ArrowRight") swipe("right");
@@ -188,18 +183,7 @@ export function RatePage() {
           Undo
         </button>
       </div>
-      <div className="segmented" role="group" aria-label="Kind">
-        {KINDS.map((option) => (
-          <button
-            key={option.label}
-            type="button"
-            aria-pressed={kind === option.value}
-            onClick={() => chooseKind(option.value)}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
+      <KindFilter kind={kind} onChange={chooseKind} />
 
       {loadError !== null && (
         <p className="auth-error" role="alert">

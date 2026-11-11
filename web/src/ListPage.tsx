@@ -13,12 +13,7 @@ import { STATE_LABELS } from "./StatePicker";
 import { saveState } from "./titlesApi";
 import { TitleRow } from "./TitleRow";
 import { useQuery } from "./useQuery";
-
-const KINDS: { value: TitleKind | undefined; label: string }[] = [
-  { value: undefined, label: "All" },
-  { value: "movie", label: "Films" },
-  { value: "series", label: "Series" },
-];
+import { KindFilter } from "./KindFilter";
 
 /** Which list, and for the ratings list which step. */
 export interface ListChoice {
@@ -117,18 +112,7 @@ export function TitleList({ choice, empty, tabs }: { choice: ListChoice; empty: 
   return (
     <>
       {tabs}
-      <div className="segmented" role="group" aria-label="Kind">
-        {KINDS.map((option) => (
-          <button
-            key={option.label}
-            type="button"
-            aria-pressed={kind === option.value}
-            onClick={() => setKind(option.value)}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
+      <KindFilter kind={kind} onChange={setKind} />
 
       {last && (
         <p className="notice undo-notice" role="status">

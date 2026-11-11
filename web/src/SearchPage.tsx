@@ -4,12 +4,7 @@ import { hrefOf, navigate } from "./route";
 import { searchTitles } from "./titlesApi";
 import { TitleRow } from "./TitleRow";
 import { useQuery } from "./useQuery";
-
-const KINDS: { value: TitleKind | undefined; label: string }[] = [
-  { value: undefined, label: "All" },
-  { value: "movie", label: "Films" },
-  { value: "series", label: "Series" },
-];
+import { KindFilter } from "./KindFilter";
 
 /**
  * Search the title pool by name. The query sits in the address (replaced as
@@ -61,18 +56,7 @@ export function SearchPage({ query }: { query: string }) {
           onChange={(event) => setText(event.target.value)}
         />
       </form>
-      <div className="segmented" role="group" aria-label="Kind">
-        {KINDS.map((option) => (
-          <button
-            key={option.label}
-            type="button"
-            aria-pressed={kind === option.value}
-            onClick={() => setKind(option.value)}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
+      <KindFilter kind={kind} onChange={setKind} />
 
       {query === "" && (
         <p className="muted">Type a title. Lantern searches its own list of IMDb's best-known films and series.</p>

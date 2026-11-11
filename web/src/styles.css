@@ -459,7 +459,9 @@ code {
   background: var(--surface-sunk);
 }
 
-.segmented button {
+.segmented-option {
+  display: inline-flex;
+  align-items: center;
   min-height: 34px;
   padding: 0 14px;
   border: 0;
@@ -470,7 +472,7 @@ code {
   cursor: pointer;
 }
 
-.segmented button[aria-pressed="true"] {
+.segmented-option[data-checked] {
   background: var(--surface);
   color: var(--text);
   box-shadow: var(--shadow);

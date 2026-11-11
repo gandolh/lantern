@@ -4,12 +4,7 @@ import { request } from "./api";
 import { Link } from "./Link";
 import { TitleRow } from "./TitleRow";
 import { useQuery } from "./useQuery";
-
-const KINDS: { value: TitleKind | undefined; label: string }[] = [
-  { value: undefined, label: "All" },
-  { value: "movie", label: "Films" },
-  { value: "series", label: "Series" },
-];
+import { KindFilter } from "./KindFilter";
 
 /**
  * The home page: titles from the pool ranked by the owner's taste, each
@@ -38,18 +33,7 @@ export function SuggestionsPage() {
         From the genres, directors and writers of what you rated, liked and disliked.
         {list.data && list.data.rated > 0 && ` Built on ${list.data.rated} rating${list.data.rated === 1 ? "" : "s"}.`}
       </p>
-      <div className="segmented" role="group" aria-label="Kind">
-        {KINDS.map((option) => (
-          <button
-            key={option.label}
-            type="button"
-            aria-pressed={kind === option.value}
-            onClick={() => setKind(option.value)}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
+      <KindFilter kind={kind} onChange={setKind} />
 
       {list.status === "error" && (
         <p className="auth-error" role="alert">
