@@ -1,18 +1,18 @@
 import {
+  errorBodySchema,
   MAX_SEARCH_RESULTS,
+  recordResponseSchema,
   searchQuerySchema,
+  searchResponseSchema,
+  titleItemSchema,
   titleParamsSchema,
-  type RecordResponse,
-  type SearchResponse,
   type TitleItem,
 } from "@lantern/shared";
-import type { FastifyInstance } from "fastify";
+import type { FastifyPluginAsyncZod } from "@fastify/type-provider-zod";
 import { toPoolTitle, type Pool, type PoolRow } from "../pool/index.js";
-import { fail, parse } from "../../plugins/errors.js";
-import { forPage } from "../sources/index.js";
-import type { Records } from "../sources/index.js";
+import { fail } from "../../plugins/errors.js";
+import { forPage, sourceFailure, type Records } from "../sources/index.js";
 import type { StatesStore } from "../states/index.js";
-import { sourceFailure } from "../sources/index.js";
 import { currentUserId } from "../../plugins/auth/index.js";
 
 /**
@@ -24,12 +24,10 @@ import { currentUserId } from "../../plugins/auth/index.js";
  *   GET /v1/titles/:id          one pool title; 404 when the pool lacks it
  *   GET /v1/titles/:id/record   OMDb's record, kept or asked once; null when OMDb doesn't know it
  */
-export function registerTitleRoutes(
-  app: FastifyInstance,
-  deps: { pool: Pool; states: StatesStore; records: Records },
-): void {
-  const { pool, states, records } = deps;
-
+export const titleRoutes: FastifyPluginAsyncZod<{ pool: Pool; states: StatesStore; records: Records }> = async (
+  app,
+  { pool, states, records },
+) => {
   /** Pool rows as items for one user: their states and kept posters in one query each. */
   const items = (userId: string, rows: readonly PoolRow[]): TitleItem[] => {
     const ids = rows.map((row) => row.imdbId);
@@ -42,32 +40,42 @@ export function registerTitleRoutes(
     }));
   };
 
-  app.get("/v1/search", async (request, reply) => {
-    const query = parse(searchQuerySchema, request.query, reply);
-    if (!query) return reply;
-    const rows = pool.search(query.q, { kind: query.kind, limit: MAX_SEARCH_RESULTS });
-    const body: SearchResponse = { results: items(currentUserId(request), rows) };
-    return body;
-  });
+  app.get(
+    "/v1/search",
+    { schema: { querystring: searchQuerySchema, response: { 200: searchResponseSchema } } },
+    async (request) => {
+      const query = request.query;
+      const rows = pool.search(query.q, { kind: query.kind, limit: MAX_SEARCH_RESULTS });
+      return { results: items(currentUserId(request), rows) };
+    },
+  );
 
-  app.get("/v1/titles/:id", async (request, reply) => {
-    const params = parse(titleParamsSchema, request.params, reply);
-    if (!params) return reply;
-    const row = pool.get(params.id);
-    if (!row) return fail(reply, 404, { code: "not_found", message: "this title isn't in Lantern's title list" });
-    const [item] = items(currentUserId(request), [row]);
-    return item;
-  });
+  app.get(
+    "/v1/titles/:id",
+    { schema: { params: titleParamsSchema, response: { 200: titleItemSchema, 404: errorBodySchema } } },
+    async (request, reply) => {
+      const row = pool.get(request.params.id);
+      if (!row) return fail(reply, 404, { code: "not_found", message: "this title isn't in Lantern's title list" });
+      const [item] = items(currentUserId(request), [row]);
+      return item;
+    },
+  );
 
-  app.get("/v1/titles/:id/record", async (request, reply) => {
-    const params = parse(titleParamsSchema, request.params, reply);
-    if (!params) return reply;
-    try {
-      const record = await records.get(params.id);
-      const body: RecordResponse = { record: record === null ? null : forPage(record) };
-      return body;
-    } catch (error) {
-      return sourceFailure(reply, error);
-    }
-  });
-}
+  app.get(
+    "/v1/titles/:id/record",
+    {
+      schema: {
+        params: titleParamsSchema,
+        response: { 200: recordResponseSchema, 502: errorBodySchema, 503: errorBodySchema },
+      },
+    },
+    async (request, reply) => {
+      try {
+        const record = await records.get(request.params.id);
+        return { record: record === null ? null : forPage(record) };
+      } catch (error) {
+        return sourceFailure(reply, error);
+      }
+    },
+  );
+};

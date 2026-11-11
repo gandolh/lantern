@@ -136,3 +136,28 @@ describe("without an OMDb key", () => {
     await keyless.app.close();
   });
 });
+
+describe("the titles routes' schemas", () => {
+  it("answers a bad id and an unknown query key with a 400 naming the field", async () => {
+    const badId = await app.inject({ url: "/lantern-api/v1/titles/603", headers: { cookie } });
+    expect(badId.statusCode).toBe(400);
+    expect(badId.json()).toEqual({ code: "invalid_request", message: "id: must be an IMDb id such as tt0111161" });
+    const unknownKey = await app.inject({ url: "/lantern-api/v1/search?q=alien&foo=1", headers: { cookie } });
+    expect(unknownKey.statusCode).toBe(400);
+    expect(unknownKey.json().message).toBe('request: Unrecognized key: "foo"');
+  });
+
+  it("strips a field a pool row carries that the schema does not name", async () => {
+    const row = t.pool.get("tt0000001");
+    if (!row) throw new Error("the seeded title is missing");
+    const leaky = await buildTestApp({ pool: { ...t.pool, get: () => ({ ...row, internal: "kept" }) } });
+    const res = await leaky.app.inject({
+      url: "/lantern-api/v1/titles/tt0000001",
+      headers: { cookie: await signIn(leaky) },
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).not.toContain("internal");
+    expect(res.json().title.title).toBe("Alien");
+    await leaky.app.close();
+  });
+});

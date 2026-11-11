@@ -22,7 +22,7 @@ import {
   type Records,
 } from "./features/sources/index.js";
 
-import { registerTitleRoutes } from "./features/titles/index.js";
+import { titleRoutes } from "./features/titles/index.js";
 import { createStatesStore, stateRoutes, type StatesStore } from "./features/states/index.js";
 import { createSuggester, registerSuggestionRoutes } from "./features/suggestions/index.js";
 
@@ -152,7 +152,7 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   await app.register(stateRoutes, { states });
   await app.register(sourceRoutes, { records, posterFetch: options.posterFetch ?? globalThis.fetch });
   await app.register(poolRoutes, { pool });
-  registerTitleRoutes(app, { pool, states, records });
+  await app.register(titleRoutes, { pool, states, records });
   registerCardRoutes(app, { db, records });
   registerSuggestionRoutes(app, { suggester: createSuggester(db, states), pool, records });
   registerListRoutes(app, { states, pool, records });
