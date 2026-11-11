@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { API_BASE } from "./base";
+import { cn } from "./lib/cn";
+
+const POSTER = "block aspect-2/3 w-full rounded-sm bg-poster-bg object-cover";
 
 /**
  * A title's poster, through Lantern's poster route, which serves it only
@@ -11,7 +14,7 @@ export function Poster({
   title,
   has,
   size = "normal",
-  className = "",
+  className,
 }: {
   imdbId: string;
   title: string;
@@ -28,14 +31,17 @@ export function Poster({
       .map((word) => (word[0] ?? "").toUpperCase())
       .join("");
     return (
-      <div className={`poster poster-empty ${className}`} aria-hidden="true">
+      <div
+        className={cn(POSTER, "grid place-items-center font-bold tracking-[0.04em] text-ink-muted", className)}
+        aria-hidden="true"
+      >
         <span>{initials}</span>
       </div>
     );
   }
   return (
     <img
-      className={`poster ${className}`}
+      className={cn(POSTER, className)}
       src={`${API_BASE}/v1/posters/${imdbId}${size === "large" ? "?size=large" : ""}`}
       alt={`Poster of ${title}`}
       loading="lazy"

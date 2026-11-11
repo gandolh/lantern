@@ -1,5 +1,7 @@
 import { suggestionsResponseSchema, type TitleKind } from "@lantern/shared";
 import { useEffect, useState } from "react";
+import { Button } from "./components/ui/Button";
+import { PAGE_TITLE } from "./looks";
 import { request } from "./api";
 import { Link } from "./Link";
 import { TitleRow } from "./TitleRow";
@@ -27,29 +29,29 @@ export function SuggestionsPage() {
   const shown = list.data?.suggestions.filter((item) => !gone.has(item.title.imdbId)) ?? [];
 
   return (
-    <section className="page">
-      <h1 className="page-title">Suggestions</h1>
-      <p className="muted">
+    <section>
+      <h1 className={PAGE_TITLE}>Suggestions</h1>
+      <p className="text-ink-muted">
         From the genres, directors and writers of what you rated, liked and disliked.
         {list.data && list.data.rated > 0 && ` Built on ${list.data.rated} rating${list.data.rated === 1 ? "" : "s"}.`}
       </p>
       <KindFilter kind={kind} onChange={setKind} />
 
       {list.status === "error" && (
-        <p className="auth-error" role="alert">
+        <p className="text-danger" role="alert">
           Couldn't load suggestions. {list.error.message}{" "}
-          <button type="button" className="link-button" onClick={list.refresh}>
+          <Button variant="link" onClick={list.refresh}>
             Try again
-          </button>
+          </Button>
         </p>
       )}
       {list.status === "loading" && !list.data && (
-        <p className="muted" aria-busy="true">
+        <p className="text-ink-muted" aria-busy="true">
           Loading…
         </p>
       )}
       {list.data && list.data.liked === 0 && (
-        <div className="empty">
+        <div className="rounded-card border border-dashed border-line p-4">
           <p>Rate a few titles you liked, good or amazing, and suggestions show up here.</p>
           <p>
             <Link to={{ page: "rate" }}>Rate some cards</Link> or{" "}
@@ -59,10 +61,13 @@ export function SuggestionsPage() {
         </div>
       )}
       {list.data && list.data.liked > 0 && shown.length === 0 && (
-        <p className="muted">Nothing left to suggest from what you rated. Rate a few more.</p>
+        <p className="text-ink-muted">Nothing left to suggest from what you rated. Rate a few more.</p>
       )}
       {shown.length > 0 && (
-        <ul className="title-list" aria-busy={list.status === "loading" || undefined}>
+        <ul
+          className="m-0 grid list-none gap-2.5 p-0 aria-busy:opacity-60"
+          aria-busy={list.status === "loading" || undefined}
+        >
           {shown.map((item) => (
             <TitleRow
               key={item.title.imdbId}

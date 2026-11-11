@@ -8,6 +8,9 @@ import {
   type TitleState,
 } from "@lantern/shared";
 import { useEffect, useState, type ReactNode } from "react";
+import { Button } from "./components/ui/Button";
+import { cn } from "./lib/cn";
+import { NOTICE } from "./looks";
 import { request } from "./api";
 import { STATE_LABELS } from "./StatePicker";
 import { saveState } from "./titlesApi";
@@ -115,36 +118,41 @@ export function TitleList({ choice, empty, tabs }: { choice: ListChoice; empty: 
       <KindFilter kind={kind} onChange={setKind} />
 
       {last && (
-        <p className="notice undo-notice" role="status">
+        <p className={cn(NOTICE, "sticky top-[calc(var(--height-top)+8px)] z-notice shadow-card")} role="status">
           {last.row.title.title} {last.to === null ? "was cleared" : `is now ${STATE_LABELS[last.to].toLowerCase()}`}.{" "}
-          <button type="button" className="link-button" onClick={undo}>
+          <Button variant="link" onClick={undo}>
             Undo
-          </button>
-          {undoFailed && <span className="state-error"> That didn't work. Try again.</span>}
+          </Button>
+          {undoFailed && <span className="text-meta text-danger"> That didn't work. Try again.</span>}
         </p>
       )}
 
       {first.status === "error" && (
-        <p className="auth-error" role="alert">
+        <p className="text-danger" role="alert">
           Couldn't load the list. {first.error.message}{" "}
-          <button type="button" className="link-button" onClick={first.refresh}>
+          <Button variant="link" onClick={first.refresh}>
             Try again
-          </button>
+          </Button>
         </p>
       )}
       {first.status === "loading" && !first.data && (
-        <p className="muted" aria-busy="true">
+        <p className="text-ink-muted" aria-busy="true">
           Loading…
         </p>
       )}
-      {first.status !== "loading" && first.data && rows.length === 0 && <div className="empty">{empty}</div>}
+      {first.status !== "loading" && first.data && rows.length === 0 && (
+        <div className="rounded-card border border-dashed border-line p-4">{empty}</div>
+      )}
       {rows.length > 0 && (
-        <ul className="title-list" aria-busy={first.status === "loading" || undefined}>
+        <ul
+          className="m-0 grid list-none gap-2.5 p-0 aria-busy:opacity-60"
+          aria-busy={first.status === "loading" || undefined}
+        >
           {rows.map((row) => (
             <TitleRow
               key={row.title.imdbId}
               item={row}
-              note={row.inPool ? undefined : <span className="muted">No longer in Lantern's title list</span>}
+              note={row.inPool ? undefined : <span className="text-ink-muted">No longer in Lantern's title list</span>}
               onChange={(state) => changed(row, state)}
             />
           ))}
@@ -152,9 +160,9 @@ export function TitleList({ choice, empty, tabs }: { choice: ListChoice; empty: 
       )}
       {next && (
         <p>
-          <button type="button" className="button" onClick={showMore} disabled={loadingMore}>
+          <Button onClick={showMore} disabled={loadingMore}>
             {loadingMore ? "Loading…" : "Show more"}
-          </button>
+          </Button>
         </p>
       )}
     </>

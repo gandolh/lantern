@@ -1,5 +1,7 @@
 import type { TitleKind } from "@lantern/shared";
 import { useEffect, useRef, useState } from "react";
+import { Button } from "./components/ui/Button";
+import { PAGE_TITLE } from "./looks";
 import { hrefOf, navigate } from "./route";
 import { searchTitles } from "./titlesApi";
 import { TitleRow } from "./TitleRow";
@@ -33,10 +35,10 @@ export function SearchPage({ query }: { query: string }) {
   );
 
   return (
-    <section className="page search-page">
-      <h1 className="page-title">Search</h1>
+    <section>
+      <h1 className={PAGE_TITLE}>Search</h1>
       <form
-        className="search-form"
+        className="my-3"
         role="search"
         onSubmit={(event) => {
           event.preventDefault();
@@ -47,7 +49,7 @@ export function SearchPage({ query }: { query: string }) {
         <input
           ref={input}
           type="search"
-          className="search-input"
+          className="min-h-12 w-full rounded-card border border-line bg-surface px-3.5 text-input"
           aria-label="Search films and series"
           placeholder="Search films and series"
           autoComplete="off"
@@ -59,23 +61,28 @@ export function SearchPage({ query }: { query: string }) {
       <KindFilter kind={kind} onChange={setKind} />
 
       {query === "" && (
-        <p className="muted">Type a title. Lantern searches its own list of IMDb's best-known films and series.</p>
+        <p className="text-ink-muted">
+          Type a title. Lantern searches its own list of IMDb's best-known films and series.
+        </p>
       )}
       {results.status === "error" && (
-        <p className="auth-error" role="alert">
+        <p className="text-danger" role="alert">
           Search didn't work. {results.error.message}{" "}
-          <button type="button" className="link-button" onClick={results.refresh}>
+          <Button variant="link" onClick={results.refresh}>
             Try again
-          </button>
+          </Button>
         </p>
       )}
       {query !== "" && results.data && results.data.results.length === 0 && results.status === "ok" && (
-        <p className="muted">
+        <p className="text-ink-muted">
           Nothing in Lantern's list matches "{query}". Titles with fewer than a thousand IMDb votes aren't in it.
         </p>
       )}
       {query !== "" && results.data && (
-        <ul className="title-list" aria-busy={results.status === "loading" || undefined}>
+        <ul
+          className="m-0 grid list-none gap-2.5 p-0 aria-busy:opacity-60"
+          aria-busy={results.status === "loading" || undefined}
+        >
           {results.data.results.map((item) => (
             <TitleRow key={item.title.imdbId} item={item} />
           ))}

@@ -4,7 +4,7 @@ import { useLogout, useSession, useWardLink, useWardResult, useWardSignOut } fro
 import { request } from "./api";
 import { Button } from "./components/ui/Button";
 import { ImdbCredit } from "./Credits";
-import { DETAIL, FACTS, NOTICE, PAGE_TITLE, TERM } from "./looks";
+import { DETAIL, FACTS, NOTICE, PAGE_TITLE, SECTION_TITLE, TERM } from "./looks";
 import { accountMessage } from "./messages";
 import { useQuery } from "./useQuery";
 
@@ -89,7 +89,7 @@ function PoolSection() {
   );
   return (
     <section className="mt-7 border-t border-line pt-5" aria-labelledby="pool-heading">
-      <h2 id="pool-heading" className="mb-2 text-heading font-bold">
+      <h2 id="pool-heading" className={SECTION_TITLE}>
         Titles
       </h2>
       {pool.status === "error" && <p className="text-danger">Couldn't read the title list. {pool.error.message}</p>}

@@ -2,6 +2,7 @@ import { RATINGS, type Rating } from "@lantern/shared";
 import { useState } from "react";
 import { Tab, Tabs, TabsList } from "./components/ui/Tabs";
 import { Link } from "./Link";
+import { PAGE_TITLE } from "./looks";
 import { TitleList, useCounts, usePageTitle, type ListChoice } from "./ListPage";
 import { STATE_LABELS } from "./StatePicker";
 
@@ -9,8 +10,8 @@ import { STATE_LABELS } from "./StatePicker";
 export function WatchlistPage() {
   usePageTitle("Watchlist");
   return (
-    <section className="page">
-      <h1 className="page-title">Watchlist</h1>
+    <section>
+      <h1 className={PAGE_TITLE}>Watchlist</h1>
       <TitleList
         choice={{ list: "watchlist" }}
         empty={
@@ -53,8 +54,8 @@ export function RatingsPage() {
   ];
 
   return (
-    <section className="page">
-      <h1 className="page-title">Ratings</h1>
+    <section>
+      <h1 className={PAGE_TITLE}>Ratings</h1>
       <Tabs value={tab} onValueChange={(value: Tab) => setTab(value)}>
         <TitleList
           choice={choice}

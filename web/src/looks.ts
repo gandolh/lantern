@@ -8,3 +8,6 @@ export const NOTICE = "rounded-control bg-accent-soft px-3 py-2.5";
 export const FACTS = "mx-0 mt-4 mb-0 grid grid-cols-[max-content_1fr] gap-x-5 gap-y-2";
 export const TERM = "text-ink-muted";
 export const DETAIL = "m-0 font-semibold";
+
+/** A section's heading on a page (the title page, the account page). */
+export const SECTION_TITLE = "mb-2 text-heading font-bold";

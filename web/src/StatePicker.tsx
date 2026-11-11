@@ -1,6 +1,7 @@
 import { RATINGS, type TitleState } from "@lantern/shared";
 import { useState } from "react";
 import { ToggleGroup, ToggleItem } from "./components/ui/ToggleGroup";
+import { cn } from "./lib/cn";
 import { saveState } from "./titlesApi";
 
 /** The words for each state. */
@@ -12,6 +13,24 @@ export const STATE_LABELS: Record<TitleState, string> = {
   not_interested: "Not interested",
   want_to_watch: "Want to watch",
 };
+
+const STATE_BUTTON =
+  "min-h-10 cursor-pointer rounded-control border border-line bg-surface px-2.5 font-semibold text-ink [-webkit-tap-highlight-color:transparent] hover:bg-surface-sunk data-pressed:border-transparent data-pressed:text-on-rating";
+
+/** What a chosen state looks like: each rating has its colour, the other two read as plain ink. */
+const PRESSED: Record<TitleState, string> = {
+  awful: "data-pressed:bg-awful",
+  meh: "data-pressed:bg-meh",
+  good: "data-pressed:bg-good",
+  amazing: "data-pressed:bg-amazing",
+  want_to_watch: "data-pressed:bg-ink data-pressed:text-page",
+  not_interested: "data-pressed:bg-ink data-pressed:text-page",
+};
+
+/** A state's button: the page's one look for choosing a state, here and on the rating cards. */
+export function stateButtonClass(choice: TitleState, extra?: string): string {
+  return cn(STATE_BUTTON, PRESSED[choice], extra);
+}
 
 /**
  * A title's state, shown and changed in one place: the four ratings in a
@@ -51,7 +70,11 @@ export function StatePicker({
   };
 
   const item = (choice: TitleState) => (
-    <ToggleItem key={choice} value={choice} className={`state-button state-${choice}`}>
+    <ToggleItem
+      key={choice}
+      value={choice}
+      className={stateButtonClass(choice, compact ? "min-h-8.5 px-2 text-small" : undefined)}
+    >
       {STATE_LABELS[choice]}
     </ToggleItem>
   );
@@ -61,15 +84,15 @@ export function StatePicker({
       label={`Your verdict on ${title}`}
       value={state}
       onValueChange={choose}
-      className={`state-picker${compact ? " state-picker-compact" : ""}`}
+      className="mt-2.5 grid gap-2"
     >
-      <div className="state-ratings">{RATINGS.map(item)}</div>
-      <div className="state-others">
+      <div className="grid grid-cols-4 gap-1.5">{RATINGS.map(item)}</div>
+      <div className="flex flex-wrap gap-1.5">
         {item("want_to_watch")}
         {item("not_interested")}
       </div>
       {failed && (
-        <p className="state-error" role="alert">
+        <p className="m-0 text-meta text-danger" role="alert">
           That didn't save. Try again.
         </p>
       )}

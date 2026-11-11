@@ -18,21 +18,21 @@ export function TitleRow({
   const { title } = item;
   const facts = [years(title), kindLabel(title.kind), title.genres.join(", ")].filter((fact) => fact);
   return (
-    <li className="title-row">
-      <Link to={{ page: "title", id: title.imdbId }} className="title-row-poster" tabIndex={-1} aria-hidden="true">
+    <li className="grid grid-cols-[64px_1fr] gap-3 rounded-card border border-line bg-surface p-3 wide:grid-cols-[80px_1fr]">
+      <Link to={{ page: "title", id: title.imdbId }} className="block no-underline" tabIndex={-1} aria-hidden="true">
         <Poster imdbId={title.imdbId} title={title.title} has={item.poster} />
       </Link>
-      <div className="title-row-body">
-        <Link to={{ page: "title", id: title.imdbId }} className="title-row-name">
+      <div className="min-w-0">
+        <Link to={{ page: "title", id: title.imdbId }} className="font-bold text-ink no-underline hover:underline">
           {title.title}
         </Link>
-        <p className="title-row-facts">{facts.join(" · ")}</p>
+        <p className="mt-0.5 mb-0 text-meta text-ink-muted">{facts.join(" · ")}</p>
         {title.votes > 0 && (
-          <p className="title-row-score">
-            IMDb {title.rating.toFixed(1)} <span className="muted">({votes(title.votes)} votes)</span>
+          <p className="mt-0.5 mb-0 text-meta text-ink">
+            IMDb {title.rating.toFixed(1)} <span className="text-ink-muted">({votes(title.votes)} votes)</span>
           </p>
         )}
-        {note && <p className="title-row-note">{note}</p>}
+        {note && <p className="mt-1 mb-0 text-meta">{note}</p>}
         <StatePicker
           key={title.imdbId}
           imdbId={title.imdbId}
