@@ -22,11 +22,7 @@ describe("GET /v1/health", () => {
     const test = await buildTestApp();
     app = test.app;
     // A route stubbed to send the wrong shape under the same schema.
-    app.get(
-      "/v1/health-wrong",
-      { schema: { response: { 200: healthResponseSchema } } },
-      async () => ({ nope: 1 }) as never,
-    );
+    app.get("/v1/health-wrong", { schema: { response: { 200: healthResponseSchema } } }, async () => ({ nope: 1 }));
     const cookie = await signIn(test);
     const res = await app.inject({ method: "GET", url: "/lantern-api/v1/health-wrong", headers: { cookie } });
     expect(res.statusCode).toBe(500);

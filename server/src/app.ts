@@ -11,7 +11,7 @@ import { BODY_LIMIT, errorsPlugin, fail } from "./plugins/errors.js";
 import { registerCardRoutes } from "./features/cards/index.js";
 import { healthRoutes } from "./features/health/index.js";
 import { registerListRoutes } from "./features/lists/index.js";
-import { createPool, registerPoolRoutes, type Pool } from "./features/pool/index.js";
+import { createPool, poolRoutes, type Pool } from "./features/pool/index.js";
 import {
   createOmdbClient,
   createRecordCache,
@@ -151,7 +151,7 @@ export async function buildApp(options: AppOptions): Promise<FastifyInstance> {
   await app.register(healthRoutes);
   await app.register(stateRoutes, { states });
   registerSourceRoutes(app, records, options.posterFetch ?? globalThis.fetch);
-  registerPoolRoutes(app, pool);
+  await app.register(poolRoutes, { pool });
   registerTitleRoutes(app, { pool, states, records });
   registerCardRoutes(app, { db, records });
   registerSuggestionRoutes(app, { suggester: createSuggester(db, states), pool, records });
