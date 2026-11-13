@@ -1,7 +1,9 @@
 import type { TitleKind } from "@lantern/shared";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./components/ui/Button";
+import { cn } from "./lib/cn";
 import { PAGE_TITLE } from "./looks";
+import { ErrorLine } from "./States";
 import { hrefOf, navigate } from "./route";
 import { searchTitles } from "./titlesApi";
 import { TitleRow } from "./TitleRow";
@@ -35,10 +37,10 @@ export function SearchPage({ query }: { query: string }) {
   );
 
   return (
-    <section>
-      <h1 className={PAGE_TITLE}>Search</h1>
+    <section className="mx-auto max-w-[880px]">
+      <h1 className={cn(PAGE_TITLE, "mb-4")}>Search</h1>
       <form
-        className="my-3"
+        className="mb-4"
         role="search"
         onSubmit={(event) => {
           event.preventDefault();
@@ -49,7 +51,7 @@ export function SearchPage({ query }: { query: string }) {
         <input
           ref={input}
           type="search"
-          className="min-h-12 w-full rounded-card border border-line bg-surface px-3.5 text-input"
+          className="h-12 w-full rounded-control border border-outline bg-surface-sunk px-3 text-input text-ink placeholder:text-ink-muted focus-visible:outline-offset-1"
           aria-label="Search films and series"
           placeholder="Search films and series"
           autoComplete="off"
@@ -58,29 +60,29 @@ export function SearchPage({ query }: { query: string }) {
           onChange={(event) => setText(event.target.value)}
         />
       </form>
-      <KindFilter kind={kind} onChange={setKind} />
+      <div className="mb-5">
+        <KindFilter kind={kind} onChange={setKind} />
+      </div>
 
       {query === "" && (
-        <p className="text-ink-muted">
-          Type a title. Lantern searches its own list of IMDb's best-known films and series.
+        <p className="m-0 text-small text-ink-muted">
+          Type a title. Lantern searches its own list of IMDb’s best-known films and series.
         </p>
       )}
       {results.status === "error" && (
-        <p className="text-danger" role="alert">
-          Search didn't work. {results.error.message}{" "}
-          <Button variant="link" onClick={results.refresh}>
-            Try again
-          </Button>
-        </p>
+        <div className="grid justify-items-start gap-2 rounded-card bg-surface p-4 shadow-card">
+          <ErrorLine>Search didn’t work. {results.error.message}</ErrorLine>
+          <Button onClick={results.refresh}>Try again</Button>
+        </div>
       )}
       {query !== "" && results.data && results.data.results.length === 0 && results.status === "ok" && (
-        <p className="text-ink-muted">
-          Nothing in Lantern's list matches "{query}". Titles with fewer than a thousand IMDb votes aren't in it.
+        <p className="m-0 text-small text-ink-muted">
+          Nothing in Lantern’s list matches "{query}". Titles with fewer than a thousand IMDb votes aren’t in it.
         </p>
       )}
       {query !== "" && results.data && (
         <ul
-          className="m-0 grid list-none gap-2.5 p-0 aria-busy:opacity-60"
+          className="m-0 flex list-none flex-col gap-3 p-0 aria-busy:opacity-60 min-[900px]:gap-4"
           aria-busy={results.status === "loading" || undefined}
         >
           {results.data.results.map((item) => (

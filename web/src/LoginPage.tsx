@@ -4,6 +4,8 @@ import { appBase } from "./base";
 import { Button } from "./components/ui/Button";
 import { cn } from "./lib/cn";
 import { NOTICE } from "./looks";
+import { ErrorLine } from "./States";
+import { LanternMark } from "./Icons";
 import { loginMessage, sessionReasonMessage, wardSignInMessage } from "./messages";
 
 /**
@@ -54,23 +56,23 @@ export function LoginPage() {
 
   return (
     <main className="grid min-h-dvh place-items-center px-4 py-6" aria-busy={pending || ward.pending || undefined}>
-      <div className="grid w-full max-w-gate gap-3.5 rounded-card border border-line bg-surface px-6 py-7 shadow-card">
-        <h1 className="m-0 inline-flex items-center gap-3 text-page-title font-bold">
-          <span className="size-3.5 rounded-full bg-accent shadow-brand-mark" aria-hidden="true" />
+      <div className="grid w-full max-w-gate gap-4 rounded-card border border-line bg-surface px-6 py-7 shadow-card">
+        <h1 className="m-0 inline-flex items-center gap-3 font-display text-page-title text-ink">
+          <LanternMark size={32} />
           Lantern
         </h1>
         <p className="m-0 text-ink-muted">Sign in to rate, keep your watchlist and get suggestions.</p>
         {notice !== null && (
-          <p className={cn("m-0", NOTICE)} role="status">
+          <p className={cn(NOTICE, "m-0 bg-control shadow-none")} role="status">
             {notice}
           </p>
         )}
 
-        <form className="grid gap-3.5" onSubmit={submit} noValidate aria-label="Sign in">
-          <label className="grid gap-1.5 font-semibold">
+        <form className="grid gap-4" onSubmit={submit} noValidate aria-label="Sign in">
+          <label className="grid gap-1.5 text-small font-semibold">
             <span>Username</span>
             <input
-              className="min-h-11 rounded-control border border-line bg-surface px-3 text-input font-normal aria-invalid:border-danger"
+              className="h-11 rounded-control border border-outline bg-surface-sunk px-3 text-input font-normal text-ink focus-visible:outline-offset-1 aria-invalid:border-danger aria-invalid:shadow-[inset_0_0_0_1px_var(--color-danger)]"
               ref={usernameRef}
               name="username"
               autoComplete="username"
@@ -85,12 +87,14 @@ export function LoginPage() {
                 if (missing === "username") setMissing(null);
               }}
             />
-            {missing === "username" && <span className="font-normal text-danger">Enter your username.</span>}
+            {missing === "username" && (
+              <span className="text-small font-semibold text-danger">Enter your username.</span>
+            )}
           </label>
-          <label className="grid gap-1.5 font-semibold">
+          <label className="grid gap-1.5 text-small font-semibold">
             <span>Password</span>
             <input
-              className="min-h-11 rounded-control border border-line bg-surface px-3 text-input font-normal aria-invalid:border-danger"
+              className="h-11 rounded-control border border-outline bg-surface-sunk px-3 text-input font-normal text-ink focus-visible:outline-offset-1 aria-invalid:border-danger aria-invalid:shadow-[inset_0_0_0_1px_var(--color-danger)]"
               ref={passwordRef}
               name="password"
               type="password"
@@ -102,13 +106,11 @@ export function LoginPage() {
                 if (missing === "password") setMissing(null);
               }}
             />
-            {missing === "password" && <span className="font-normal text-danger">Enter your password.</span>}
+            {missing === "password" && (
+              <span className="text-small font-semibold text-danger">Enter your password.</span>
+            )}
           </label>
-          {error !== null && (
-            <p className="text-danger" role="alert">
-              {loginMessage(error)}
-            </p>
-          )}
+          {error !== null && <ErrorLine>{loginMessage(error)}</ErrorLine>}
           <Button type="submit" variant="primary" disabled={pending}>
             {pending ? "Signing in…" : "Sign in"}
           </Button>
@@ -116,7 +118,7 @@ export function LoginPage() {
 
         {signedOut?.ward.enabled && (
           <div className="grid gap-2.5">
-            <p className="m-0 text-center text-ink-muted" aria-hidden="true">
+            <p className="m-0 text-center text-small text-ink-muted" aria-hidden="true">
               or
             </p>
             <Button disabled={ward.pending} onClick={() => void ward.signIn({ returnTo: appBase() })}>
@@ -125,12 +127,10 @@ export function LoginPage() {
           </div>
         )}
         {ward.error !== null && (
-          <p className="text-danger" role="alert">
-            {wardSignInMessage(ward.error)}{" "}
-            <Button variant="link" onClick={ward.reset}>
-              Dismiss
-            </Button>
-          </p>
+          <div className="grid justify-items-start gap-2">
+            <ErrorLine>{wardSignInMessage(ward.error)}</ErrorLine>
+            <Button onClick={ward.reset}>Dismiss</Button>
+          </div>
         )}
       </div>
     </main>

@@ -6,7 +6,7 @@ import type { AuthError } from "../vendor/ward/ward-auth-react.js";
  * do. A code this list doesn't know reads like `unknown`.
  */
 
-const UNREACHABLE = "Lantern can't be reached. Check your connection and try again.";
+const UNREACHABLE = "Lantern can’t be reached. Check your connection and try again.";
 
 /** "45 seconds", "10 minutes". */
 function waitText(seconds: number): string {
@@ -31,7 +31,7 @@ export function loginMessage(error: AuthError): string {
     case "network":
       return UNREACHABLE;
     default:
-      return "Couldn't sign in. Try again.";
+      return "Couldn’t sign in. Try again.";
   }
 }
 
@@ -39,17 +39,17 @@ export function loginMessage(error: AuthError): string {
 export function wardSignInMessage(error: AuthError): string {
   switch (error.code) {
     case "access_denied":
-      return "Ward didn't let you in to Lantern. Sign in with your password, or ask the owner to grant Lantern to your account in Ward.";
+      return "Ward didn’t let you in to Lantern. Sign in with your password, or ask the owner to grant Lantern to your account in Ward.";
     case "ward_unavailable":
-      return "Ward isn't answering. Sign in with your password instead.";
+      return "Ward isn’t answering. Sign in with your password instead.";
     case "ward_misconfigured":
-      return "Sign in with Ward isn't set up right on this server. Sign in with your password.";
+      return "Sign in with Ward isn’t set up right on this server. Sign in with your password.";
     case "invalid_callback":
       return "That Ward sign-in expired. Try again.";
     case "network":
       return UNREACHABLE;
     default:
-      return "Couldn't sign in with Ward. Try again, or sign in with your password.";
+      return "Couldn’t sign in with Ward. Try again, or sign in with your password.";
   }
 }
 
@@ -61,7 +61,7 @@ export function sessionReasonMessage(reason: string | undefined): string | null 
     case "ward_session_ended":
       return "Your Ward session ended. Sign in again.";
     case "ward_misconfigured":
-      return "Sign in with Ward isn't set up right on this server. Sign in with your password.";
+      return "Sign in with Ward isn’t set up right on this server. Sign in with your password.";
     default:
       return null;
   }
@@ -75,18 +75,18 @@ export function accountMessage(error: AuthError): string {
     case "ward_account_in_use":
       return "That Ward account is linked to another Lantern user.";
     case "access_denied":
-      return "Ward didn't let you in to Lantern. Grant Lantern to your account in Ward, then try again.";
+      return "Ward didn’t let you in to Lantern. Grant Lantern to your account in Ward, then try again.";
     case "invalid_callback":
       return "That Ward sign-in expired. Try again.";
     case "ward_unavailable":
-      return "Ward isn't answering right now. Try again later.";
+      return "Ward isn’t answering right now. Try again later.";
     case "ward_misconfigured":
-      return "Ward isn't set up right on this server. Check the WARD_OIDC settings.";
+      return "Ward isn’t set up right on this server. Check the WARD_OIDC settings.";
     case "unauthorized":
       return "Your session ended. Sign in again.";
     case "network":
       return UNREACHABLE;
     default:
-      return "That didn't work. Try again.";
+      return "That didn’t work. Try again.";
   }
 }

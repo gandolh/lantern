@@ -1,7 +1,9 @@
 import { useEffect, type ReactNode } from "react";
 import { useSession } from "../vendor/ward/ward-auth-react.js";
 import { Button } from "./components/ui/Button";
+import { LanternMark } from "./Icons";
 import { LoginPage } from "./LoginPage";
+import { ErrorLine } from "./States";
 import { hrefOf, navigate, useRoute } from "./route";
 
 /**
@@ -25,15 +27,18 @@ export function AuthGate({ children }: { children: ReactNode }) {
     case "loading":
       return (
         <main className="grid min-h-dvh place-items-center px-4 py-6" aria-busy="true">
-          <p className="text-ink-muted">Loading…</p>
+          <p className="m-0 text-small text-ink-muted">Loading…</p>
         </main>
       );
     case "error":
       return (
         <main className="grid min-h-dvh place-items-center px-4 py-6">
-          <div className="grid w-full max-w-gate gap-3.5 rounded-card border border-line bg-surface px-6 py-7 shadow-card">
-            <h1 className="m-0 inline-flex items-center gap-3 text-page-title font-bold">Lantern</h1>
-            <p role="alert">Lantern can't be reached. Check your connection and try again.</p>
+          <div className="grid w-full max-w-gate gap-4 rounded-card border border-line bg-surface px-6 py-7 shadow-card">
+            <h1 className="m-0 inline-flex items-center gap-3 font-display text-page-title text-ink">
+              <LanternMark size={32} />
+              Lantern
+            </h1>
+            <ErrorLine>Lantern can’t be reached. Check your connection and try again.</ErrorLine>
             <Button onClick={() => void session.refresh()}>Try again</Button>
           </div>
         </main>

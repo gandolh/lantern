@@ -10,7 +10,9 @@ import {
 import { useEffect, useState, type ReactNode } from "react";
 import { Button } from "./components/ui/Button";
 import { cn } from "./lib/cn";
-import { NOTICE } from "./looks";
+import { CheckIcon } from "./Icons";
+import { EMPTY_BOX, NOTICE } from "./looks";
+import { ErrorLine, Loading } from "./States";
 import { request } from "./api";
 import { STATE_LABELS } from "./StatePicker";
 import { saveState } from "./titlesApi";
@@ -115,51 +117,58 @@ export function TitleList({ choice, empty, tabs }: { choice: ListChoice; empty: 
   return (
     <>
       {tabs}
-      <KindFilter kind={kind} onChange={setKind} />
+      <div className="mb-5">
+        <KindFilter kind={kind} onChange={setKind} />
+      </div>
 
       {last && (
-        <p className={cn(NOTICE, "sticky top-[calc(var(--height-top)+8px)] z-notice shadow-card")} role="status">
-          {last.row.title.title} {last.to === null ? "was cleared" : `is now ${STATE_LABELS[last.to].toLowerCase()}`}.{" "}
-          <Button variant="link" onClick={undo}>
-            Undo
-          </Button>
-          {undoFailed && <span className="text-meta text-danger"> That didn't work. Try again.</span>}
+        <p
+          className={cn(
+            NOTICE,
+            "sticky top-[calc(var(--height-top)+8px)] z-notice m-0 mb-4 flex max-w-[460px] items-center gap-3 text-small",
+          )}
+          role="status"
+        >
+          <span className="text-ok">
+            <CheckIcon />
+          </span>
+          <span>
+            {last.row.title.title} {last.to === null ? "was cleared" : `is now ${STATE_LABELS[last.to].toLowerCase()}`}.{" "}
+            <Button variant="link" onClick={undo}>
+              Undo
+            </Button>
+            {undoFailed && <span className="text-danger"> That didn’t work. Try again.</span>}
+          </span>
         </p>
       )}
 
       {first.status === "error" && (
-        <p className="text-danger" role="alert">
-          Couldn't load the list. {first.error.message}{" "}
-          <Button variant="link" onClick={first.refresh}>
-            Try again
-          </Button>
-        </p>
+        <div className="grid justify-items-start gap-2 rounded-card bg-surface p-4 shadow-card">
+          <ErrorLine>Couldn’t load the list. {first.error.message}</ErrorLine>
+          <Button onClick={first.refresh}>Try again</Button>
+        </div>
       )}
-      {first.status === "loading" && !first.data && (
-        <p className="text-ink-muted" aria-busy="true">
-          Loading…
-        </p>
-      )}
+      {first.status === "loading" && !first.data && <Loading rows={3} />}
       {first.status !== "loading" && first.data && rows.length === 0 && (
-        <div className="rounded-card border border-dashed border-line p-4">{empty}</div>
+        <div className={cn(EMPTY_BOX, "[&_p]:m-0 [&_p+p]:mt-2 [&_p+p]:text-small [&_p+p]:text-ink-muted")}>{empty}</div>
       )}
       {rows.length > 0 && (
         <ul
-          className="m-0 grid list-none gap-2.5 p-0 aria-busy:opacity-60"
+          className="m-0 flex list-none flex-col gap-3 p-0 aria-busy:opacity-60 min-[900px]:gap-4"
           aria-busy={first.status === "loading" || undefined}
         >
           {rows.map((row) => (
             <TitleRow
               key={row.title.imdbId}
               item={row}
-              note={row.inPool ? undefined : <span className="text-ink-muted">No longer in Lantern's title list</span>}
+              note={row.inPool ? undefined : <span className="text-ink-muted">No longer in Lantern’s title list</span>}
               onChange={(state) => changed(row, state)}
             />
           ))}
         </ul>
       )}
       {next && (
-        <p>
+        <p className="mt-4 mb-0">
           <Button onClick={showMore} disabled={loadingMore}>
             {loadingMore ? "Loading…" : "Show more"}
           </Button>

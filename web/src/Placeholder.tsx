@@ -9,7 +9,7 @@ export function Placeholder({ title, children }: { title: string; children: stri
   return (
     <section>
       <h1 className={PAGE_TITLE}>{title}</h1>
-      <p className="text-ink-muted">{children}</p>
+      <p className="m-0 mt-3 text-ink-muted">{children}</p>
     </section>
   );
 }
