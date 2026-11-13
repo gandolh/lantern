@@ -274,3 +274,10 @@ titles: byte-identical except the list rows (keys in the schema's order, same JS
 (the message says "received null" where it said "received undefined"), and an unknown list with an unknown
 query key (400 where it was 404). No field was dropped: nothing leaked. A 20 s record request completed under
 the 45 s timeout and was cut at 10 s. Details in the brief's outcome note and [architecture](wiki/architecture.md).
+
+## [2026-11-13] decision | The redesign direction "Lamplight" is approved
+
+The owner approved the redesign direction "Lamplight" on the estate redesign board, with every question on the
+board standing as proposed: meh moves from ochre to a stone blue-grey, suggestions become one ranked column of
+horizontal cards, and Lamplight is Lantern's direction. Brief 19's build starts: the tokens first, then one
+commit per screen.
