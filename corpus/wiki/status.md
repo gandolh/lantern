@@ -1,6 +1,6 @@
 ---
-summary: Where Lantern stands, per area, as of 2026-11-11. The first version is built (briefs 01-14), on OMDb plus IMDb's files after the owner dropped TMDB the same day; not deployed. Each area as built, the house-style harness (2026-11-11), the checks, the todo (bump @fastify/static), and the owner's next steps in order (push, Ward registration, two secrets, the vps-deploy stack, the title import, the account).
-updated: 2026-11-11
+summary: Where Lantern stands, per area, as of 2026-11-11. The first version is built (briefs 01-14), on OMDb plus IMDb's files after the owner dropped TMDB the same day; not deployed. Each area as built, the Lamplight redesign (2026-11-13), the house-style harness (2026-11-11), the checks, the todo (bump @fastify/static), and the owner's next steps in order (push, deploy the static client, Ward registration, two secrets, the vps-deploy stack, the title import, the account).
+updated: 2026-11-13
 ---
 
 # Status
@@ -50,10 +50,13 @@ on the shared machine. 104 tests; typecheck and lint clean. The owner pushes.
   account page.
 - **Base UI** (2026-11-11). The kind filter, the state picker and the ratings tabs are Base UI
   wrappers under `web/src/components/ui/`; `/rate` keeps its keys ([web-app.md](web-app.md)).
-- **The look** (2026-11-11). Tailwind 4.3.5 in one stylesheet on the small-tools family's token names
-  with Lantern's values; the Light / Dark / System switch on the account page (light on a first visit);
-  pixel-matched to the plain-CSS page at 1280 and 390 px, light and dark ([web-app.md](web-app.md)).
-  Built, not deployed.
+- **The look** (2026-11-13). The "Lamplight" redesign, approved on the estate board and built as brief 19:
+  Tailwind 4.3.5 in one stylesheet on the small-tools family's token names with Lantern's values, a warm paper
+  ground, an amber lamp, meh a stone blue-grey, Hanken Grotesk and Bricolage Grotesque in six sizes, suggestions
+  as one ranked column of horizontal cards, the rating bar of four level meters, and the Light / Dark / System
+  switch on the account page ([docs/design.md](../../docs/design.md), [web-app.md](web-app.md)). Contrast
+  is tested over the tokens and Playwright specs cover the focus ring, reduced motion, 390 px overflow, the
+  theme switch and the swipe card. Built, not deployed.
 - **Research** (2026-10-28 to 2026-11-04, done). taste.io and the stack in
   [research.md](research.md); TMDB and OMDb, their endpoints and terms, in
   [sources.md](sources.md). No real call made yet.
@@ -64,15 +67,11 @@ on the shared machine. 104 tests; typecheck and lint clean. The owner pushes.
 - **House style** (2026-11-11). Prettier at 120, the house ESLint config, `npm run check` and
   `check:fast`, the root `CLAUDE.md` and `.claude/rules/` ([decisions.md](decisions.md)). 104 tests.
   `check-base-ui` runs strict since brief 17 (0 findings) with ESLint's `better-tailwindcss` rules on;
-  `check-structure` runs strict since brief 18 (0 findings, two exceptions in `scripts/conventions.json`), with dependency-cruiser in `check:conventions`. 161 tests since brief 18.
+  `check-structure` runs strict since brief 18 (0 findings, two exceptions in `scripts/conventions.json`), with dependency-cruiser in `check:conventions`. 161 tests since brief 18, 277 since brief 19 (it adds a contrast test of about 120 cases).
 
 ## Open briefs
 
-One, written 2026-11-10 for the owner's calls of 2026-11-09 (Base UI 1.9.0 everywhere, whole apps
-on Tailwind v4, the researched conventions enforced) and revised the same day to the owner's grilling
-answers; it is the redesign:
-
-- **19** a redesign with Hallmark, approved on the estate board before any code changes.
+None. Brief 19 (the redesign) is built and on the board as ready for deploy.
 
 ## Todos
 
@@ -83,7 +82,8 @@ answers; it is the redesign:
 
 In this order; the details are in `docs/owner-setup.md`.
 
-1. Push this repo (local `main` is ahead of GitHub).
+1. Push this repo (local `main` is ahead of GitHub), then deploy the static client
+   (`node cli.ts lantern deploy` from the vps-deploy checkout) to ship the redesign.
 2. Locally, "Sign in with Ward" once Ward's local seed has run (it needs your Ward login and
    writes the five `WARD_OIDC_*` lines into `.env`); only local sign-in was walked.
 3. Register Lantern in production Ward (slug `lantern`) and grant your account (step 1).

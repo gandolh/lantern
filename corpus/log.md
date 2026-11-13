@@ -281,3 +281,15 @@ The owner approved the redesign direction "Lamplight" on the estate redesign boa
 board standing as proposed: meh moves from ochre to a stone blue-grey, suggestions become one ranked column of
 horizontal cards, and Lamplight is Lantern's direction. Brief 19's build starts: the tokens first, then one
 commit per screen.
+
+## [2026-11-13] brief | 19: the redesign, Lamplight
+
+Built the approved redesign. The tokens first (the warm palette tuned, meh a stone blue-grey, six sizes in
+Hanken Grotesk and Bricolage Grotesque, self-hosted), then the shell, suggestions as one ranked column of
+horizontal cards, the rate page, a title, and the screens the board never drew (watchlist, ratings, search,
+account, sign-in, the gate, not found, the undo notice). The rating bar is four level meters over their words.
+Contrast is measured by a test over the tokens (4.59 / 3.31 light, 4.72 / 3.81 dark at the minimum); Playwright
+1.63.0 specs cover the focus ring, reduced motion, 390 px overflow, the theme switch and the swipe card.
+Compared with the comps by rendering both: 0.1 to 0.6% of pixels differ. Details in
+[docs/design.md](../docs/design.md) and the brief's outcome note. Deploy: the static client only.
+

@@ -87,3 +87,29 @@ No PRs, no branches (Q4): one commit per step, straight on `main`.
 - Brief 17 owns the token names, the wrappers' styling and the theme switch; this brief changes values and layout on top. Lantern's token names follow wicket's brief 12, so a rename is raised on the board for the whole family.
 - Brief 16's `RadioGroup` (the kind filter and the theme control), `ToggleGroup` (the state picker) and `Tabs` (the ratings tabs) stay Base UI wrappers; the redesign restyles them. The `/rate` key rule from brief 16 holds.
 - Brief 15's formatter and lint run on every redesign commit.
+
+## Outcome (2026-11-13)
+
+Built as "Lamplight", approved on the board with every question as proposed. Nine commits for the build:
+the tokens and the fonts, the shell, suggestions, rate, a title, the undrawn screens, the Playwright specs and
+contrast test, the docs, and a fixing round. [docs/design.md](../../../docs/design.md) records what shipped;
+[decisions](../../wiki/decisions.md) holds the two reopened lines (meh to a stone blue-grey, six sizes in two faces).
+
+- **Contrast**, measured over the built tokens by `web/src/styles/contrast.test.ts` (both themes, text and
+  icon pairs, the rating fills and their text, the focus ring, edges, the poster tints). Minimums: text
+  4.59:1 light (accent on a control) and 4.72:1 dark (ink-muted on a raised control); UI parts and edges
+  3.31:1 light and 3.81:1 dark (the outline on a control). Every chosen rating fill and its text clears 4.5:1.
+- **Browser specs** (`web/e2e/`, Playwright 1.63.0): a focus ring on every Tab stop of each screen and the
+  login page; no running animation or transition under reduced motion, the swipe card included (it leaves with
+  no transition at all); no sideways scroll at 390 px in both themes; the theme switch; the swipe card, the
+  number keys, the arrows and Z.
+- **Nothing invented in the page.** Every title, score and figure the page shows comes from the data or the
+  copy; the credit line is word for word. The specs' stand-in titles are the redesign comps' own plus two of
+  the specs' (Paper Foundry, Open Hollow), written in `web/e2e/data.ts` and never shipped.
+- **Copy**: only the approved changes (hairline separators, genres on their own line, `2010 to 2013`, a
+  sentence-case stamp, icons for the glued arrows, typographic apostrophes). A running series keeps `2019–`.
+- **Left for later**: the `docs/` screenshots and the README images, which a later docs pass retakes.
+- **Differences from the comps** (shots compared by rendering each comp and counting pixels that differ by more
+  than 24 in any channel): suggestions 0.1%, a title 0.1 to 0.2%, rate 0.2% at 1280 and 0.6% at 390. What
+  differs: sub-pixel text edges; the rate card's "(704K)" where the comp draws "(704K votes)", because that
+  is not an approved copy change; the comps' mid-page tab bar against the app's fixed one.
