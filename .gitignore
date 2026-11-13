@@ -13,3 +13,7 @@ coverage/
 
 # The SQLite database and anything downloaded
 data/
+
+# Playwright output
+test-results/
+playwright-report/

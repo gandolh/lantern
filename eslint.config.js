@@ -22,6 +22,7 @@ export default [
       "server/src/features/pool/cli.ts",
     ],
     tests: ["**/*.test.{ts,tsx}", "server/src/testing.ts", "server/src/features/sources/testing.ts"],
+    playwright: ["web/e2e/**/*.spec.ts"],
     ignores: ["data/**"],
   }),
 ];
