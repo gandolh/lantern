@@ -1,8 +1,10 @@
 import type { OmdbRecord, PoolTitle, Scores, TitleState } from "@lantern/shared";
 import { useEffect, type ReactNode } from "react";
 import { Button } from "./components/ui/Button";
-import { cn } from "./lib/cn";
-import { DETAIL, FACTS, PAGE_TITLE, SECTION_TITLE, TERM } from "./looks";
+import { Facts } from "./Facts";
+import { ExternalIcon } from "./Icons";
+import { PAGE_TITLE, SECTION_CARD, SECTION_TITLE } from "./looks";
+import { Skel } from "./States";
 import { ApiError } from "./api";
 import { kindLabel, runtime, votes, years } from "./format";
 import { Link } from "./Link";
@@ -32,7 +34,7 @@ export function TitlePage({ id }: { id: string }) {
   if (item.status === "error" && !missing) {
     return (
       <section>
-        <h1 className={PAGE_TITLE}>Couldn't load this title</h1>
+        <h1 className={PAGE_TITLE}>Couldn’t load this title</h1>
         <p className="text-ink-muted">
           {item.error.message} <Link to={{ page: "search", query: "" }}>Search instead</Link>
         </p>
@@ -42,9 +44,9 @@ export function TitlePage({ id }: { id: string }) {
   if (missing && record.status !== "loading" && !found) {
     return (
       <section>
-        <h1 className={PAGE_TITLE}>Not in Lantern's list</h1>
+        <h1 className={PAGE_TITLE}>Not in Lantern’s list</h1>
         <p className="text-ink-muted">
-          This title isn't among the films and series Lantern imported from IMDb.{" "}
+          This title isn’t among the films and series Lantern imported from IMDb.{" "}
           <Link to={{ page: "search", query: "" }}>Search instead</Link>
         </p>
       </section>
@@ -54,7 +56,8 @@ export function TitlePage({ id }: { id: string }) {
   if (!pool && !found) {
     return (
       <section aria-busy="true">
-        <p className="text-ink-muted">Loading…</p>
+        <p className="m-0 mb-3 text-small text-ink-muted">Loading…</p>
+        <Skel className="h-40 w-full" />
       </section>
     );
   }
@@ -95,56 +98,82 @@ function TitleView({
   const length = record?.seasons
     ? `${record.seasons} season${record.seasons === 1 ? "" : "s"}`
     : runtime(pool?.runtime ?? record?.runtime ?? null);
-  const facts = [year, kindLabel(kind), length, record?.rated].filter((fact) => fact);
   const genres = pool?.genres ?? record?.genres ?? [];
 
   return (
-    <article>
-      <div className="grid grid-cols-[minmax(110px,34%)_1fr] items-start gap-4 wide:grid-cols-[240px_1fr] wide:gap-7">
-        <Poster
-          key={`${poolPoster}-${record?.hasPoster}`}
-          imdbId={id}
-          title={title}
-          has={poolPoster || (record?.hasPoster ?? false)}
-          size="large"
-        />
-        <div>
-          <h1 className={PAGE_TITLE}>{title}</h1>
-          <p className="mt-0 mb-2 text-ink-muted">{facts.join(" · ")}</p>
+    <>
+      <article className="grid grid-cols-[120px_minmax(0,1fr)] items-start gap-x-4 gap-y-6 wide:grid-cols-[260px_minmax(0,1fr)] wide:gap-x-10">
+        <div className="wide:row-span-3">
+          <Poster
+            key={`${poolPoster}-${record?.hasPoster}`}
+            imdbId={id}
+            title={title}
+            has={poolPoster || (record?.hasPoster ?? false)}
+            size="large"
+          />
+        </div>
+        <header className="flex min-w-0 flex-col gap-2">
+          <h1 className="m-0 font-display text-page-title text-balance wrap-break-word text-ink wide:text-display">
+            {title}
+          </h1>
+          <div className="grid text-body text-ink-muted">
+            <Facts items={[year, kindLabel(kind)]} className="text-body" />
+            <Facts items={[length, record?.rated]} className="text-body" />
+          </div>
           {genres.length > 0 && (
-            <ul className="m-0 flex list-none flex-wrap gap-1.5 p-0" aria-label="Genres">
+            <ul className="m-0 flex list-none flex-wrap gap-2 p-0" aria-label="Genres">
               {genres.map((genre) => (
-                <li key={genre} className="rounded-pill bg-surface-sunk px-2.5 py-0.5 text-small">
+                <li key={genre} className="rounded-pill bg-control px-3 py-1 text-note">
                   {genre}
                 </li>
               ))}
             </ul>
           )}
           {pool && (
-            <p className="my-2">
+            <p className="m-0 text-body tabular-nums">
               <strong>IMDb {pool.rating.toFixed(1)}</strong>{" "}
               <span className="text-ink-muted">from {votes(pool.votes)} votes</span>
             </p>
           )}
-          <p>
-            <a href={`https://www.imdb.com/title/${id}/`} target="_blank" rel="noreferrer">
+          <p className="m-0 text-small">
+            <a
+              className="inline-flex min-h-12 items-center gap-1"
+              href={`https://www.imdb.com/title/${id}/`}
+              target="_blank"
+              rel="noreferrer"
+            >
               Open on IMDb
+              <ExternalIcon />
             </a>
           </p>
-        </div>
-      </div>
+        </header>
 
-      <section className="mt-6" aria-label="Your verdict">
-        <h2 className={SECTION_TITLE}>Your verdict</h2>
-        <StatePicker key={id} imdbId={id} state={state} title={title} />
-      </section>
+        <section
+          className="col-span-full grid max-w-160 gap-3 rounded-card border border-line bg-surface p-4 shadow-card wide:col-span-1 wide:col-start-2 wide:p-5"
+          aria-labelledby="verdict-heading"
+        >
+          <h2 id="verdict-heading" className={SECTION_TITLE}>
+            Your verdict
+          </h2>
+          <StatePicker key={id} imdbId={id} state={state} title={title} />
+        </section>
+
+        {record?.plot && (
+          <section className="col-span-full grid gap-2 wide:col-span-1 wide:col-start-2" aria-labelledby="plot-heading">
+            <h2 id="plot-heading" className={SECTION_TITLE}>
+              Plot
+            </h2>
+            <p className="m-0 max-w-[62ch]">{record.plot}</p>
+          </section>
+        )}
+      </article>
 
       <RecordSection record={record} query={recordQuery} kind={kind} />
-    </article>
+    </>
   );
 }
 
-/** OMDb's part of the page, or why it is missing. */
+/** OMDb's part of the page below the verdict: the scores and details, or why they are missing. */
 function RecordSection({
   record,
   query,
@@ -156,21 +185,23 @@ function RecordSection({
 }) {
   if (query.status === "loading") {
     return (
-      <p className="mt-6 text-ink-muted" aria-busy="true">
-        Loading the details…
-      </p>
+      <div className="mt-8 grid gap-2" aria-busy="true">
+        <p className="m-0 text-small text-ink-muted">Loading the details…</p>
+        <Skel className="h-4 w-full" />
+        <Skel className="h-4 w-7/10" />
+      </div>
     );
   }
   if (query.status === "error") {
     const error = query.error;
     const why =
       error instanceof ApiError && error.code === "no_key"
-        ? "Details, posters and scores need OMDb's key (OMDB_API_KEY on the server)."
+        ? "Details, posters and scores need OMDb’s key (OMDB_API_KEY on the server)."
         : error instanceof ApiError && /limit/i.test(error.message)
-          ? "OMDb's daily limit is spent; the details come back tomorrow."
-          : "OMDb didn't answer.";
+          ? "OMDb’s daily limit is spent; the details come back tomorrow."
+          : "OMDb didn’t answer.";
     return (
-      <p className="mt-6 text-ink-muted">
+      <p className="mt-8 mb-0 text-small text-ink-muted">
         {why}{" "}
         <Button variant="link" onClick={query.refresh}>
           Try again
@@ -178,7 +209,7 @@ function RecordSection({
       </p>
     );
   }
-  if (!record) return <p className="mt-6 text-ink-muted">OMDb has no details for this title.</p>;
+  if (!record) return <p className="mt-8 mb-0 text-small text-ink-muted">OMDb has no details for this title.</p>;
 
   const people: [string, string[]][] = [
     [
@@ -191,21 +222,13 @@ function RecordSection({
     ["Starring", record.actors],
   ];
   return (
-    <>
-      {record.plot && (
-        <section className="mt-6" aria-labelledby="plot-heading">
-          <h2 id="plot-heading" className={SECTION_TITLE}>
-            Plot
-          </h2>
-          <p className="m-0 max-w-prose">{record.plot}</p>
-        </section>
-      )}
+    <div className="mt-8 grid gap-4 min-[900px]:mt-10 min-[900px]:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] min-[900px]:items-start">
       <ScoreSection scores={record.scores} />
-      <section className="mt-6" aria-labelledby="details-heading">
+      <section className={SECTION_CARD} aria-labelledby="details-heading">
         <h2 id="details-heading" className={SECTION_TITLE}>
           Details
         </h2>
-        <dl className={cn(FACTS, "mt-0")}>
+        <dl className="m-0 grid grid-cols-[max-content_minmax(0,1fr)] gap-x-6 gap-y-2">
           {people
             .filter(([, names]) => names.length > 0)
             .map(([label, names]) => (
@@ -219,15 +242,15 @@ function RecordSection({
           {record.awards && <Fact label="Awards">{record.awards}</Fact>}
         </dl>
       </section>
-    </>
+    </div>
   );
 }
 
 function Fact({ label, children }: { label: string; children: ReactNode }) {
   return (
     <>
-      <dt className={TERM}>{label}</dt>
-      <dd className={cn(DETAIL, "font-normal")}>{children}</dd>
+      <dt className="text-ink-muted">{label}</dt>
+      <dd className="m-0 font-semibold">{children}</dd>
     </>
   );
 }
@@ -244,20 +267,23 @@ function ScoreSection({ scores }: { scores: Scores }) {
     ["Metacritic", scores.metacritic !== null ? `${scores.metacritic}/100` : "–", null],
   ];
   return (
-    <section className="mt-6" aria-labelledby="scores-heading">
+    <section className={SECTION_CARD} aria-labelledby="scores-heading">
       <h2 id="scores-heading" className={SECTION_TITLE}>
         Scores
       </h2>
-      <ul className="m-0 grid list-none grid-cols-[repeat(3,1fr)] gap-2 p-0">
+      <ul className="m-0 grid list-none grid-cols-[repeat(3,minmax(0,1fr))] p-0 tabular-nums">
         {shown.map(([source, value, note]) => (
-          <li key={source} className="grid gap-0.5 rounded-control border border-line bg-surface p-2.5">
-            <span className="text-score font-bold">{value}</span>
-            <span className="text-note font-semibold">{source}</span>
+          <li
+            key={source}
+            className="flex flex-col gap-0.5 px-2 not-first:border-l not-first:border-line first:pl-0 wide:px-3 wide:first:pl-0"
+          >
+            <span className="font-display text-heading font-bold wide:text-score">{value}</span>
+            <span className="text-small font-semibold">{source}</span>
             {note && <span className="text-note text-ink-muted">{note}</span>}
           </li>
         ))}
       </ul>
-      <p className="text-note text-ink-muted">
+      <p className="m-0 text-note text-ink-muted">
         Scores and details from{" "}
         <a href="https://www.omdbapi.com/" target="_blank" rel="noreferrer">
           OMDb
