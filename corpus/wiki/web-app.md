@@ -92,7 +92,7 @@ components, utilities`; nothing third-party is imported.
 
 Browser specs (`web/e2e/`, Playwright 1.63.0, headless Chromium, `npx playwright test` from `web/` against a
 running page with a seeded local account): a focus ring on every Tab stop of each screen, no running animation
-or transition under reduced motion (the swipe card only fades), no sideways scroll at 390 px, the theme switch,
+or transition under reduced motion (the swipe card included: it leaves with no transition), no sideways scroll at 390 px, the theme switch,
 and the swipe card, the number keys, the arrows and Z on `/rate`. They stub the data routes with stand-in titles,
 so they need no title pool and make no outside call; `shots.spec.ts` writes screenshots when `SHOTS_DIR` is set.
 

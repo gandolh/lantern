@@ -91,7 +91,7 @@ rests on colour alone.
 ## Motion
 
 Only the swipe card moves: it follows the pointer and leaves by a short transform. With reduced motion it
-only fades. Nothing else animates or transitions.
+leaves with no transition at all. Nothing else animates or transitions.
 
 ## Copy
 
