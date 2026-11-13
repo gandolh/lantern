@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#f7f4ef" />
+    <meta name="theme-color" content="#f6f2ec" />
     <script>
       // The saved theme before the first paint, so a dark choice never flashes light; light on a first visit, even
       // when the system is dark. src/theme.ts keeps the same key and these colours (the page colour of each theme),
       // and takes over once the page loads.
       (function () {
-        var colors = { light: "#f7f4ef", dark: "#14110f" };
+        var colors = { light: "#f6f2ec", dark: "#14110f" };
         var theme = "light";
         try {
           var stored = localStorage.getItem("theme");

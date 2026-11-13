@@ -44,14 +44,14 @@ describe("styles/index.css", () => {
     expect(css).toMatch(/@media \(width >= 760px\)|@media \(min-width: 760px\)|@media \(min-width:760px\)/);
   });
 
-  it("keeps the 15px on body and leaves the root at the browser's size", () => {
-    expect(css).toMatch(/--text-body: 0\.9375rem/);
+  it("keeps the 16px on body and leaves the root at the browser's size", () => {
+    expect(css).toMatch(/--text-body: 1rem/);
     expect(css).toMatch(/body \{[^}]*font-size: var\(--text-body\)/);
     for (const body of rootRules()) expect(body).not.toMatch(/(^|;|\s)font-size:/);
   });
 
   it("names both themes once, in each colour token, and picks one from data-theme", () => {
-    expect(css).toMatch(/--color-page: light-dark\(#f7f4ef, #14110f\)/);
+    expect(css).toMatch(/--color-page: light-dark\(#f6f2ec, #14110f\)/);
     expect(css).toMatch(/:root\[data-theme="dark"\]\s*\{\s*color-scheme: dark/);
     expect(css).toMatch(/:root\[data-theme="system"\]\s*\{\s*color-scheme: light dark/);
   });

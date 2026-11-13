@@ -11,7 +11,7 @@ const KEY = "theme";
  * They equal `--color-page` in styles/index.css and the boot script in index.html; theme.test.ts keeps the three
  * together.
  */
-export const THEME_COLOR = { light: "#f7f4ef", dark: "#14110f" } as const;
+export const THEME_COLOR = { light: "#f6f2ec", dark: "#14110f" } as const;
 
 function isTheme(value: unknown): value is Theme {
   return value === "light" || value === "dark" || value === "system";
