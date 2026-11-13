@@ -4,11 +4,11 @@ import { cn } from "../../lib/cn";
 
 const VARIANTS = {
   default:
-    "min-h-11 gap-2 rounded-control border border-line bg-surface px-4.5 font-semibold text-ink hover:not-data-disabled:bg-surface-sunk",
+    "min-h-12 gap-2 rounded-control bg-control px-4 text-small font-semibold text-ink hover:not-data-disabled:bg-control-hover active:not-data-disabled:bg-control-raised active:not-data-disabled:shadow-[inset_0_0_0_1px_var(--color-outline)] wide:min-h-10",
   primary:
-    "min-h-11 gap-2 rounded-control border border-transparent bg-accent px-4.5 font-semibold text-accent-text hover:not-data-disabled:bg-accent-hover",
+    "min-h-12 gap-2 rounded-control bg-accent px-4 text-small font-semibold text-accent-text hover:not-data-disabled:bg-accent-hover active:not-data-disabled:bg-accent-hover wide:min-h-11",
   /** A button that reads as a link inside a sentence. */
-  link: "text-accent underline",
+  link: "text-accent underline underline-offset-3 hover:text-accent-hover",
 } as const;
 
 export interface ButtonProps extends Omit<ComponentProps<typeof BaseButton>, "className"> {
@@ -22,7 +22,7 @@ export function Button({ variant = "default", className, ...props }: ButtonProps
     <BaseButton
       {...props}
       className={cn(
-        "inline-flex cursor-pointer items-center justify-center data-disabled:cursor-default data-disabled:opacity-60",
+        "inline-flex cursor-pointer items-center justify-center data-disabled:cursor-default data-disabled:opacity-55",
         VARIANTS[variant],
         className,
       )}

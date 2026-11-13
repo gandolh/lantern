@@ -9,7 +9,7 @@ export function ImdbCredit() {
   return (
     <span>
       {before}
-      <a className="text-inherit" href="https://www.imdb.com" rel="noreferrer" target="_blank">
+      <a href="https://www.imdb.com" rel="noreferrer" target="_blank">
         https://www.imdb.com
       </a>
       {after}

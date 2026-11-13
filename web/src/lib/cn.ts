@@ -12,14 +12,12 @@ const twMerge = extendTailwindMerge({
   extend: {
     theme: {
       text: [
-        "micro",
         "note",
         "small",
         "meta",
         "input",
         "body",
         "heading",
-        "brand",
         "card-title",
         "score",
         "page-title",
@@ -27,8 +25,8 @@ const twMerge = extendTailwindMerge({
         "code",
       ],
       leading: ["heading", "card"],
-      radius: ["card", "control", "pill", "hero", "sm", "xs"],
-      shadow: ["card", "float", "poster", "brand-mark"],
+      radius: ["card", "control", "pill", "xs"],
+      shadow: ["card", "float", "poster"],
       font: ["sans", "display", "mono"],
       container: ["page", "narrow", "prose", "gate"],
       blur: ["bar"],

@@ -1,4 +1,4 @@
-import "@fontsource-variable/bricolage-grotesque";
+import "@fontsource-variable/bricolage-grotesque/opsz.css";
 import "@fontsource-variable/hanken-grotesk";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
