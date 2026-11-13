@@ -28,17 +28,7 @@ const title = (
 });
 
 const COPPER = title("tt9100004", "Copper Kitchen", "movie", 2023, null, 104, ["Crime", "Mystery"], 8.0, 164000);
-const CLOCK = title(
-  "tt9100008",
-  "Little Clock",
-  "series",
-  2010,
-  2013,
-  null,
-  ["Documentary", "Crime"],
-  7.9,
-  722000,
-);
+const CLOCK = title("tt9100008", "Little Clock", "series", 2010, 2013, null, ["Documentary", "Crime"], 7.9, 722000);
 const SAMPLE = title("tt9100014", "Sample Harbour", "series", 2019, 2022, null, ["Sci-Fi", "Drama"], 9.1, 74000);
 const SILVER = title("tt9100015", "Silver Echo", "movie", 2022, null, 118, ["Sci-Fi", "Drama"], 8.1, 614000);
 export const HARBOUR = title(
