@@ -1,13 +1,16 @@
 import { RATINGS, type Card, type OmdbRecord, type TitleKind, type TitleState } from "@lantern/shared";
 import { useCallback, useEffect, useEffectEvent, useRef, useState } from "react";
 import { Button } from "./components/ui/Button";
+import { Facts } from "./Facts";
+import { ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon, Meter, UndoIcon } from "./Icons";
+import { ErrorLine, Skel } from "./States";
 import { cn } from "./lib/cn";
-import { PAGE_TITLE } from "./looks";
+import { EMPTY_BOX, PAGE_TITLE } from "./looks";
 import { kindLabel, runtime, votes, years } from "./format";
 import { Link } from "./Link";
 import { Poster } from "./Poster";
-import { STATE_LABELS, stateButtonClass } from "./StatePicker";
-import { CARD_LOOK, SwipeCard, type SwipeDirection } from "./SwipeCard";
+import { actionButtonClass, LEVEL, RATING_BAR, ratingStepClass, STATE_LABELS } from "./StatePicker";
+import { SwipeCard, type SwipeDirection } from "./SwipeCard";
 import { dealCards, getRecord, saveSkip, saveState } from "./titlesApi";
 import { KindFilter } from "./KindFilter";
 import { pageOwnsKey } from "./keys";
@@ -130,7 +133,7 @@ export function RatePage() {
         setTimeout(() => {
           setDone((all) => all.filter((d) => d.card.title.imdbId !== id));
           setQueue((all) => (all.some((c) => c.title.imdbId === id) ? all : [card, ...all]));
-          setSaveError(`"${card.title.title}" didn't save. Try again.`);
+          setSaveError(`"${card.title.title}" didn’t save. Try again.`);
         }, LEAVE_MS);
       });
     },
@@ -145,7 +148,7 @@ export function RatePage() {
     setQueue((all) => [last.card, ...all.filter((c) => c.title.imdbId !== id)]);
     setSaveError(null);
     const reverted = last.action.kind === "skip" ? saveSkip(id, false) : saveState(id, null);
-    reverted.catch(() => setSaveError(`Couldn't undo "${last.card.title.title}". Try again.`));
+    reverted.catch(() => setSaveError(`Couldn’t undo "${last.card.title.title}". Try again.`));
   }, [done, leaving]);
 
   const rate = (state: TitleState) =>
@@ -174,129 +177,145 @@ export function RatePage() {
   const record = current ? (current.record ?? records[current.title.imdbId]) : undefined;
 
   return (
-    <section>
+    <section className="mx-auto flex max-w-[760px] flex-col gap-4 max-wide:min-h-[calc(100dvh-148px-env(safe-area-inset-bottom))]">
       <div className="flex items-center justify-between gap-3">
         <h1 className={PAGE_TITLE}>Rate</h1>
-        <Button className="min-h-9" onClick={undo} disabled={done.length === 0 || leaving !== null}>
+        <Button onClick={undo} disabled={done.length === 0 || leaving !== null} aria-keyshortcuts="Z">
+          <UndoIcon />
           Undo
+          <Key className="ml-1">Z</Key>
         </Button>
       </div>
-      <KindFilter kind={kind} onChange={chooseKind} />
+      <div>
+        <KindFilter kind={kind} onChange={chooseKind} />
+      </div>
 
       {loadError !== null && (
-        <p className="text-danger" role="alert">
-          Couldn't deal cards. {loadError}{" "}
-          <Button variant="link" onClick={() => setLoadError(null)}>
-            Try again
-          </Button>
-        </p>
+        <div className="grid justify-items-start gap-2 rounded-card bg-surface p-4 shadow-card">
+          <ErrorLine>Couldn’t deal cards. {loadError}</ErrorLine>
+          <Button onClick={() => setLoadError(null)}>Try again</Button>
+        </div>
       )}
 
       {current ? (
         <>
-          <div className="relative mx-auto max-w-narrow">
+          <div className="relative mt-2 pb-2.5">
             {next && (
               <div
-                className={cn(
-                  CARD_LOOK,
-                  "pointer-events-none absolute inset-0 z-0 [transform:scale(0.96)_translateY(8px)] opacity-60",
-                )}
+                className="pointer-events-none absolute inset-0 z-0 [transform:translateY(10px)_scale(0.96)] rounded-card border border-line bg-surface opacity-60"
                 aria-hidden="true"
-              >
-                <CardFace card={next} record={next.record ?? records[next.title.imdbId]} />
-              </div>
+              />
             )}
             <SwipeCard key={current.title.imdbId} labels={LABELS} onSwipe={swipe} leaving={leaving}>
               <CardFace card={current} record={record} />
             </SwipeCard>
           </div>
 
-          {saveError && (
-            <p className="m-0 text-meta text-danger" role="alert">
-              {saveError}
-            </p>
-          )}
+          {saveError && <ErrorLine>{saveError}</ErrorLine>}
+
+          <p className="m-auto mt-0 mb-0 max-w-[52ch] text-center text-small text-ink-muted">
+            Seen it? Rate it. Not seen it? Swipe right to save it, left if it’s not for you, up to skip.
+          </p>
 
           <div
-            className="mx-auto mt-3.5 grid max-w-narrow gap-2"
+            className="sticky bottom-[calc(var(--height-tab)+env(safe-area-inset-bottom))] z-1 mt-auto grid gap-2 bg-page pt-2 pb-2 wide:static wide:pt-0 wide:pb-0"
             role="group"
             aria-label={`Your verdict on ${current.title.title}`}
           >
-            <div className="grid grid-cols-[repeat(4,1fr)] gap-1.5">
+            <div className={RATING_BAR}>
               {RATINGS.map((rating, i) => (
                 <button
                   key={rating}
                   type="button"
-                  className={stateButtonClass(rating, "min-h-12")}
+                  className={ratingStepClass(rating)}
                   onClick={() => rate(rating)}
                   aria-keyshortcuts={String(i + 1)}
                 >
-                  {STATE_LABELS[rating]}
+                  <Key className="absolute top-1.5 right-1.5">{String(i + 1)}</Key>
+                  <Meter level={LEVEL[rating]} />
+                  <span>{STATE_LABELS[rating]}</span>
                 </button>
               ))}
             </div>
-            <div className="grid grid-cols-[repeat(3,1fr)] gap-1.5">
+            <div className="grid grid-cols-[repeat(3,minmax(0,1fr))] gap-2">
               <button
                 type="button"
-                className={stateButtonClass(null, "px-1.5 text-small")}
+                className={actionButtonClass(ACTION)}
                 onClick={() => swipe("left")}
                 aria-keyshortcuts="ArrowLeft"
               >
-                ← Not interested
+                <ArrowLeftIcon />
+                <span>Not interested</span>
               </button>
               <button
                 type="button"
-                className={stateButtonClass(null, "px-1.5 text-small")}
+                className={actionButtonClass(ACTION)}
                 onClick={() => swipe("up")}
                 aria-keyshortcuts="ArrowUp"
               >
-                ↑ Skip
+                <ArrowUpIcon />
+                <span>Skip</span>
               </button>
               <button
                 type="button"
-                className={stateButtonClass(null, "px-1.5 text-small")}
+                className={actionButtonClass(cn(ACTION, "max-[479px]:flex-col-reverse"))}
                 onClick={() => swipe("right")}
                 aria-keyshortcuts="ArrowRight"
               >
-                Want to watch →
+                <span>Want to watch</span>
+                <ArrowRightIcon />
               </button>
             </div>
-            <p className="m-0 text-center text-note text-ink-muted">
-              Seen it? Rate it. Not seen it? Swipe right to save it, left if it's not for you, up to skip.
-            </p>
           </div>
         </>
       ) : exhausted ? (
-        <div className="rounded-card border border-dashed border-line p-4">
-          <p>
-            No more cards{kind ? ` for ${kind === "movie" ? "films" : "series"}` : ""}: every title in Lantern's list
+        <div className={EMPTY_BOX}>
+          <p className="m-0 mb-2">
+            No more cards{kind ? ` for ${kind === "movie" ? "films" : "series"}` : ""}: every title in Lantern’s list
             has a verdict or was skipped.
           </p>
-          <p>
+          <p className="m-0 text-small text-ink-muted">
             <Link to={{ page: "search", query: "" }}>Search for a title</Link> instead, or run the title import again
             for newer ones.
           </p>
         </div>
       ) : (
         loadError === null && (
-          <p className="text-ink-muted" aria-busy="true">
-            Dealing…
-          </p>
+          <div className="grid gap-3" aria-busy="true">
+            <p className="m-0 text-small text-ink-muted">Dealing…</p>
+            <Skel className="h-30 w-full" />
+          </div>
         )
       )}
     </section>
   );
 }
 
-const PLOT = "mt-2 mb-0 line-clamp-7 text-meta";
+/** The three actions: icon beside the word, and under 480 px an icon over its word, 56 px tall. */
+const ACTION =
+  "px-2 max-[479px]:h-14 max-[479px]:min-h-14 max-[479px]:flex-col max-[479px]:gap-0.5 max-[479px]:p-1 max-[479px]:text-note";
+
+/** The key a control answers to, shown on a wide page only. */
+function Key({ children, className }: { children: string; className?: string }) {
+  return (
+    <span
+      className={cn(
+        "hidden h-4.5 min-w-4.5 place-items-center rounded-[4px] border border-outline px-1 text-note text-ink-muted wide:inline-grid",
+        className,
+      )}
+      aria-hidden="true"
+    >
+      {children}
+    </span>
+  );
+}
 
 /** One card's face: the poster, then the pool's facts, then OMDb's plot when it has come. */
 function CardFace({ card, record }: { card: Card; record: OmdbRecord | null | "error" | undefined }) {
   const { title } = card;
   const kept = record && record !== "error" ? record : null;
-  const facts = [years(title), kindLabel(title.kind), runtime(title.runtime)].filter((fact) => fact);
   return (
-    <div className="grid grid-cols-[42%_1fr] gap-3 p-3">
+    <div className="grid grid-cols-[132px_minmax(0,1fr)] gap-4 p-3 max-[399px]:grid-cols-[112px_minmax(0,1fr)] max-[399px]:gap-3 max-[359px]:grid-cols-[96px_minmax(0,1fr)] wide:grid-cols-[220px_minmax(0,1fr)] wide:gap-6 wide:p-5">
       <Poster
         key={`${card.poster || kept?.hasPoster}`}
         imdbId={title.imdbId}
@@ -305,19 +324,20 @@ function CardFace({ card, record }: { card: Card; record: OmdbRecord | null | "e
         size="large"
         className="pointer-events-none"
       />
-      <div className="min-w-0">
-        <h2 className="mb-1 text-card-title leading-card font-bold">
+      <div className="flex min-w-0 flex-col gap-1">
+        <h2 className="m-0 font-display text-card-title wide:text-page-title">
           <Link className="text-ink no-underline" to={{ page: "title", id: title.imdbId }}>
             {title.title}
           </Link>
         </h2>
-        <p className="mt-0 mb-1 text-small text-ink-muted">{facts.join(" · ")}</p>
-        <p className="mt-0 mb-1 text-small text-ink-muted">
-          {title.genres.join(", ")}
-          {title.genres.length > 0 && " · "}IMDb {title.rating.toFixed(1)} ({votes(title.votes)})
+        <Facts items={[years(title), kindLabel(title.kind), runtime(title.runtime)]} />
+        {title.genres.length > 0 && <p className="m-0 text-small text-ink-muted">{title.genres.join(", ")}</p>}
+        <p className="m-0 text-small tabular-nums">
+          IMDb <span className="font-semibold">{title.rating.toFixed(1)}</span>{" "}
+          <span className="text-ink-muted">({votes(title.votes)})</span>
         </p>
-        {kept?.plot && <p className={PLOT}>{kept.plot}</p>}
-        {record === undefined && <p className={cn(PLOT, "text-ink-muted")}>Loading the plot…</p>}
+        {kept?.plot && <p className="m-0 mt-2 line-clamp-7 text-body">{kept.plot}</p>}
+        {record === undefined && <p className="m-0 mt-2 line-clamp-7 text-body text-ink-muted">Loading the plot…</p>}
       </div>
     </div>
   );

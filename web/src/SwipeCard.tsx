@@ -1,16 +1,23 @@
 import { useRef, useState, type PointerEvent, type ReactNode } from "react";
+import { ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon } from "./Icons";
 import { cn } from "./lib/cn";
 
 export type SwipeDirection = "left" | "right" | "up";
 
 /** The card's own look; the page behind it (`RatePage`) wears it too. */
-export const CARD_LOOK = "relative z-1 overflow-hidden rounded-hero border border-line bg-surface shadow-card";
+const CARD_LOOK = "relative z-1 overflow-hidden rounded-card border border-line bg-surface shadow-card";
 
 /** The tag that shows what a swipe will do, one look per direction. */
 const LABEL: Record<SwipeDirection, string> = {
-  right: "left-4 -rotate-8 text-good",
-  left: "right-4 rotate-8 text-awful",
+  right: "left-4 -rotate-6 text-ok",
+  left: "right-4 rotate-6 text-awful",
   up: "left-1/2 -translate-x-1/2 text-ink-muted",
+};
+
+const STAMP_ICON: Record<SwipeDirection, ReactNode> = {
+  right: <ArrowRightIcon />,
+  left: <ArrowLeftIcon />,
+  up: <ArrowUpIcon />,
 };
 
 /** How far a card must travel, in pixels, before letting go commits the swipe. */
@@ -94,11 +101,12 @@ export function SwipeCard({
       {showing && (
         <span
           className={cn(
-            "absolute top-4 z-2 rounded-control border-[3px] border-current bg-surface px-3 py-1.5 font-extrabold tracking-[0.02em] uppercase",
+            "absolute top-4 z-2 inline-flex items-center gap-2 rounded-control border-2 border-current bg-surface px-3 py-1 text-small font-bold",
             LABEL[showing],
           )}
           aria-hidden="true"
         >
+          {STAMP_ICON[showing]}
           {labels[showing]}
         </span>
       )}
