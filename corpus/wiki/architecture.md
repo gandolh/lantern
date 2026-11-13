@@ -1,6 +1,6 @@
 ---
 summary: How Lantern is put together, as built from 2026-11-04. Three npm workspaces (the shared zod contract, the Fastify + SQLite server, the React page on Vite), the request path in dev (Vite on 5180 proxying /lantern-api to the API on 8810) and on the VPS (Caddy), the settings and their defaults, where the data lives, the page's router and frame, and the rule that the server works only while answering a request.
-updated: 2026-11-11
+updated: 2026-11-13
 ---
 
 # Architecture
@@ -94,8 +94,10 @@ into the top bar (`wide:`, a named breakpoint of exactly 760px). The look is Tai
 stylesheet, `web/src/styles/index.css`: the colours are `light-dark()` tokens in `@theme`, light
 or dark by `data-theme` on `<html>` (light on a first visit; the Light / Dark / System switch on
 the account page sets it), with one amber accent. The names are the small-tools family's
-(`page`, `surface`, `ink`, `accent`, `line`, `danger`); the values are Lantern's. A title page
-(`/lantern/title/:id`) belongs to no section. See [web-app.md](web-app.md).
+(`page`, `surface`, `ink`, `accent`, `line`, `danger`); the values are Lantern's, the "Lamplight" look of
+2026-11-13 ([docs/design.md](../../docs/design.md)): a warm paper ground, an ink underline on the current
+top-bar item and a pill behind the current tab, Hanken Grotesk and Bricolage Grotesque, six sizes. A title
+page (`/lantern/title/:id`) belongs to no section. See [web-app.md](web-app.md).
 
 ## No background work
 

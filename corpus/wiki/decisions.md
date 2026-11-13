@@ -1,6 +1,6 @@
 ---
-summary: Locked calls for Lantern, settled by the owner on 2026-11-04, each with what was rejected and why. One user and no social features; on the VPS with Ward and local accounts, no sign-up, /lantern/ and /lantern-api/ on ports 5180 and 8810, no background work; films and series, a series rated once per show; four steps plus not interested and want to watch as states; English only; no where-to-stream; rating cards that stay after the start. Revisited the same day - TMDB dropped (its entries kept, marked superseded): OMDb for details, posters and scores plus IMDb's non-commercial files as the title pool, imported by hand; titles keyed by IMDb id; suggestions rank the pool by a plain taste profile of genres, directors and writers, with a reason and no match %; on the cards, swipes are for the titles not seen (right want to watch, left not interested, up skip) and ratings are taps. Read before proposing to change any of these. The server in the house code structure (features, zod type provider, timeouts).
-updated: 2026-11-11
+summary: Locked calls for Lantern, settled by the owner on 2026-11-04, each with what was rejected and why. One user and no social features; on the VPS with Ward and local accounts, no sign-up, /lantern/ and /lantern-api/ on ports 5180 and 8810, no background work; films and series, a series rated once per show; four steps plus not interested and want to watch as states; English only; no where-to-stream; rating cards that stay after the start. Revisited the same day - TMDB dropped (its entries kept, marked superseded): OMDb for details, posters and scores plus IMDb's non-commercial files as the title pool, imported by hand; titles keyed by IMDb id; suggestions rank the pool by a plain taste profile of genres, directors and writers, with a reason and no match %; on the cards, swipes are for the titles not seen (right want to watch, left not interested, up skip) and ratings are taps. Read before proposing to change any of these. The server in the house code structure (features, zod type provider, timeouts). The redesign "Lamplight" (2026-11-13): meh moves from ochre to a stone blue-grey, a six-size type scale in Hanken Grotesk and Bricolage Grotesque.
+updated: 2026-11-13
 ---
 
 # Decisions
@@ -170,7 +170,8 @@ Tailwind's own colour, type, radius, shadow, container and breakpoint scales are
 names exist. Colours are `light-dark()` pairs and `color-scheme` follows `data-theme` on `<html>`, so the
 Light / Dark / System switch (light on a first visit, kept in `localStorage`) needs no `dark:` class and
 System follows the operating system in CSS. Type is a named scale at the old 15 px root's pixels, with the
-15 px on `body` (`html` keeps the reader's size). Rejected: keeping Lantern's own names (`--bg`, `--text`)
+15 px on `body` (`html` keeps the reader's size). _Changed 2026-11-13 (see "The redesign, Lamplight"): six sizes,
+body at 16, two faces. The palette, the family names and `light-dark()` stand._ Rejected: keeping Lantern's own names (`--bg`, `--text`)
 until the redesign, which would split the family's naming; Tailwind's default scales alongside the tokens,
 which lets an off-palette colour in unseen; and a `[data-theme="dark"]` block redefining every colour, which
 the skill's `light-dark()` makes unnecessary. Revisits the earlier line "dark mode follows the system".
@@ -190,3 +191,14 @@ in the OMDb queue and on a slow call for about 26 s with no byte sent (a 20 s ru
 was cut at 10 s); `keepAliveTimeout` is 125 s, above Caddy's two-minute idle keep-alive. A route declares
 only the statuses its own handler sends: a declared 401 would run the session guard's reply through the
 serializer. The poster route sends image bytes, so it has no response schema.
+
+## The redesign, Lamplight
+_2026-11-13_. The owner approved the direction on the estate redesign board
+([docs/design.md](../../docs/design.md)). Two earlier lines change:
+
+- **Meh moves from ochre to a stone blue-grey.** Before: `#8a6a3a` / `#d6b98a`, beside amazing's amber, so
+  the two blurred. Now `#50667c` / `#819bb7`; awful, good and amazing keep their hues, tuned for contrast,
+  and the white `on-rating` gives way to `on-awful`, `on-meh`, `on-good` and `on-amazing`. Rejected: keeping
+  ochre and separating them by shape alone.
+- **Six sizes in two faces** (12 to 40, body 16; Hanken Grotesk and Bricolage Grotesque from
+  `@fontsource-variable`) replace twelve sizes at 15 px and the system font. Rejected: Google Fonts links.

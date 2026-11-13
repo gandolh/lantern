@@ -1,6 +1,6 @@
 ---
-summary: What the Lantern page is made of as of 2026-11-11 - the Base UI wrappers under web/src/components/ui/ (RadioGroup, ToggleGroup, Tabs, Button), which widget uses which, the rating page's key guard, where Base UI stops, and the look - Tailwind 4 in one stylesheet, the family's token names with Lantern's values, the type scale, light-dark() colour tokens and the Light / Dark / System switch on data-theme.
-updated: 2026-11-11
+summary: What the Lantern page is made of as of 2026-11-13 - the Base UI wrappers under web/src/components/ui/ (RadioGroup, ToggleGroup, Tabs, Button), which widget uses which, the rating page's key guard, where Base UI stops, and the look (the Lamplight redesign of 2026-11-13) - Tailwind 4 in one stylesheet, the family's token names with Lantern's values, the six-size type scale in two faces, light-dark() colour tokens and the Light / Dark / System switch on data-theme - and the Playwright and contrast checks.
+updated: 2026-11-13
 ---
 
 # The web app: controls and look
@@ -57,18 +57,25 @@ colour, type, radius, shadow, container, breakpoint, blur and easing scales (so 
 components, utilities`; nothing third-party is imported.
 
 - **Tokens.** The family's names (`page`, `surface`, `surface-sunk`, `ink`, `ink-muted`, `line`, `accent`,
-  `danger`, `ok`, `shadow-card`, the three radii `control`, `card` and `pill`) with Lantern's values, and
-  Lantern's own (`accent-soft`, `accent-text`, `awful` to `amazing`, `poster-bg`, `on-rating`, `bar`,
-  `height-top`, `height-tab`, `container-page`, `z-bar`, `z-notice`). A name says a role, never a value.
-  The three `color-mix` colours stay `srgb`, as named tokens, because Tailwind's `/88` suffix compiles to
-  `oklab` and shifts the colour. The tokens' names are repeated in `web/src/lib/cn.ts`, or tailwind-merge
-  drops a class it reads as a clash.
-- **Type scale.** Twelve named sizes (`micro` to `page-title`, `code`) at the old 15 px root's computed
-  pixels, in rem against the browser's 16 px. None carries a line height; text inherits body's 1.5. The 15 px
-  lives on `body`; `html` keeps the reader's size.
+  `danger`, `ok`, `shadow-card`, the radii `control`, `card` and `pill`) with Lantern's values, and
+  Lantern's own: `accent-text` and `accent-hover`, `control`, `control-hover` and `control-raised` (a rating
+  bar at rest, a quiet action, the chosen filter tile), `outline` (edges that must be seen), `focus`, the
+  four steps `awful`, `meh`, `good` and `amazing` with `on-awful` to `on-amazing`, `poster-bg`,
+  `poster-shadow`, `poster-1-bg` to `poster-6-ink` (the type-set poster tints), `shadow-float`,
+  `shadow-poster`, `font-display`, `bar`, `height-top`, `height-tab`, `container-page`, `z-bar` and
+  `z-notice`. A name says a role, never a value. The `bar` colour stays a `srgb` `color-mix`, because
+  Tailwind's `/88` suffix compiles to `oklab` and shifts the colour. The tokens' names are repeated in
+  `web/src/lib/cn.ts`, or tailwind-merge drops a class it reads as a clash. `web/src/styles/contrast.test.ts`
+  measures the pairs in both themes.
+- **Type scale.** Six sizes, 12, 14, 16, 20, 28 and 40 px, named `note`, `small` and `meta` (14), `body` and
+  `input` (16), `heading` and `card-title` (20), `score` and `page-title` (28), `display` (40, a title
+  page's name from 760 px) and `code`. Each carries its line height, and the weight and tracking where it has
+  one (`--text-*--line-height`). Body is 16 on a 24 line, on `body`; `html` keeps the reader's size. Hanken
+  Grotesk (`font-sans`) sets the text and Bricolage Grotesque (`font-display`, with its optical size axis)
+  the titles and figures; both load from `@fontsource-variable` in `main.tsx`.
 - **Themes.** Each colour token is `light-dark(light, dark)`. `color-scheme` on `<html>` picks one:
   `light` by default, `dark` for `data-theme="dark"`, `light dark` for `system`, which then follows the
-  operating system with no script. The choice lives in `localStorage` (`theme`); `web/index.html`'s boot
+  operating system with no script. Dark has no shadows: a card is a lighter surface with a `line` ring. The choice lives in `localStorage` (`theme`); `web/index.html`'s boot
   script sets the attribute and the one `theme-color` meta before the first paint, and `web/src/theme.ts`
   takes over (it also moves the meta when System follows a change). `dark:` is keyed off the same attribute
   but no class name uses it.
@@ -76,12 +83,18 @@ components, utilities`; nothing third-party is imported.
   margin and a link's accent colour and underline. Every heading, list and definition list carries its own
   classes.
 - **State from Base UI's attributes**, not from `aria-*` selectors: `data-checked` (segmented filter, radio
-  dots), `data-pressed` (the picker's buttons, one colour per rating), `data-active` (a tab).
+  dots), `data-pressed` (the picker's buttons, one fill and one text colour per rating), `data-active` (a tab).
 - **Dynamic names are lookups.** The swipe card's labels, the picker's pressed colours and the card's
   dragging, leaving and reduced-motion looks are tables of whole utility strings; its transform is the one
   inline `style`, computed from the pointer.
 
 ## Tests
+
+Browser specs (`web/e2e/`, Playwright 1.63.0, headless Chromium, `npx playwright test` from `web/` against a
+running page with a seeded local account): a focus ring on every Tab stop of each screen, no running animation
+or transition under reduced motion (the swipe card only fades), no sideways scroll at 390 px, the theme switch,
+and the swipe card, the number keys, the arrows and Z on `/rate`. They stub the data routes with stand-in titles,
+so they need no title pool and make no outside call; `shots.spec.ts` writes screenshots when `SHOTS_DIR` is set.
 
 jsdom (per file, `// @vitest-environment jsdom`) for the guarded wrapper, the picker and the key guard;
 static markup for the kind filter's roles and `aria-checked`. Tabs and the radio group's keyboard

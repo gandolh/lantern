@@ -1,5 +1,7 @@
 # Docs
 
+- [design.md](design.md): the look of the page, "Lamplight": the tokens, the type, the four rating steps,
+  the frame and each screen, as shipped.
 - [owner-setup.md](owner-setup.md): registering Lantern in Ward, the secrets, what the
   vps-deploy stack needs (port, routes, env, data, outbound hosts), checking the container
   locally, deploying, importing the titles, the first account, and local development.
