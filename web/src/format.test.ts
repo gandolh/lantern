@@ -12,7 +12,7 @@ describe("the formatters", () => {
 
   it("write a film's year and a series' run", () => {
     expect(years({ kind: "movie", year: 2010, endYear: null })).toBe("2010");
-    expect(years({ kind: "series", year: 2011, endYear: 2019 })).toBe("2011–2019");
+    expect(years({ kind: "series", year: 2011, endYear: 2019 })).toBe("2011 to 2019");
     expect(years({ kind: "series", year: 2019, endYear: null })).toBe("2019–");
     expect(years({ kind: "series", year: 2020, endYear: 2020 })).toBe("2020");
     expect(kindLabel("series")).toBe("Series");

@@ -1,9 +1,10 @@
 import { suggestionsResponseSchema, type TitleKind } from "@lantern/shared";
 import { useEffect, useState } from "react";
 import { Button } from "./components/ui/Button";
-import { PAGE_TITLE } from "./looks";
+import { EMPTY_BOX, PAGE_TITLE } from "./looks";
 import { request } from "./api";
 import { Link } from "./Link";
+import { ErrorLine, Loading } from "./States";
 import { TitleRow } from "./TitleRow";
 import { useQuery } from "./useQuery";
 import { KindFilter } from "./KindFilter";
@@ -29,43 +30,42 @@ export function SuggestionsPage() {
   const shown = list.data?.suggestions.filter((item) => !gone.has(item.title.imdbId)) ?? [];
 
   return (
-    <section>
-      <h1 className={PAGE_TITLE}>Suggestions</h1>
-      <p className="text-ink-muted">
-        From the genres, directors and writers of what you rated, liked and disliked.
-        {list.data && list.data.rated > 0 && ` Built on ${list.data.rated} rating${list.data.rated === 1 ? "" : "s"}.`}
-      </p>
-      <KindFilter kind={kind} onChange={setKind} />
+    <section className="mx-auto max-w-[880px]">
+      <div className="mb-6 flex flex-col items-start gap-3">
+        <h1 className={PAGE_TITLE}>Suggestions</h1>
+        <p className="m-0 max-w-[62ch] text-ink-muted">
+          From the genres, directors and writers of what you rated, liked and disliked.
+          {list.data &&
+            list.data.rated > 0 &&
+            ` Built on ${list.data.rated} rating${list.data.rated === 1 ? "" : "s"}.`}
+        </p>
+        <KindFilter kind={kind} onChange={setKind} />
+      </div>
 
       {list.status === "error" && (
-        <p className="text-danger" role="alert">
-          Couldn't load suggestions. {list.error.message}{" "}
-          <Button variant="link" onClick={list.refresh}>
-            Try again
-          </Button>
-        </p>
+        <div className="grid justify-items-start gap-2 rounded-card bg-surface p-4 shadow-card">
+          <ErrorLine>Couldn’t load suggestions. {list.error.message}</ErrorLine>
+          <Button onClick={list.refresh}>Try again</Button>
+        </div>
       )}
-      {list.status === "loading" && !list.data && (
-        <p className="text-ink-muted" aria-busy="true">
-          Loading…
-        </p>
-      )}
+      {list.status === "loading" && !list.data && <Loading rows={3} />}
       {list.data && list.data.liked === 0 && (
-        <div className="rounded-card border border-dashed border-line p-4">
-          <p>Rate a few titles you liked, good or amazing, and suggestions show up here.</p>
-          <p>
+        <div className={EMPTY_BOX}>
+          <p className="m-0 mb-2">Rate a few titles you liked, good or amazing, and suggestions show up here.</p>
+          <p className="m-0 text-small text-ink-muted">
             <Link to={{ page: "rate" }}>Rate some cards</Link> or{" "}
-            <Link to={{ page: "search", query: "" }}>search for a favourite</Link>. Not interested isn't a rating, so it
-            doesn't shape these.
+            <Link to={{ page: "search", query: "" }}>search for a favourite</Link>. Not interested isn’t a rating, so it
+            doesn’t shape these.
           </p>
         </div>
       )}
       {list.data && list.data.liked > 0 && shown.length === 0 && (
-        <p className="text-ink-muted">Nothing left to suggest from what you rated. Rate a few more.</p>
+        <p className="m-0 text-small text-ink-muted">Nothing left to suggest from what you rated. Rate a few more.</p>
       )}
       {shown.length > 0 && (
         <ul
-          className="m-0 grid list-none gap-2.5 p-0 aria-busy:opacity-60"
+          className="m-0 flex list-none flex-col gap-3 p-0 aria-busy:opacity-60 min-[900px]:gap-4"
+          aria-label="Suggested titles"
           aria-busy={list.status === "loading" || undefined}
         >
           {shown.map((item) => (

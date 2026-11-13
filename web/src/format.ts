@@ -16,10 +16,10 @@ export function runtime(minutes: number | null): string | null {
 
 export const kindLabel = (kind: TitleKind): string => (kind === "movie" ? "Film" : "Series");
 
-/** A film's year; a series' run, "2011–2019" or "2019–". */
+/** A film's year; a series' run, "2011 to 2019" or, while it runs, "2019–". */
 export function years(title: Pick<PoolTitle, "kind" | "year" | "endYear">): string | null {
   if (title.year === null) return null;
   if (title.kind === "movie") return String(title.year);
   if (title.endYear === null) return `${title.year}–`;
-  return title.endYear === title.year ? String(title.year) : `${title.year}–${title.endYear}`;
+  return title.endYear === title.year ? String(title.year) : `${title.year} to ${title.endYear}`;
 }

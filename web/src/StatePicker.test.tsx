@@ -57,7 +57,7 @@ describe("StatePicker", () => {
     const user = userEvent.setup();
     renderPicker("good");
     await user.click(screen.getByRole("button", { name: "Meh" }));
-    expect(await screen.findByRole("alert")).toHaveProperty("textContent", "That didn't save. Try again.");
+    expect(await screen.findByRole("alert")).toHaveProperty("textContent", "That didn’t save. Try again.");
     expect(screen.getByRole("button", { name: "Good", pressed: true })).toBeDefined();
   });
 });
