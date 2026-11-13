@@ -1,8 +1,13 @@
 /* Lantern's one stylesheet (base-ui rule 5). The layer order comes first: the first @layer statement fixes the order
-   for the whole page. Nothing third-party is imported, so the vendor layer stays empty. */
+   for the whole page. The fonts are the only third-party CSS; they sit in the vendor layer, after base. */
 @layer theme, base, vendor, components, utilities;
 
 @import "tailwindcss";
+
+/* The fonts: self-hosted variable files from @fontsource (base-ui rule 5). Bricolage Grotesque comes with its
+   optical size axis, so its large sizes are drawn tighter. */
+@import "@fontsource-variable/hanken-grotesk/wght.css" layer(vendor);
+@import "@fontsource-variable/bricolage-grotesque/opsz.css" layer(vendor);
 
 /* Tailwind scans every file under the web root for class names; the vendored Ward hooks aren't the app's. */
 @source not "../../vendor";

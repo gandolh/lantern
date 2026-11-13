@@ -177,7 +177,7 @@ export function RatePage() {
   const record = current ? (current.record ?? records[current.title.imdbId]) : undefined;
 
   return (
-    <section className="mx-auto flex max-w-[760px] flex-col gap-4 max-wide:min-h-[calc(100dvh-148px-env(safe-area-inset-bottom))]">
+    <section className="mx-auto flex max-w-[760px] flex-col gap-4 max-wide:min-h-[calc(100dvh-144px-env(safe-area-inset-bottom))]">
       <div className="flex items-center justify-between gap-3">
         <h1 className={PAGE_TITLE}>Rate</h1>
         <Button onClick={undo} disabled={done.length === 0 || leaving !== null} aria-keyshortcuts="Z">
@@ -218,7 +218,7 @@ export function RatePage() {
           </p>
 
           <div
-            className="sticky bottom-[calc(var(--height-tab)+env(safe-area-inset-bottom))] z-1 mt-auto grid gap-2 bg-page pt-2 pb-2 wide:static wide:pt-0 wide:pb-0"
+            className="sticky bottom-[calc(var(--height-tab)+env(safe-area-inset-bottom)+4px)] z-1 mt-auto grid gap-2 bg-page pt-2 wide:static wide:pt-0"
             role="group"
             aria-label={`Your verdict on ${current.title.title}`}
           >

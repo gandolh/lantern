@@ -11,7 +11,7 @@ export function TabsList({ label, className, children }: { label: string; classN
     <BaseTabs.List
       aria-label={label}
       activateOnFocus
-      className={cn("mb-4 flex [scrollbar-width:none] gap-2 overflow-x-auto", className)}
+      className={cn("-m-1 mb-3 flex [scrollbar-width:none] gap-2 overflow-x-auto p-1", className)}
     >
       {children}
     </BaseTabs.List>

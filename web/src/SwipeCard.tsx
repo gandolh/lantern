@@ -86,7 +86,7 @@ export function SwipeCard({
         "touch-none select-none",
         drag
           ? "cursor-grabbing transition-none"
-          : "cursor-grab motion-safe:transition-[transform,opacity] motion-safe:duration-180 motion-safe:ease-swipe motion-reduce:transition-opacity motion-reduce:duration-120 motion-reduce:ease-linear",
+          : "cursor-grab motion-safe:transition-[transform,opacity] motion-safe:duration-180 motion-safe:ease-swipe motion-reduce:transition-none",
         leaving && "opacity-0",
       )}
       style={{ transform }}

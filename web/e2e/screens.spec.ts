@@ -73,8 +73,7 @@ test.describe("reduced motion", () => {
             .map((d) => parseFloat(d) * (d.trim().endsWith("ms") ? 1 : 1000));
           properties.forEach((property, i) => {
             const duration = durations[i % durations.length] ?? 0;
-            if (duration > 0 && property !== "opacity")
-              offenders.push(`${el.tagName.toLowerCase()} ${property} ${duration}ms`);
+            if (duration > 0) offenders.push(`${el.tagName.toLowerCase()} ${property} ${duration}ms`);
           });
           if (style.animationName !== "none" && parseFloat(style.animationDuration) > 0)
             offenders.push(`${el.tagName.toLowerCase()} ${style.animationName}`);
@@ -85,19 +84,13 @@ test.describe("reduced motion", () => {
     });
   }
 
-  test("the swipe card only fades", async ({ page }) => {
+  test("the swipe card leaves with nothing running", async ({ page }) => {
     await page.goto("/lantern/rate");
     await ready(page, "Rate");
     await page.getByRole("button", { name: "Skip" }).click();
-    const transforms = await page.evaluate(() =>
-      document
-        .getAnimations()
-        .filter(
-          (a): a is CSSTransition => a instanceof CSSTransition && ["transform", "all"].includes(a.transitionProperty),
-        )
-        .map((a) => a.transitionProperty),
-    );
-    expect(transforms).toEqual([]);
+    // The card is mid-leave: its class has changed, and nothing animates or transitions.
+    const running = await page.evaluate(() => document.getAnimations().length);
+    expect(running).toBe(0);
   });
 });
 

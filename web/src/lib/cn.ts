@@ -5,7 +5,7 @@ import { extendTailwindMerge } from "tailwind-merge";
  * tailwind-merge, told this app's @theme names (styles/index.css). Without the `text` list it reads `text-small` as a
  * colour, so `cn("text-small", "text-accent")` would drop one of the two. Keep the lists in step with @theme.
  *
- * The app's sizes carry no line height (each element inherits body's 1.5), so a size must not remove a `leading-*`,
+ * A size carries its own line height in @theme (`--text-small--line-height`), so a size must not remove a `leading-*`,
  * which tailwind-merge does by default: `cn("leading-card", "text-small")` would lose the `leading-card`.
  */
 const twMerge = extendTailwindMerge({

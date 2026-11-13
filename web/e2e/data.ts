@@ -1,8 +1,11 @@
 import type { Card, ListRow, OmdbRecord, PoolTitle, Suggestion, TitleItem } from "@lantern/shared";
 
 /**
- * The stand-in titles the specs draw, with the figures the redesign's comps use. Their ids were picked so the six
- * poster tints fall as the comps drew them (the tile's colour comes from the id).
+ * Stand-in titles, none of them real. The names and figures of the first six (Copper Kitchen to Amber Border) and of
+ * the three "Because you liked" titles are the redesign comps' own; Paper Foundry, Open Hollow, their plots, the
+ * runtimes and the director's name are the specs' own inventions, there to give the rate page a queue and a series
+ * a record. The ids were picked so the six poster tints fall as the comps drew them (the tile's colour comes from the
+ * id).
  */
 const title = (
   imdbId: string,
