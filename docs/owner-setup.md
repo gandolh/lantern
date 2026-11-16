@@ -145,21 +145,6 @@ No output is right. A line saying every caller shares one failure counter means
 
 ## Local development
 
-1. `cp .env.example .env`, then fill `OMDB_API_KEY`. Leave the rest empty; the defaults suit
-   local development.
-2. `npm install`, then make your local account: `npm run seed -w @lantern/server`, and load the
-   titles: `npm run titles:import -w @lantern/server` (half a minute, about 310 MB downloaded).
-3. `npm run dev`: the API on `127.0.0.1:8810` and the page at <http://localhost:5180/lantern/>.
-   For `npm start` (the built page on the server's own port, after `npm run build`), set
-   `PUBLIC_ORIGIN=http://127.0.0.1:8810`.
-4. Check OMDb once: `npm run sources:check -w @lantern/server` makes one real call and prints
-   what came back, never the key.
-5. For "Sign in with Ward" against the local Ward: Ward's local seed (`wzd_auth`,
-   `infrastructure/local/seed.mjs`) lists Lantern as
-
-   ```
-   { slug: "lantern", name: "Lantern", repo: "lantern", envFiles: [".env"], dev: "http://localhost:5180/lantern/", api: "/lantern-api" },
-   ```
-
-   Run `node seed.mjs` there. It writes the five `WARD_OIDC_*` values into this repo's `.env`
-   and keeps the rest of the file. Restart `npm run dev`.
+Moved to [getting-started.md](getting-started.md): the settings, your account and the titles,
+`npm run dev` and `npm start`, the OMDb check, the checks, and "Sign in with Ward" against the local
+Ward.
