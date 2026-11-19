@@ -4,6 +4,7 @@ import { useLogout, useSession, useWardLink, useWardResult, useWardSignOut } fro
 import { request } from "./api";
 import { Button } from "./components/ui/Button";
 import { ImdbCredit } from "./Credits";
+import { LinkWard } from "./LinkWard";
 import { cn } from "./lib/cn";
 import { DETAIL, NOTICE, PAGE_TITLE, SECTION_CARD, SECTION_TITLE, TERM } from "./looks";
 import { ErrorLine } from "./States";
@@ -12,8 +13,8 @@ import { ThemeSwitch } from "./ThemeSwitch";
 import { useQuery } from "./useQuery";
 
 /**
- * The account page: who is signed in and how, "Link Ward" when the server
- * has Ward and this account has none, and sign-out. A Ward link comes back
+ * The account page: who is signed in and how, "Link Ward" (with the account's
+ * password) when the server has Ward and this account has none, and sign-out. A Ward link comes back
  * here as `?ward=linked` or `?ward_error=…`, which `useWardResult` reads.
  */
 export function AccountPage() {
@@ -30,7 +31,7 @@ export function AccountPage() {
   if (session.status !== "signed_in") return null;
   const { user, ward } = session;
   const viaWard = session.session.origin === "ward";
-  const failure = link.error ?? result.error ?? logout.error ?? wardSignOut.error;
+  const failure = result.error ?? logout.error ?? wardSignOut.error;
 
   return (
     <section className="mx-auto grid max-w-160 gap-4">
@@ -66,12 +67,9 @@ export function AccountPage() {
         <ThemeSwitch />
       </section>
 
+      {ward.enabled && !ward.linked && !link.linked && <LinkWard link={link} />}
+
       <div className="flex flex-wrap gap-2">
-        {ward.enabled && !ward.linked && !link.linked && (
-          <Button disabled={link.pending} onClick={() => void link.link()}>
-            {link.pending ? "Opening Ward…" : "Link Ward"}
-          </Button>
-        )}
         <Button disabled={logout.pending} onClick={() => void logout.logout()}>
           Sign out
         </Button>
