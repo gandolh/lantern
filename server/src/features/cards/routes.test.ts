@@ -2,7 +2,7 @@ import type { CardsResponse } from "@lantern/shared";
 import type { FastifyInstance } from "fastify";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createOmdbClient } from "../sources/index.js";
-import { fakeFetch, fixture, immediateQueue, json, type FakeFetch } from "../sources/index.js";
+import { fakeFetch, fixture, immediateQueue, json, type FakeFetch } from "../../testing/sources.js";
 import { seedPool, signIn, TEST_ORIGIN, buildTestApp, type TestApp } from "../../testing.js";
 
 let app: FastifyInstance;

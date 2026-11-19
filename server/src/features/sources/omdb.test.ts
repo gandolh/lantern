@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { NoKeyError, SourceError } from "./http.js";
 import { createOmdbClient, forPage, names, readOmdb } from "./omdb.js";
-import { fakeFetch, fixture, immediateQueue, json } from "./testing.js";
+import { fakeFetch, fixture, immediateQueue, json } from "../../testing/sources.js";
 
 const KEY = "omdb-test-key-not-real";
 

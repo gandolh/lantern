@@ -3,7 +3,7 @@ import { gzipSync } from "node:zlib";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { openDatabase, type Db } from "../../db.js";
 import { createStatesStore } from "../states/index.js";
-import { fakeFetch } from "../sources/index.js";
+import { fakeFetch } from "../../testing/sources.js";
 import { httpDatasets, localDatasets, type DatasetName, type DatasetSource } from "./files.js";
 import { DatasetFormatError, importPool } from "./import.js";
 import { normaliseTitle } from "./normalise.js";

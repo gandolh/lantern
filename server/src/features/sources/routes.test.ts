@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { NoKeyError, SourceError } from "./http.js";
 import { createOmdbClient } from "./omdb.js";
 import { MAX_POSTER_BYTES, POSTER_CACHE_CONTROL, posterUrlFor } from "./posters.js";
-import { fakeFetch, fixture, immediateQueue, json, type FakeFetch } from "./testing.js";
+import { fakeFetch, fixture, immediateQueue, json, type FakeFetch } from "../../testing/sources.js";
 import { signIn, buildTestApp, type TestApp } from "../../testing.js";
 import { sourceFailure } from "./routes.js";
 

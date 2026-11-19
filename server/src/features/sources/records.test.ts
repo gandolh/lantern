@@ -4,7 +4,7 @@ import { DAY_MS, createRecordCache } from "./cache.js";
 import { NoKeyError } from "./http.js";
 import { createOmdbClient } from "./omdb.js";
 import { createRecords } from "./records.js";
-import { fakeFetch, fixture, immediateQueue, json, type FakeFetch } from "./testing.js";
+import { fakeFetch, fixture, immediateQueue, json, type FakeFetch } from "../../testing/sources.js";
 
 let db: Db;
 let clock: number;

@@ -94,9 +94,12 @@ COPY --from=builder /app/server/dist ./server/dist
 # (../vendor/ward/ward-auth.js from dist), so it sits beside dist.
 COPY server/vendor ./server/vendor
 # tsc compiles src/**/* including the tests and their helpers. They import a
-# runner that --omit=dev never installed, so shipping them is dead weight.
+# runner that --omit=dev never installed, so shipping them is dead weight. The
+# helpers are src/testing.ts and src/testing/; nothing the server runs imports
+# either, so a feature never re-exports one.
 RUN find ./server/dist ./shared/dist \( -name '*.test.js' -o -name '*.test.js.map' -o -name '*.test.d.ts' \
-      -o -name 'testing.js' -o -name 'testing.js.map' -o -name 'testing.d.ts' \) -delete
+      -o -name 'testing.js' -o -name 'testing.js.map' -o -name 'testing.d.ts' \) -delete \
+ && rm -rf ./server/dist/testing
 ENV NODE_ENV=production \
     HOST=0.0.0.0 \
     PORT=8810 \

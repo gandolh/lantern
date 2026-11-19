@@ -1,6 +1,5 @@
 import { readFileSync } from "node:fs";
-import type { FetchLike } from "./http.js";
-import type { Queue } from "./queue.js";
+import type { FetchLike, Queue } from "../features/sources/index.js";
 
 /**
  * Test helpers for the sources, never imported by the server: the
@@ -8,7 +7,7 @@ import type { Queue } from "./queue.js";
  * with no spacing.
  */
 
-const FIXTURES = new URL("./fixtures/", import.meta.url);
+const FIXTURES = new URL("../features/sources/fixtures/", import.meta.url);
 
 /** `fixtures/<name>.json`, parsed. */
 export function fixture(name: string): unknown {
