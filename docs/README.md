@@ -1,10 +1,14 @@
 # Docs
 
-- [design.md](design.md): the look of the page, "Lamplight": the tokens, the type, the four rating steps,
-  the frame and each screen, as shipped.
-- [owner-setup.md](owner-setup.md): registering Lantern in Ward, the secrets, what the
-  vps-deploy stack needs (port, routes, env, data, outbound hosts), checking the container
-  locally, deploying, importing the titles, the first account, and local development.
+Start with the [main README](../README.md). This folder holds what it links to.
+
+| File | What it covers |
+|---|---|
+| [getting-started.md](getting-started.md) | Local setup: prerequisites, the settings, your account and the titles, running, the checks and browser specs, "Sign in with Ward" against a local Ward |
+| [architecture.md](architecture.md) | How the parts fit together, on one screen, with links into the wiki |
+| [design.md](design.md) | The look of the page, "Lamplight": the tokens, the type, the four rating steps, the frame and each screen, as shipped |
+| [owner-setup.md](owner-setup.md) | Registering Lantern in Ward, the secrets, what the vps-deploy stack needs (port, routes, env, data, outbound hosts), checking the container locally, deploying, importing the titles and the first account |
+| [images/](images/shots.md) | The screenshots in the README, and how each was made |
 
 The rest lives in the project wiki, under [`corpus/`](../corpus/index.md):
 
@@ -20,4 +24,5 @@ The rest lives in the project wiki, under [`corpus/`](../corpus/index.md):
 | What is the title pool, and how is it imported? | [titles.md](../corpus/wiki/titles.md) |
 | How does the server call OMDb, and keep what it says? | [source-calls.md](../corpus/wiki/source-calls.md) |
 | How are suggestions ranked? | [suggestions.md](../corpus/wiki/suggestions.md) |
+| What is the page made of, and how is it tested? | [web-app.md](../corpus/wiki/web-app.md) |
 | Where do things stand? | [status.md](../corpus/wiki/status.md) |
