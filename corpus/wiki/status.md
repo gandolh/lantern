@@ -1,6 +1,6 @@
 ---
 summary: Where Lantern stands, per area, as of 2026-11-11. The first version is built (briefs 01-14), on OMDb plus IMDb's files after the owner dropped TMDB the same day; not deployed. Each area as built, the Lamplight redesign (2026-11-13), the house-style harness (2026-11-11), the checks, the todo (bump @fastify/static), and the owner's next steps in order (push, deploy the static client, Ward registration, two secrets, the vps-deploy stack, the title import, the account).
-updated: 2026-11-13
+updated: 2026-11-19
 ---
 
 # Status
@@ -16,7 +16,7 @@ on the shared machine. 104 tests; typecheck and lint clean. The owner pushes.
 - **Skeleton** (2026-11-04). Workspaces, settings, the SQLite file with migrations, `GET
   /v1/health`, the page's frame with five placeholder sections at `/lantern/`, dev on 5180 and
   8810 ([architecture.md](architecture.md)).
-- **Sign-in** (2026-11-04). ward-auth 0.7.0 vendored; local accounts from the seed, Sign in
+- **Sign-in** (2026-11-04). ward-auth 1.1.0 vendored (2026-11-19: Link Ward asks for the password); local accounts from the seed, Sign in
   with Ward when the five `WARD_OIDC_*` are set, no sign-up; every `/v1` route but health needs
   a session, and writes refuse other sites ([sign-in.md](sign-in.md)). Ward not yet walked
   locally: Lantern's `.env` had no `WARD_OIDC_*` lines on 2026-11-04.

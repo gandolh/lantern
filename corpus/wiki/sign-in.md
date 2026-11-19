@@ -1,6 +1,6 @@
 ---
-summary: Who gets into what, as built 2026-11-04. The vendored ward-auth 0.7.0 as the session guard (cookie lantern_session on /lantern-api, rename off, no sign-up, one role); what is public (health and the page's files); the Origin check on every write under /v1; the 401 rewritten into the API's error shape; the login page, the gate and the return to the page you were headed for; accounts and the seed; the Ward settings, and how to try Sign in with Ward against the local Ward.
-updated: 2026-11-04
+summary: Who gets into what, as built 2026-11-04. The vendored ward-auth 1.1.0 as the session guard (cookie lantern_session on /lantern-api, rename off, no sign-up, one role); what is public (health and the page's files); the Origin check on every write under /v1; the 401 rewritten into the API's error shape; the login page, the gate and the return to the page you were headed for; accounts and the seed; the Ward settings, and how to try Sign in with Ward against the local Ward.
+updated: 2026-11-19
 ---
 
 # Sign-in
@@ -13,10 +13,17 @@ plus "Sign in with Ward", and no register page. Built on the model of Wicket's s
 
 ## The library
 
-ward-auth 0.7.0, Ward's shared library, as a built copy in `server/vendor/ward/` and
+ward-auth 1.1.0, Ward's shared library, as a built copy in `server/vendor/ward/` and
 `web/vendor/ward/` (six files each: two bundles, their types, a README and the MIT licence).
 Never edited here; upgrading means copying a newer build over it and following the library's
 changelog. ESLint skips `vendor/`.
+
+Since 1.0.0, linking Ward asks for the account's password again (`POST /ward/link` takes
+`{ currentPassword }`: 400 without it, 401 when wrong, 429 after five wrong ones). The account page
+puts that field beside the Link Ward button ([LinkWard.tsx](../../web/src/LinkWard.tsx)); a refusal
+shows beside the field, which keeps focus. Since 1.1.0 a username that only looks like another
+(`AIice` and `alice`) counts as taken: a first Ward sign-in with such a name gets `-2`. Lantern has
+no sign-up or rename route, so only that case reaches it. Tests: `ward-link.test.ts` (server).
 
 ## The guard
 

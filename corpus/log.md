@@ -293,3 +293,10 @@ Contrast is measured by a test over the tokens (4.59 / 3.31 light, 4.72 / 3.81 d
 Compared with the comps by rendering both: 0.1 to 0.6% of pixels differ. Details in
 [docs/design.md](../docs/design.md) and the brief's outcome note. Deploy: the static client only.
 
+
+## [2026-11-19] brief | 20: Link Ward asks for the password
+
+Vendored ward-auth 1.1.0 into both copies (0.7.0 before). The account page got a "Current password"
+field beside Link Ward; a wrong password or too many tries shows beside it. New server tests cover the link
+without, with a wrong and with the right password; a web test covers the call and the message. Deploy: server
+and web.
