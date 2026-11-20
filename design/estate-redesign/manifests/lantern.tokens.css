@@ -1,0 +1,116 @@
+/*
+ * Lantern, direction "Lamplight": the token set in the app's own names. Drop-in for the colour,
+ * shadow, type and radius groups of the `@theme` block in web/src/styles/index.css (the file begins
+ * `--color-*: initial` and so on, which stay; the layout, container, breakpoint, blur, ease and z-index
+ * groups, the `@layer base` block and the `@custom-variant` stay too). The file's own mechanism is kept:
+ * every colour is light-dark(light, dark), picked by color-scheme on :root, so there is no second colour
+ * block. Shadows are light-dark() too, with the dark edge as a ring that is transparent in light, so
+ * there is no [data-theme="dark"] block either. NEW marks names the app does not have yet.
+ */
+@theme {
+  /* The ladder of surfaces: page, then what holds content, then what sinks into it */
+  --color-page: light-dark(#f6f2ec, #14110f); /* the page, the top bar, the tab bar */
+  --color-surface: light-dark(#fffefc, #241f1b); /* a suggestion, the verdict panel, the card */
+  --color-surface-sunk: light-dark(#efeae2, #0f0d0b); /* inputs, the poster's ground, the no-key state */
+  --color-control: light-dark(#ebe5db, #302a25); /* NEW: a rating button at rest, the segmented track, a quiet action */
+  --color-control-hover: light-dark(#e4ddd2, #3a332d); /* NEW */
+  --color-control-raised: light-dark(#fffefc, #463e37); /* NEW: the current segment, a pressed control */
+  --color-line: light-dark(#e2dbd0, #36302b); /* the one hairline: card edges, dividers */
+  --color-outline: light-dark(#857b70, #8d8379); /* NEW: edges that must be seen: the field, the dashed empty box, keycaps */
+  --color-ink: light-dark(#1c1917, #f3eee8);
+  --color-ink-muted: light-dark(#645d59, #b3ada8); /* facts, captions, counts, the credit line */
+
+  /* The lamp: links, the primary action, the amazing fill */
+  --color-accent: light-dark(#9c5300, #fbc044);
+  --color-accent-hover: light-dark(#844000, #ffd36f); /* was a color-mix; the board gives both values */
+  --color-accent-text: light-dark(#fefbf8, #211201); /* text and icons on the accent (the board's on-accent) */
+
+  /* The four ratings: the chosen fill, and the text on it */
+  --color-awful: light-dark(#b32228, #e0615c);
+  --color-on-awful: light-dark(#fdf9f8, #22100f); /* NEW */
+  --color-meh: light-dark(#50667c, #819bb7); /* moved from ochre to a stone blue-grey */
+  --color-on-meh: light-dark(#f8fafd, #08101a); /* NEW */
+  --color-good: light-dark(#0b703f, #4db377);
+  --color-on-good: light-dark(#f8fbf9, #0a1a10); /* NEW */
+  --color-amazing: light-dark(#9c5300, #e8a628); /* the lamp lit */
+  --color-on-amazing: light-dark(#fefbf8, #211201); /* NEW */
+
+  /* Status */
+  --color-danger: light-dark(#b32228, #fb817a); /* an error line and its icon */
+  --color-ok: light-dark(#0b703f, #63d18f); /* the swipe toward want to watch */
+  --color-focus: light-dark(#1f53aa, #85ccff); /* NEW: the focus ring; a chosen rating step takes its on-colour */
+
+  /* The poster: the ground behind a loaded poster, and its edge in dark */
+  --color-poster-bg: light-dark(#efeae2, #0f0d0b); /* the board puts the poster's ground on surface-sunk; the app name stays */
+  --color-poster-shadow: light-dark(#1e140c, #6c6158); /* NEW: only the dark ring reads it; light uses the shadow's own rgb */
+
+  /* NEW: the no-poster tints, six, each a ground and the text on it (calmed a step in dark) */
+  --color-poster-1-bg: light-dark(#703229, #582720); /* ember */
+  --color-poster-1-ink: light-dark(#fbf1ea, #f6e9e2);
+  --color-poster-2-bg: light-dark(#134e6a, #0f3a50); /* harbour */
+  --color-poster-2-ink: light-dark(#eef5f9, #e8f0f5);
+  --color-poster-3-bg: light-dark(#265331, #1c3e24); /* moss */
+  --color-poster-3-ink: light-dark(#eff5ec, #e8f0e5);
+  --color-poster-4-bg: light-dark(#683964, #4c2a49); /* plum */
+  --color-poster-4-ink: light-dark(#f8eef4, #f3e7ee);
+  --color-poster-5-bg: light-dark(#63471c, #493314); /* brass */
+  --color-poster-5-ink: light-dark(#fbf3e1, #f5ecd8);
+  --color-poster-6-bg: light-dark(#353d4d, #272e3b); /* slate */
+  --color-poster-6-ink: light-dark(#eceff6, #e5e9f1);
+
+  /* Derived: the same recipes as today, over the new values */
+  --color-bar: color-mix(in srgb, var(--color-page) 88%, transparent);
+
+  /* Elevation: three levels. Light is shadows; dark is lighter surfaces and a hairline, no shadows */
+  --shadow-card:
+    0 1px 2px light-dark(rgb(24 28 46 / 0.06), transparent), 0 4px 14px light-dark(rgb(24 28 46 / 0.05), transparent),
+    0 0 0 1px light-dark(transparent, var(--color-line));
+  --shadow-float: /* NEW: the undo notice, menus */
+    0 10px 28px light-dark(rgb(24 28 46 / 0.16), transparent), 0 0 0 1px var(--color-line);
+  --shadow-poster: /* NEW */
+    0 6px 14px light-dark(rgb(24 28 46 / 0.22), transparent), 0 1px 2px light-dark(rgb(24 28 46 / 0.2), transparent),
+    0 0 0 1px light-dark(transparent, var(--color-poster-shadow));
+
+  /* Type: Bricolage Grotesque for what a title says, Hanken Grotesk for the rest. Six sizes: 12 14 16 20 28 40.
+     Weights and tracking ride on the size with Tailwind's --text-*--font-weight and --text-*--letter-spacing. */
+  --font-sans: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", sans-serif; /* NEW: titles, card names, score figures */
+  --text-note: 0.75rem; /* 12/16, 600: tab labels, keycaps, captions; sentence case, untracked */
+  --text-note--line-height: 1rem;
+  --text-note--font-weight: 600;
+  --text-small: 0.875rem; /* 14/20: facts, controls (400; 600 on a control); figures tabular */
+  --text-small--line-height: 1.25rem;
+  --text-meta: 0.875rem; /* same step as small; the board has one 14 */
+  --text-meta--line-height: 1.25rem;
+  --text-input: 1rem; /* 16/24: every field on a phone */
+  --text-input--line-height: 1.5rem;
+  --text-body: 1rem; /* 16/24: plot, descriptions (was 15) */
+  --text-body--line-height: 1.5rem;
+  --text-heading: 1.25rem; /* 20/26, 700 display: a title in a list, section heads */
+  --text-heading--line-height: 1.625rem;
+  --text-heading--font-weight: 700;
+  --text-card-title: 1.25rem; /* 20/26, 700 display: a card's name */
+  --text-card-title--line-height: 1.625rem;
+  --text-card-title--font-weight: 700;
+  --text-score: 1.75rem; /* 28/34, 700 display: score figures */
+  --text-score--line-height: 2.125rem;
+  --text-score--font-weight: 700;
+  --text-page-title: 1.75rem; /* 28/34, 700 display: page titles; a title page's name on a phone */
+  --text-page-title--line-height: 2.125rem;
+  --text-page-title--font-weight: 700;
+  --text-page-title--letter-spacing: -0.01em;
+  --text-display: 2.5rem; /* NEW: a title page's name from the wide layout, 40/44, 700 display */
+  --text-display--line-height: 2.75rem;
+  --text-display--font-weight: 700;
+  --text-display--letter-spacing: -0.01em;
+  --leading-heading: 1.2;
+  --leading-card: 1.25;
+
+  /* Radii: control 10, card 16, poster 6, full 999 */
+  --radius-card: 16px; /* was 12 */
+  --radius-control: 10px;
+  --radius-pill: 999px; /* the board's full */
+  --radius-xs: 6px; /* the poster (the board's radius-poster) */
+  --radius-hero: 16px; /* now the card's value; the verdict panel */
+  --radius-sm: 8px;
+}

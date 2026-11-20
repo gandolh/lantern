@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lantern a title, proposed</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&amp;family=Hanken+Grotesk:wght@400;600;700&amp;display=swap">
+<style>
+/* Hallmark · shape: app screen · genre: atmospheric · theme: brand · redesign: full
+ * paper: #f6f2ec (today’s warm page, a half-step deeper) · accent: oklch(52% 0.125 58) · display: Bricolage Grotesque · body: Hanken Grotesk
+ * nav: kept (top bar from 760 with five sections, phone tab bar with five tabs, account at the right) · signature: the four-step rating, each step a level meter you can read without its colour · states: loading, empty, nothing left, error, no key
+ * axes: warm paper/grotesque display/one amber lamp · posture: restrained · modes: light+dark · contrast: pass · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4 · weakest: S, the suggestion rows are still rows; the rating control carries the identity, and the poster placeholders are set in type until OMDb posters arrive */
+/* Hallmark · answered F4 · the one primary is the amber accent (Sign in); .btn is the grey control fill and the pressed state is ink, never a second primary */
+/* Hallmark · waive 49b · the link is a card title in the display face, and a two-word title may wrap at 320 · a film title is content, never a label to shorten */
+.theme-light{color-scheme:light;--color-page:#f6f2ec;--color-surface:#fffefc;--color-surface-sunk:#efeae2;--color-control:#ebe5db;--color-control-hover:#e4ddd2;--color-control-raised:#fffefc;--color-line:#e2dbd0;--color-outline:#857b70;--color-ink:#1c1917;--color-ink-muted:#645d59;--color-accent:#9c5300;--color-accent-hover:#844000;--color-on-accent:#fefbf8;--color-awful:#b32228;--color-on-awful:#fdf9f8;--color-meh:#50667c;--color-on-meh:#f8fafd;--color-good:#0b703f;--color-on-good:#f8fbf9;--color-amazing:#9c5300;--color-on-amazing:#fefbf8;--color-danger:#b32228;--color-ok:#0b703f;--color-focus:#1f53aa;--color-poster-shadow:#1e140c;--color-callout:#c83122;--color-on-callout:#fffdfb;--color-poster-1-bg:#703229;--color-poster-1-ink:#fbf1ea;--color-poster-2-bg:#134e6a;--color-poster-2-ink:#eef5f9;--color-poster-3-bg:#265331;--color-poster-3-ink:#eff5ec;--color-poster-4-bg:#683964;--color-poster-4-ink:#f8eef4;--color-poster-5-bg:#63471c;--color-poster-5-ink:#fbf3e1;--color-poster-6-bg:#353d4d;--color-poster-6-ink:#eceff6;--font-display:'Bricolage Grotesque',system-ui,-apple-system,'Segoe UI',sans-serif;--font-ui:'Hanken Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--space-10:40px;--space-12:48px;--space-16:64px;--color-accent-ink:var(--color-on-accent);--radius-poster:6px;--radius-control:10px;--radius-card:16px;--radius-full:999px;--shadow-poster:0 6px 14px rgb(24 28 46 / 0.22),0 1px 2px rgb(24 28 46 / 0.2);--shadow-card:0 1px 2px rgb(24 28 46 / 0.06),0 4px 14px rgb(24 28 46 / 0.05);--shadow-float:0 10px 28px rgb(24 28 46 / 0.16),0 0 0 1px var(--color-line);}
+.theme-dark{color-scheme:dark;--color-page:#14110f;--color-surface:#241f1b;--color-surface-sunk:#0f0d0b;--color-control:#302a25;--color-control-hover:#3a332d;--color-control-raised:#463e37;--color-line:#36302b;--color-outline:#8d8379;--color-ink:#f3eee8;--color-ink-muted:#b3ada8;--color-accent:#fbc044;--color-accent-hover:#ffd36f;--color-on-accent:#211201;--color-awful:#e0615c;--color-on-awful:#22100f;--color-meh:#819bb7;--color-on-meh:#08101a;--color-good:#4db377;--color-on-good:#0a1a10;--color-amazing:#e8a628;--color-on-amazing:#211201;--color-danger:#fb817a;--color-ok:#63d18f;--color-focus:#85ccff;--color-poster-shadow:#6c6158;--color-callout:#f28058;--color-on-callout:#1e130f;--color-poster-1-bg:#582720;--color-poster-1-ink:#f6e9e2;--color-poster-2-bg:#0f3a50;--color-poster-2-ink:#e8f0f5;--color-poster-3-bg:#1c3e24;--color-poster-3-ink:#e8f0e5;--color-poster-4-bg:#4c2a49;--color-poster-4-ink:#f3e7ee;--color-poster-5-bg:#493314;--color-poster-5-ink:#f5ecd8;--color-poster-6-bg:#272e3b;--color-poster-6-ink:#e5e9f1;--font-display:'Bricolage Grotesque',system-ui,-apple-system,'Segoe UI',sans-serif;--font-ui:'Hanken Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--space-10:40px;--space-12:48px;--space-16:64px;--color-accent-ink:var(--color-on-accent);--radius-poster:6px;--radius-control:10px;--radius-card:16px;--radius-full:999px;--shadow-poster:0 0 0 1px var(--color-poster-shadow);--shadow-card:0 0 0 1px var(--color-line);--shadow-float:0 0 0 1px var(--color-line);}
+html, body { overflow-x: clip; }
+body { margin: 0; }
+*, *::before, *::after { box-sizing: border-box; }
+:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.lt { container: page / inline-size; background: var(--color-page); color: var(--color-ink); font-family: var(--font-ui); font-size: 14px; line-height: 20px; font-synthesis: none; -webkit-font-smoothing: antialiased; accent-color: var(--color-accent); caret-color: var(--color-accent); scrollbar-color: var(--color-outline) var(--color-page); }
+.lt ::selection { background: var(--color-accent); color: var(--color-on-accent); }
+:where(.lt) :where(h1, h2, h3, h4, h5, p, dl, dd, ul, fieldset, legend, figure) { margin: 0; padding: 0; }
+:where(.lt) :where(h1, h2, h3, h4, h5) { text-wrap: balance; }
+:where(.lt) ul { list-style: none; }
+:where(.lt) fieldset { border: 0; min-width: 0; }
+:where(.lt) :where(button, input) { font: inherit; color: inherit; }
+:where(.lt) a { color: inherit; text-decoration: none; }
+.lt svg { display: block; flex-shrink: 0; }
+.num { font-variant-numeric: tabular-nums; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* Type: six sizes. Bricolage carries what a title says; Hanken carries the rest. */
+.t-display { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-height: 34px; letter-spacing: -0.01em; overflow-wrap: break-word; min-width: 0; text-wrap: balance; }
+.t-page { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-height: 34px; letter-spacing: -0.01em; overflow-wrap: break-word; min-width: 0; }
+.t-item { font-family: var(--font-display); font-weight: 700; font-size: 20px; line-height: 26px; overflow-wrap: break-word; min-width: 0; }
+.t-body { font-size: 16px; line-height: 24px; }
+.t-meta { font-size: 14px; line-height: 20px; }
+.t-label { font-size: 12px; line-height: 16px; font-weight: 600; }
+.t-bold { font-weight: 600; }
+.muted { color: var(--color-ink-muted); }
+.link { color: var(--color-accent); text-decoration: underline; text-underline-offset: 3px; }
+.link:hover { color: var(--color-accent-hover); }
+.link:active { color: var(--color-accent-hover); }
+@container page (min-width: 760px) { .t-display { font-size: 40px; line-height: 44px; } }
+
+/* Buttons: the rating control, the two quiet states, the primary (sign in only). */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); height: 40px; padding: 0 var(--space-4); border: 0; border-radius: var(--radius-control); font-size: 14px; font-weight: 600; white-space: nowrap; cursor: pointer; position: relative; background: var(--color-control); color: var(--color-ink); }
+.btn::after { content: ""; position: absolute; inset: -4px 0; }
+.btn:hover, .is-hover.btn { background: var(--color-control-hover); }
+.btn:active { background: var(--color-control-raised); box-shadow: inset 0 0 0 1px var(--color-outline); }
+.btn-primary:active { background: var(--color-accent-hover); box-shadow: none; }
+.btn-primary { background: var(--color-accent); color: var(--color-on-accent); }
+.btn-primary:hover, .is-hover.btn-primary { background: var(--color-accent-hover); }
+.btn[aria-pressed="true"] { background: var(--color-ink); color: var(--color-page); }
+.btn-quiet { background: var(--color-control); padding: 0 var(--space-4); }
+.btn-quiet:not([aria-pressed="true"]):hover { background: var(--color-control-hover); }
+.btn[aria-pressed="true"]:hover { background: var(--color-ink); opacity: 0.9; }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: 0.55; cursor: not-allowed; }
+.is-focus { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+/* The rating control: four steps, each a level meter over its word, so the scale reads without colour. */
+.rate4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border-radius: var(--radius-control); background: var(--color-control); box-shadow: inset 0 0 0 1px var(--color-line); overflow: hidden; }
+.rb + .rb { box-shadow: inset 1px 0 0 var(--color-line); }
+.rb:focus-visible { outline-offset: -3px; }
+.rb[aria-pressed="true"]:focus-visible { outline-color: var(--on-rc); }
+.rb { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 52px; padding: var(--space-1); border: 0; border-radius: 0; background: transparent; color: var(--color-ink); font-size: 14px; line-height: 20px; font-weight: 600; cursor: pointer; }
+.rb svg { color: var(--color-ink); width: 22px; height: 22px; }
+.rb:hover, .rb.is-hover { background: var(--color-control-hover); }
+.rb:active { background: var(--color-control-raised); }
+.rb[aria-pressed="true"] { background: var(--rc); color: var(--on-rc); }
+.rb[aria-pressed="true"] svg { color: var(--on-rc); }
+.rb-awful { --rc: var(--color-awful); --on-rc: var(--color-on-awful); }
+.rb-meh { --rc: var(--color-meh); --on-rc: var(--color-on-meh); }
+.rb-good { --rc: var(--color-good); --on-rc: var(--color-on-good); }
+.rb-amazing { --rc: var(--color-amazing); --on-rc: var(--color-on-amazing); }
+.rb:disabled, .rb[aria-disabled="true"] { opacity: 0.55; cursor: not-allowed; }
+.key { position: absolute; top: 6px; right: 6px; display: none; min-width: 18px; height: 18px; padding: 0 var(--space-1); place-items: center; border-radius: 4px; border: 1px solid var(--color-outline); color: var(--color-ink-muted); font-size: 12px; line-height: 16px; font-weight: 600; }
+.rb[aria-pressed="true"] .key { color: var(--on-rc); border-color: var(--on-rc); }
+@container page (min-width: 760px) { .key.show { display: inline-grid; } }
+.acts2 { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+/* Segmented: the kind filter. The current one is a raised tile on its track. */
+.seg { display: inline-flex; gap: var(--space-1); padding: var(--space-1); border-radius: var(--radius-control); background: var(--color-control); }
+.seg > label { position: relative; display: inline-flex; align-items: center; justify-content: center; height: 36px; padding: 0 var(--space-4); border-radius: 7px; color: var(--color-ink-muted); font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.seg > label::after { content: ""; position: absolute; inset: -4px 0; }
+.seg > label:hover { background: var(--color-control-hover); color: var(--color-ink); }
+.seg > label:active { background: var(--color-control-raised); }
+.seg > label:has(input:checked) { background: var(--color-control-raised); color: var(--color-ink); font-weight: 700; box-shadow: 0 0 0 1px var(--color-outline); }
+.seg > label:has(input:focus-visible) { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.seg input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+
+/* Fields: a visible edge (3:1) that never changes width; focus is an outline. */
+.field { display: flex; align-items: center; gap: var(--space-2); height: 44px; padding: 0 var(--space-3); border: 1px solid var(--color-outline); border-radius: var(--radius-control); background: var(--color-surface-sunk); }
+.field input { flex: 1; min-width: 0; height: 100%; border: 0; background: transparent; outline: 0; font-size: 16px; }
+.field:focus-within { outline: 2px solid var(--color-focus); outline-offset: 1px; }
+.field-error { border-color: var(--color-danger); box-shadow: inset 0 0 0 1px var(--color-danger); }
+.err { display: flex; align-items: flex-start; gap: var(--space-2); color: var(--color-danger); font-weight: 600; }
+
+.facts { display: flex; flex-wrap: wrap; row-gap: 0; }
+.facts > span + span { margin-left: var(--space-2); padding-left: var(--space-2); border-left: 1px solid var(--color-outline); }
+.facts-wrap { display: flex; flex-direction: column; gap: 0; }
+
+/* The poster: a tile with the title set in type, until OMDb has one. */
+.poster { container: poster / inline-size; position: relative; aspect-ratio: 2 / 3; border-radius: var(--radius-poster); box-shadow: var(--shadow-poster); overflow: hidden; flex-shrink: 0; }
+.poster-in { position: absolute; inset: 6cqw; display: flex; flex-direction: column; justify-content: flex-end; padding: 6cqw; border: 1px solid color-mix(in srgb, currentColor 35%, transparent); border-radius: 3px; }
+.poster-title { font-family: var(--font-display); font-weight: 700; font-size: clamp(12px, 15cqw, 30px); line-height: 1.05; overflow-wrap: break-word; min-width: 0; }
+.pt-1 { background: var(--color-poster-1-bg); color: var(--color-poster-1-ink); }
+.pt-2 { background: var(--color-poster-2-bg); color: var(--color-poster-2-ink); }
+.pt-3 { background: var(--color-poster-3-bg); color: var(--color-poster-3-ink); }
+.pt-4 { background: var(--color-poster-4-bg); color: var(--color-poster-4-ink); }
+.pt-5 { background: var(--color-poster-5-bg); color: var(--color-poster-5-ink); }
+.pt-6 { background: var(--color-poster-6-bg); color: var(--color-poster-6-ink); }
+
+/* The shell: a top bar from 760 px of page, a tab bar below it. */
+.topbar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: var(--space-6); height: 56px; padding: 0 var(--space-4); background: var(--color-page); border-bottom: 1px solid var(--color-line); }
+.brand { display: inline-flex; align-items: center; min-height: 48px; gap: var(--space-2); font-family: var(--font-display); font-weight: 700; font-size: 20px; line-height: 26px; letter-spacing: -0.01em; }
+.nav { display: none; }
+.account { margin-left: auto; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); width: 48px; height: 48px; border-radius: var(--radius-full); color: var(--color-ink-muted); font-weight: 600; }
+.account:hover { background: var(--color-control); color: var(--color-ink); }
+.account:active { background: var(--color-control-hover); }
+.nav a:active { color: var(--color-ink); }
+.account-label { display: none; }
+.tabbar { display: none; }
+@container page (min-width: 760px) {
+  .topbar { height: 60px; padding: 0 var(--space-10); }
+  .nav { display: flex; align-self: stretch; gap: var(--space-1); }
+  .nav a { position: relative; display: flex; align-items: center; padding: 0 var(--space-3); color: var(--color-ink-muted); font-size: 14px; font-weight: 600; }
+  .nav a:hover { color: var(--color-ink); }
+  .nav a[aria-current="page"] { color: var(--color-ink); }
+  .nav a[aria-current="page"]::after { content: ""; position: absolute; left: var(--space-3); right: var(--space-3); bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; background: var(--color-ink); }
+  .account { width: auto; height: 40px; padding: 0 var(--space-3); border-radius: var(--radius-control); }
+  .account-label { display: inline; }
+  .phone-only { display: none !important; }
+}
+@container page (max-width: 759px) {
+  .desk-only { display: none !important; }
+  .tabbar { position: sticky; bottom: 0; z-index: 10; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); height: 64px; background: var(--color-page); border-top: 1px solid var(--color-line); }
+  .tabbar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--color-ink-muted); font-size: 12px; line-height: 16px; }
+  .tabbar .pill { display: grid; place-items: center; width: 56px; height: 28px; border-radius: var(--radius-full); }
+  .tabbar a[aria-current="page"] { color: var(--color-ink); font-weight: 600; }
+  .tabbar a[aria-current="page"] .pill { background: var(--color-control); }
+  .co { display: none !important; }
+  .rb { min-height: 48px; gap: 0; }
+  .sb, .btn { height: 48px; }
+  .tc-link, .rc-title a { position: relative; }
+  .tc-link::after, .rc-title a::after { content: ""; position: absolute; inset: -11px 0; }
+  .seg > label { height: 40px; }
+}
+.page { padding: var(--space-8) var(--space-10) var(--space-12); }
+.page-wide { max-width: 1240px; margin: 0 auto; }
+@container page (max-width: 759px) { .page { padding: var(--space-5) var(--space-4) var(--space-8); } }
+.foot { max-width: 1240px; margin: 0 auto; padding: var(--space-6) var(--space-10) var(--space-8); color: var(--color-ink-muted); display: flex; flex-direction: column; gap: var(--space-2); }
+@container page (max-width: 759px) { .foot { padding: var(--space-4) var(--space-4) var(--space-6); } }
+
+/* Notices and floats: light lifts with a shadow, dark with a lighter surface and a hairline. */
+.float { background: var(--color-surface); border-radius: var(--radius-card); box-shadow: var(--shadow-float); }
+
+/* The board's numbered callouts. Annotation only, never part of the app. */
+.co { font-style: normal; position: absolute; z-index: 20; display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: var(--radius-full); background: var(--color-callout); color: var(--color-on-callout); font: 600 12px/1 var(--font-ui); pointer-events: none; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: 1ms !important; animation-duration: 1ms !important; } }
+
+.tp { display: grid; grid-template-columns: 120px minmax(0, 1fr); column-gap: var(--space-4); row-gap: var(--space-6); align-items: start; grid-template-areas: "poster head" "verdict verdict" "plot plot"; }
+.tp-poster { grid-area: poster; position: relative; }
+.tp-head { grid-area: head; display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+.tp-verdict { color: var(--color-ink); grid-area: verdict; position: relative; display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-card); background: var(--color-surface); box-shadow: var(--shadow-card); border: 1px solid var(--color-line); }
+.tp-plot { grid-area: plot; position: relative; display: flex; flex-direction: column; gap: var(--space-2); }
+.tp-plot p { max-width: 62ch; }
+@container page (min-width: 760px) {
+  .tp { grid-template-columns: 260px minmax(0, 1fr); column-gap: var(--space-10); row-gap: var(--space-6); grid-template-areas: "poster head" "poster verdict" "poster plot"; }
+  .tp-verdict { max-width: 640px; padding: var(--space-5); }
+  .tp-poster .poster { width: 260px !important; }
+}
+.genres { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.genres li { padding: var(--space-1) var(--space-3); border-radius: var(--radius-full); background: var(--color-control); font-size: 12px; line-height: 16px; font-weight: 600; }
+.below { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); margin-top: var(--space-8); }
+@container page (min-width: 900px) { .below { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); align-items: start; margin-top: var(--space-10); } }
+.scores { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.scores li { display: flex; flex-direction: column; gap: 2px; padding: 0 var(--space-3); }
+.scores li:first-child { padding-left: 0; }
+.scores li + li { border-left: 1px solid var(--color-line); }
+.score-v { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-height: 34px; }
+.sect { color: var(--color-ink); display: flex; flex-direction: column; gap: var(--space-3); position: relative; padding: var(--space-5); border-radius: var(--radius-card); background: var(--color-surface); box-shadow: var(--shadow-card); border: 1px solid var(--color-line); }
+.dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--space-2) var(--space-6); }
+.dl dd { font-weight: 600; }
+@container page (max-width: 759px) { .score-v { font-size: 20px; line-height: 26px; } .scores li { padding: 0 var(--space-2); } .sect { padding: var(--space-4); } }
+</style>
+</helmet>
+<div class="{{themeClass}}" style="min-height: 800px">
+<header class="topbar">
+<a href="#" class="brand" aria-label="Lantern, home"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5.5V4a3 3 0 0 1 6 0v1.5"></path><path d="M7 5.5h10l1.2 4.5v6.2a2 2 0 0 1-2 2H7.8a2 2 0 0 1-2-2V10z"></path><path d="M8.5 20.2h7"></path><path d="M12 9.2c1.4 1.5 2 2.5 2 3.6a2 2 0 0 1-4 0c0-1.1.6-2.1 2-3.6z" fill="var(--color-accent)" stroke="none"></path></svg><span>Lantern</span></a>
+<nav class="nav" aria-label="Sections"><a href="#">Suggestions</a><a href="#">Rate</a><a href="#">Watchlist</a><a href="#">Ratings</a><a href="#">Search</a></nav>
+<a href="#" class="account" aria-label="Account"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"></path></svg><span class="account-label">Account</span></a>
+</header>
+<main class="page page-wide">
+<article class="tp">
+<div class="tp-poster"><i class="co" aria-hidden="true" style="top: 4px; left: -36px">4</i><div class="poster pt-2" style="width: 260px; width: 100%" aria-hidden="true"><div class="poster-in"><span class="poster-title">Distant Harbour</span></div></div></div>
+<header class="tp-head">
+<h1 class="t-display">Distant Harbour</h1>
+<div class="facts-wrap t-body muted"><p class="facts"><span>2017 to 2020</span><span>Series</span></p><p class="facts"><span>3 seasons</span><span>TV-14</span></p></div>
+<ul class="genres" aria-label="Genres"><li>Comedy</li><li>Romance</li></ul>
+<p class="t-body num"><span class="t-bold">IMDb 7.9</span> <span class="muted">from 218K votes</span></p>
+<p class="t-meta"><a class="link" href="#" style="display: inline-flex; align-items: center; gap: var(--space-1); min-height: 48px">Open on IMDb<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg></a></p>
+</header>
+<section class="tp-verdict" aria-labelledby="verdict-h"><i class="co" aria-hidden="true" style="top: 14px; left: -36px">1</i>
+<h2 class="t-item" id="verdict-h">Your verdict</h2>
+<div class="rate4" role="group" aria-label="Your verdict on Distant Harbour"><button type="button" class="rb rb-awful" aria-pressed="false"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="16" width="3.5" height="7" rx="1" fill="currentColor" stroke="none"></rect><rect x="7.5" y="12" width="3.5" height="11" rx="1" fill="currentColor" stroke="none" opacity="0.3"></rect><rect x="13" y="7" width="3.5" height="16" rx="1" fill="currentColor" stroke="none" opacity="0.3"></rect><rect x="18.5" y="2" width="3.5" height="21" rx="1" fill="currentColor" stroke="none" opacity="0.3"></rect></svg><span>Awful</span></button><button type="button" class="rb rb-meh" aria-pressed="true"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="16" width="3.5" height="7" rx="1" fill="currentColor" stroke="none"></rect><rect x="7.5" y="12" width="3.5" height="11" rx="1" fill="currentColor" stroke="none"></rect><rect x="13" y="7" width="3.5" height="16" rx="1" fill="currentColor" stroke="none" opacity="0.3"></rect><rect x="18.5" y="2" width="3.5" height="21" rx="1" fill="currentColor" stroke="none" opacity="0.3"></rect></svg><span>Meh</span></button><button type="button" class="rb rb-good" aria-pressed="false"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="16" width="3.5" height="7" rx="1" fill="currentColor" stroke="none"></rect><rect x="7.5" y="12" width="3.5" height="11" rx="1" fill="currentColor" stroke="none"></rect><rect x="13" y="7" width="3.5" height="16" rx="1" fill="currentColor" stroke="none"></rect><rect x="18.5" y="2" width="3.5" height="21" rx="1" fill="currentColor" stroke="none" opacity="0.3"></rect></svg><span>Good</span></button><button type="button" class="rb rb-amazing" aria-pressed="false"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="16" width="3.5" height="7" rx="1" fill="currentColor" stroke="none"></rect><rect x="7.5" y="12" width="3.5" height="11" rx="1" fill="currentColor" stroke="none"></rect><rect x="13" y="7" width="3.5" height="16" rx="1" fill="currentColor" stroke="none"></rect><rect x="18.5" y="2" width="3.5" height="21" rx="1" fill="currentColor" stroke="none"></rect></svg><span>Amazing</span></button></div>
+<div class="acts2"><button type="button" class="btn btn-quiet sb" aria-pressed="false"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"></path></svg>Want to watch</button><button type="button" class="btn btn-quiet sb" aria-pressed="false"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><path d="M6 6l12 12"></path></svg>Not interested</button></div>
+</section>
+<section class="tp-plot" aria-labelledby="plot-h"><i class="co" aria-hidden="true" style="top: 2px; left: -36px">2</i>
+<h2 class="t-item" id="plot-h">Plot</h2>
+<p class="t-body">A chef returns to the valley she left, and the first dinner she cooks is for the whole village.</p>
+</section>
+</article>
+<div class="below">
+<section class="sect" aria-labelledby="scores-h"><i class="co" aria-hidden="true" style="top: 18px; left: -36px">3</i>
+<h2 class="t-item" id="scores-h">Scores</h2>
+<ul class="scores num">
+<li><span class="score-v">7.9/10</span><span class="t-meta t-bold">IMDb</span><span class="t-label muted">218K votes</span></li>
+<li><span class="score-v">97%</span><span class="t-meta t-bold">Rotten Tomatoes</span></li>
+<li><span class="score-v">82/100</span><span class="t-meta t-bold">Metacritic</span></li>
+</ul>
+<p class="t-label muted">Scores and details from <a class="link" href="https://www.omdbapi.com/">OMDb</a>.</p>
+</section>
+<section class="sect" aria-labelledby="details-h">
+<h2 class="t-item" id="details-h">Details</h2>
+<dl class="dl t-body"><dt class="muted">Created by</dt><dd>Hugo Sarre</dd></dl>
+</section>
+</div>
+</main>
+<footer class="foot t-meta">
+<p>Lantern, for rating films and series and finding the next one.</p>
+<p>Information courtesy of IMDb (<a class="link" href="https://www.imdb.com">https://www.imdb.com</a>). Used with permission.</p>
+</footer>
+<nav class="tabbar" aria-label="Sections"><a href="#"><span class="pill"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4l1.8 4.7L16.5 10.5l-4.7 1.8L10 17l-1.8-4.7L3.5 10.5l4.7-1.8z"></path><path d="M18 3v4M16 5h4M18.5 15v4M16.5 17h4"></path></svg></span><span>Suggestions</span></a><a href="#"><span class="pill"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="6" width="14" height="15" rx="2.5"></rect><path d="M8 3h8"></path></svg></span><span>Rate</span></a><a href="#"><span class="pill"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"></path></svg></span><span>Watchlist</span></a><a href="#"><span class="pill"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9 6.8 19.7l1-5.9L3.5 9.7l5.9-.8z"></path></svg></span><span>Ratings</span></a><a href="#"><span class="pill"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M16.5 16.5L21 21"></path></svg></span><span>Search</span></a></nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"dark"},"$preview":{"width":390,"height":1134}}'>
+class Component extends DCLogic {
+renderVals() {
+const t = this.props.theme ?? 'dark';
+return { themeClass: t === 'dark' ? 'theme-dark lt' : 'theme-light lt' };
+}
+}
+</script>
+</body>
+</html>

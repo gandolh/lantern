@@ -300,3 +300,7 @@ Vendored ward-auth 1.1.0 into both copies (0.7.0 before). The account page got a
 field beside Link Ward; a wrong password or too many tries shows beside it. New server tests cover the link
 without, with a wrong and with the right password; a web test covers the call and the message. Deploy: server
 and web.
+
+## [2026-11-20] maintenance | The redesign's board page copied into the repo
+
+The estate redesign board is a private canvas, so `design/estate-redesign/` now holds a copy of this app's page on it and the build behind it: the directions, the judges' and the controller's rulings, the critique, the token hand-off, the board's notes, the owner's decisions, the proposed screens (as HTML with renders, or as the board's own artboard sources), and today's shots from before the redesign. It is the design record of brief 19, which built it; its README says what each file is. Prettier and the Docker build skip the folder.
