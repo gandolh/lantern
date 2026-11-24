@@ -8,6 +8,9 @@ paths:
 - Read the `base-ui` skill before you add or change a component. Base UI goes only through
   `web/src/components/ui/` wrappers (`RadioGroup`, `ToggleGroup`, `Tabs`, `Button`), imported from subpaths;
   what each widget is made of is in [web-app](../../corpus/wiki/web-app.md).
+- Browsers: Chrome on Android decides what to build; Safari on iPhone,
+  Firefox and desktop Safari must keep working. Before you use a platform
+  feature newer than Baseline Widely available, read the `web-platform` skill.
 - A filter is a `RadioGroup` (arrows choose), a picker that saves is the guarded `ToggleGroup` (arrows
   move focus only), tabs are `Tabs`. The swipe card, the rating actions, the undo notice and text
   inputs stay hand-built or native.
