@@ -310,3 +310,10 @@ The estate redesign board is a private canvas, so `design/estate-redesign/` now 
 Filed from the estate's infra review. The image's `deps` stage installs only the server's closure instead of
 every workspace (about 64 MB less build cache per cold build on the box), and every base is pinned to
 `node:24.22.1-alpine`. The image that runs doesn't change. Ships with `node cli.ts lantern server`.
+
+## [2026-11-24] brief | 21 The image's build stage installs only the server, on a pinned base
+
+Built. `deps` runs `npm ci -w @lantern/server --include-workspace-root` (350 → 288 MB of `node_modules`; the
+`deps` stage image 946 → 892 MB), and every stage is on `node:24.22.1-alpine`. The final image is 209 MB (207
+before) and turned healthy on scratch data. Ready for deploy: `node cli.ts lantern server`. See
+[briefs/done/21-the-images-build-stage-installs-only-the-server.md](briefs/done/21-the-images-build-stage-installs-only-the-server.md).

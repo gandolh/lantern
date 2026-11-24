@@ -93,3 +93,5 @@ In this order; the details are in `docs/owner-setup.md`.
 6. In the container: import the titles (`node server/dist/features/pool/cli.js`, step 6), then seed your
    account and link Ward (step 7). Repeat the import about monthly.
 7. Choose a licence for the public repo, if any (none is set).
+8. For brief 21 (2026-11-24): `node cli.ts lantern server`. The image's build stage installs only the
+   server, on `node:24.22.1-alpine`; the image that runs is the same within a few megabytes.
