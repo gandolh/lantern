@@ -317,3 +317,9 @@ Built. `deps` runs `npm ci -w @lantern/server --include-workspace-root` (350 →
 `deps` stage image 946 → 892 MB), and every stage is on `node:24.22.1-alpine`. The final image is 209 MB (207
 before) and turned healthy on scratch data. Ready for deploy: `node cli.ts lantern server`. See
 [briefs/done/21-the-images-build-stage-installs-only-the-server.md](briefs/done/21-the-images-build-stage-installs-only-the-server.md).
+
+## [2026-11-25] todo | Brief 22: the colour mode is kept under Lantern's own key
+
+Filed from the owner's report that the colour-mode picker acts across apps. Lantern and six other apps on the shared
+domain keep the choice under the bare `theme` key; it moves to `lantern.theme`, carrying the old value over once.
+Ships with `node cli.ts lantern all`.
