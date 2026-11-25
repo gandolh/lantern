@@ -322,4 +322,4 @@ before) and turned healthy on scratch data. Ready for deploy: `node cli.ts lante
 
 Filed from the owner's report that the colour-mode picker acts across apps. Lantern and six other apps on the shared
 domain keep the choice under the bare `theme` key; it moves to `lantern.theme`, carrying the old value over once.
-Ships with `node cli.ts lantern all`.
+Ships with `node cli.ts lantern deploy`.
