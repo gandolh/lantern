@@ -45,10 +45,33 @@ describe("theme", () => {
 
   it.each(["light", "dark", "system"] as const)("puts a stored %s on <html> when the page loads", async (stored) => {
     systemPrefers("light");
-    localStorage.setItem("theme", stored);
+    localStorage.setItem("lantern.theme", stored);
     await load();
     expect(html.dataset.theme).toBe(stored);
   });
+
+  it("prefers lantern.theme over the bare theme key", async () => {
+    systemPrefers("light");
+    localStorage.setItem("lantern.theme", "light");
+    localStorage.setItem("theme", "dark");
+    await load();
+    expect(html.dataset.theme).toBe("light");
+    expect(localStorage.getItem("theme")).toBe("dark");
+  });
+
+  it.each(["light", "dark", "system"] as const)(
+    "carries a bare %s over once, never touching the bare key",
+    async (old) => {
+      systemPrefers("light");
+      localStorage.setItem("theme", old);
+      const { setTheme } = await load();
+      expect(html.dataset.theme).toBe(old);
+      expect(localStorage.getItem("lantern.theme")).toBe(old);
+      expect(localStorage.getItem("theme")).toBe(old);
+      setTheme("light");
+      expect(localStorage.getItem("theme")).toBe(old);
+    },
+  );
 
   it("is light on a first visit even when the system is dark", async () => {
     systemPrefers("dark");
@@ -59,6 +82,7 @@ describe("theme", () => {
 
   it("is light when the stored value is not a theme, or storage throws", async () => {
     systemPrefers("dark");
+    localStorage.setItem("lantern.theme", "sepia");
     localStorage.setItem("theme", "sepia");
     await load();
     expect(html.dataset.theme).toBe("light");
@@ -74,7 +98,8 @@ describe("theme", () => {
     const { setTheme, THEME_COLOR } = await load();
     setTheme("dark");
     expect(html.dataset.theme).toBe("dark");
-    expect(localStorage.getItem("theme")).toBe("dark");
+    expect(localStorage.getItem("lantern.theme")).toBe("dark");
+    expect(localStorage.getItem("theme")).toBeNull();
     expect(bar()).toBe(THEME_COLOR.dark);
   });
 

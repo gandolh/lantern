@@ -36,7 +36,7 @@ describe("the theme switch", () => {
     render(<ThemeSwitch />);
     await userEvent.setup().click(screen.getByRole("radio", { name: "Dark" }));
     expect(document.documentElement.dataset.theme).toBe("dark");
-    expect(localStorage.getItem("theme")).toBe("dark");
+    expect(localStorage.getItem("lantern.theme")).toBe("dark");
     expect(checked("Dark")).toBe(true);
   });
 
@@ -48,7 +48,7 @@ describe("the theme switch", () => {
   });
 
   it("shows a stored choice when the page loads", async () => {
-    localStorage.setItem("theme", "dark");
+    localStorage.setItem("lantern.theme", "dark");
     const { ThemeSwitch } = await load();
     render(<ThemeSwitch />);
     expect(checked("Dark")).toBe(true);

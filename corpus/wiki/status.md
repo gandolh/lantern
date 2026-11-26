@@ -56,7 +56,8 @@ on the shared machine. 104 tests; typecheck and lint clean. The owner pushes.
   as one ranked column of horizontal cards, the rating bar of four level meters, and the Light / Dark / System
   switch on the account page ([docs/design.md](../../docs/design.md), [web-app.md](web-app.md)). Contrast
   is tested over the tokens and Playwright specs cover the focus ring, reduced motion, 390 px overflow, the
-  theme switch and the swipe card. Built, not deployed.
+  theme switch and the swipe card. Built, not deployed. The mode is kept under `lantern.theme`, carrying a bare
+  `theme` over once (2026-11-26).
 - **Research** (2026-10-28 to 2026-11-04, done). taste.io and the stack in
   [research.md](research.md); TMDB and OMDb, their endpoints and terms, in
   [sources.md](sources.md). No real call made yet.
@@ -95,3 +96,5 @@ In this order; the details are in `docs/owner-setup.md`.
 7. Choose a licence for the public repo, if any (none is set).
 8. For brief 21 (2026-11-24): `node cli.ts lantern server`. The image's build stage installs only the
    server, on `node:24.22.1-alpine`; the image that runs is the same within a few megabytes.
+9. For the colour-mode key (2026-11-26): `node cli.ts lantern deploy` (the web build only; no server restart). On
+   the first load after it, Lantern takes the mode last picked in any app, once; from then on it keeps its own.

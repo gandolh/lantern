@@ -6,13 +6,19 @@
     <meta name="theme-color" content="#f6f2ec" />
     <script>
       // The saved theme before the first paint, so a dark choice never flashes light; light on a first visit, even
-      // when the system is dark. src/theme.ts keeps the same key and these colours (the page colour of each theme),
+      // when the system is dark. src/theme.ts keeps the same keys and these colours (the page colour of each theme),
       // and takes over once the page loads.
       (function () {
         var colors = { light: "#f6f2ec", dark: "#14110f" };
         var theme = "light";
         try {
-          var stored = localStorage.getItem("theme");
+          var stored = localStorage.getItem("lantern.theme");
+          if (stored !== "light" && stored !== "dark" && stored !== "system") {
+            // The bare "theme" key older builds used: read once to carry the choice over, never written.
+            var legacy = localStorage.getItem("theme");
+            stored = legacy === "light" || legacy === "dark" || legacy === "system" ? legacy : null;
+            if (stored) localStorage.setItem("lantern.theme", stored);
+          }
           if (stored === "dark" || stored === "system") theme = stored;
         } catch (error) {
           // Storage is blocked: light.
