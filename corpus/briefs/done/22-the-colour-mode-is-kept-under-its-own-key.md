@@ -70,3 +70,9 @@ All settled. None of them is open.
 
 - Settled 2026-11-25 (owner): "color-mode picker should be per app, not per ward account." The key, the carry-over
   and the legacy name are the controller's calls, the same in all seven apps.
+
+## Outcome
+
+Done 2026-11-26. The boot script and the store use `lantern.theme` and carry a valid bare `theme` over once, writing
+only the new key. The store's tests and the e2e seeds use the new key. No open question changed. brief-board was not
+available in the session, so the board was not updated.

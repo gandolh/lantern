@@ -75,7 +75,7 @@ components, utilities`; nothing third-party is imported.
   the titles and figures; both load from `@fontsource-variable` in `main.tsx`.
 - **Themes.** Each colour token is `light-dark(light, dark)`. `color-scheme` on `<html>` picks one:
   `light` by default, `dark` for `data-theme="dark"`, `light dark` for `system`, which then follows the
-  operating system with no script. Dark has no shadows: a card is a lighter surface with a `line` ring. The choice lives in `localStorage` (`theme`); `web/index.html`'s boot
+  operating system with no script. Dark has no shadows: a card is a lighter surface with a `line` ring. The choice lives in `localStorage` under `lantern.theme` (one origin serves every app, so a bare `theme` key would be shared); the old bare `theme` is read once, when `lantern.theme` is empty, to carry the choice over, and never written or deleted. `web/index.html`'s boot
   script sets the attribute and the one `theme-color` meta before the first paint, and `web/src/theme.ts`
   takes over (it also moves the meta when System follows a change). `dark:` is keyed off the same attribute
   but no class name uses it.

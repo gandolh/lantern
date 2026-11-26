@@ -323,3 +323,12 @@ before) and turned healthy on scratch data. Ready for deploy: `node cli.ts lante
 Filed from the owner's report that the colour-mode picker acts across apps. Lantern and six other apps on the shared
 domain keep the choice under the bare `theme` key; it moves to `lantern.theme`, carrying the old value over once.
 Ships with `node cli.ts lantern deploy`.
+
+## [2026-11-26] brief | 22 The colour mode is kept under Lantern's own key
+
+Built. The boot script and `web/src/theme.ts` keep the mode under `lantern.theme`. When it holds nothing valid, both
+read the bare `theme` once (`LEGACY_THEME_KEY` in the store), use a valid value and write it to `lantern.theme`; the
+bare key is never written or deleted. Store tests cover carry-over, the own key winning, the bare key staying
+untouched and unknown values reading as light; the e2e specs seed the new key. The board was not updated because
+brief-board was not available in this session. Ships with `node cli.ts lantern deploy`. See
+[briefs/done/22-the-colour-mode-is-kept-under-its-own-key.md](briefs/done/22-the-colour-mode-is-kept-under-its-own-key.md).

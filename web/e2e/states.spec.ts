@@ -144,7 +144,7 @@ plain.describe("the gate", () => {
   for (const size of SIZES) {
     plain(`loading and unreachable, ${size.theme} ${size.width}`, async ({ page }) => {
       await page.setViewportSize({ width: size.width, height: size.height });
-      await page.addInitScript((value) => localStorage.setItem("theme", value), size.theme);
+      await page.addInitScript((value) => localStorage.setItem("lantern.theme", value), size.theme);
       await page.route("**/lantern-api/auth/session", hang);
       await page.goto("/lantern/");
       await expect(page.getByText("Loading…")).toBeVisible();

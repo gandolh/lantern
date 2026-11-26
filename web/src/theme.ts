@@ -3,8 +3,10 @@ import { useSyncExternalStore } from "react";
 /** The theme the user picked. `system` follows the operating system, live, through CSS. */
 export type Theme = "light" | "dark" | "system";
 
-/** The localStorage key, which index.html's boot script reads too. */
-const KEY = "theme";
+/** The app's own localStorage key, which index.html's boot script reads too. One origin serves every app, so the name carries the app's. */
+const KEY = "lantern.theme";
+/** The bare key older builds used: read once to carry the choice over, never written or deleted. */
+const LEGACY_THEME_KEY = "theme";
 
 /**
  * The page colour in each theme, for the browser's `<meta name="theme-color">`, which can't read the stylesheet.
@@ -21,7 +23,11 @@ function isTheme(value: unknown): value is Theme {
 function saved(): Theme {
   try {
     const value = localStorage.getItem(KEY);
-    return isTheme(value) ? value : "light";
+    if (isTheme(value)) return value;
+    const legacy = localStorage.getItem(LEGACY_THEME_KEY);
+    if (!isTheme(legacy)) return "light";
+    localStorage.setItem(KEY, legacy);
+    return legacy;
   } catch {
     return "light";
   }

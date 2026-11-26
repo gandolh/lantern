@@ -66,7 +66,7 @@ plain.describe("signed out", () => {
     for (const size of WIDTHS) {
       plain(`login ${theme} ${size.width}`, async ({ browser }) => {
         const context = await browser.newContext({ viewport: size });
-        await context.addInitScript((value) => localStorage.setItem("theme", value), theme);
+        await context.addInitScript((value) => localStorage.setItem("lantern.theme", value), theme);
         const page = await context.newPage();
         await page.goto("/lantern/");
         await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();

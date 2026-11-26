@@ -98,7 +98,7 @@ export const test = base.extend<{ theme: "light" | "dark" | "system" | "unset" }
     });
     expect(response.ok()).toBe(true);
     // "unset" leaves the first-visit state alone, so a spec can set a theme itself and see it kept.
-    if (theme !== "unset") await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
+    if (theme !== "unset") await page.addInitScript((value) => localStorage.setItem("lantern.theme", value), theme);
     await stubApi(page);
     await use(page);
   },
